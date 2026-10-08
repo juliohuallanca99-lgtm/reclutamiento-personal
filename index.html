@@ -27,6 +27,23 @@ body{
 }
 h1,h2,legend,.marca{font-family:'Barlow Condensed','Barlow',sans-serif;letter-spacing:.01em}
 
+/* ---------- acceso del personal ---------- */
+/* Discreto a propósito: el postulante no debe confundirlo con el
+   formulario. Es una puerta de servicio, no la entrada principal. */
+.cinta{
+  max-width:1180px;margin:0 auto;padding:16px 20px 0;
+  display:flex;justify-content:flex-end;
+}
+@media(min-width:960px){.cinta{padding:24px 32px 0}}
+.acceso{
+  font:500 13px/1 'Barlow',sans-serif;color:var(--steel);
+  text-decoration:none;padding:9px 15px;border:1px solid var(--rule);
+  border-radius:3px;white-space:nowrap;
+  transition:color .12s,border-color .12s;
+}
+.acceso:hover{color:var(--ink);border-color:var(--ink)}
+.acceso:focus-visible{outline:2px solid var(--rojo);outline-offset:2px}
+
 /* ---------- estructura ---------- */
 .envoltura{display:grid;grid-template-columns:1fr;gap:0;max-width:1180px;margin:0 auto}
 @media(min-width:960px){
@@ -144,6 +161,10 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 </style>
 </head>
 <body>
+
+<header class="cinta">
+  <a class="acceso" href="/panel.html">Acceso Recursos Humanos</a>
+</header>
 
 <div class="envoltura">
 
@@ -403,6 +424,19 @@ const cargarSubida = () => import('https://esm.sh/@vercel/blob@0.27.0/client');
 
 const $ = id => document.getElementById(id);
 
+// Si una función falla al arrancar, Vercel responde una página de error
+// en vez de JSON. Sin esto, el postulante vería un error crudo de
+// JavaScript en pantalla.
+async function leerJson(r) {
+  const texto = await r.text();
+  try {
+    return JSON.parse(texto);
+  } catch {
+    console.error('respuesta no-JSON del servidor:', r.status, texto.slice(0, 200));
+    return { error: 'El servicio no está disponible en este momento. Escribe tus datos a mano.' };
+  }
+}
+
 /* ---- ubigeo encadenado (INEI, 25 departamentos / 196 provincias / 1874 distritos) ---- */
 let UBIGEO = null;
 
@@ -527,7 +561,7 @@ $('btnDni').addEventListener('click', async () => {
 
   try {
     const r = await fetch('/api/dni?numero=' + dni);
-    const d = await r.json();
+    const d = await leerJson(r);
     if (!r.ok) throw new Error(d.error || 'Sin respuesta');
 
     $('nombres').value    = d.nombres;
@@ -663,7 +697,7 @@ $('formulario').addEventListener('submit', async e => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fila)
     });
-    const data = await r.json();
+    const data = await leerJson(r);
     if (!r.ok) throw new Error(data.error || 'Sin respuesta');
 
     $('codigoListo').textContent = data.codigo;
