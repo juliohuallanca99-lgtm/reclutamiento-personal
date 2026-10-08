@@ -33,6 +33,9 @@ h1,h2,.marca,th,button,.pastilla{font-family:'Barlow Condensed','Barlow',sans-se
 .tarjeta button:hover{background:#a60d26}
 .tarjeta button:disabled{background:var(--steel);cursor:progress}
 .tarjeta .fallo{color:var(--rojo);font-size:13.5px;margin-top:13px;min-height:19px}
+.enlace-cuentas{margin:14px 0 0;font-size:13.5px;text-align:center}
+.enlace-cuentas a{color:var(--steel);text-decoration:none;border-bottom:1px solid var(--rule)}
+.enlace-cuentas a:hover{color:var(--ink);border-bottom-color:var(--ink)}
 
 /* ---------- panel ---------- */
 .panel{display:none}
@@ -41,9 +44,10 @@ header{background:var(--ink);color:#fff;padding:14px 22px;display:flex;align-ite
 header .marca{font-size:12px;font-weight:600;letter-spacing:.16em;color:#9aa5ac}
 header h1{font-size:23px;font-weight:600;margin:0;flex:1}
 header .quien{font-size:13.5px;color:#9aa5ac}
-header button{background:none;border:1px solid #4a5258;color:#fff;padding:7px 15px;border-radius:3px;
-  font:600 13px/1 'Barlow Condensed';letter-spacing:.1em;cursor:pointer}
-header button:hover{border-color:#fff}
+header button,header .boton-cabecera{background:none;border:1px solid #4a5258;color:#fff;padding:7px 15px;
+  border-radius:3px;font:600 13px/1 'Barlow Condensed';letter-spacing:.1em;cursor:pointer;
+  text-decoration:none;display:inline-block}
+header button:hover,header .boton-cabecera:hover{border-color:#fff}
 
 .barra{background:var(--paper);border-bottom:1px solid var(--rule);padding:15px 22px;
   display:flex;gap:13px;align-items:flex-end;flex-wrap:wrap;position:sticky;top:0;z-index:5}
@@ -112,6 +116,7 @@ a.cv:hover{border-bottom-color:var(--rojo)}
     <input type="password" id="clave" autocomplete="current-password">
     <button type="submit" id="btnIngresar">INGRESAR</button>
     <div class="fallo" id="fallo"></div>
+    <p class="enlace-cuentas"><a href="/cuentas.html">Crear la primera cuenta</a></p>
   </form>
 </div>
 
@@ -124,6 +129,7 @@ a.cv:hover{border-bottom-color:var(--rojo)}
     </div>
     <div class="espacio" style="flex:1"></div>
     <span class="quien" id="quien"></span>
+    <a class="boton-cabecera" href="/cuentas.html">CUENTAS</a>
     <button id="btnSalir">SALIR</button>
   </header>
 
