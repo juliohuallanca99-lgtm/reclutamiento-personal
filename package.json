@@ -1,0 +1,11 @@
+{
+  "name": "reclutamiento-personal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "@vercel/blob": "^0.27.0",
+    "exceljs": "^4.4.0"
+  }
+}
