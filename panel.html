@@ -325,7 +325,7 @@ function pintar(filas) {
       <td>${limpio(f.celular)}</td>
       <td>${limpio(f.correo)}</td>
       <td>${soles(f.expectativa_salarial)}</td>
-      <td>${f.cv_url ? `<a class="cv" href="${limpio(f.cv_url)}" target="_blank" rel="noopener">Abrir</a>` : ''}</td>
+      <td>${(f.cv_pathname || f.cv_url) ? `<a class="cv" href="/api/cv?id=${f.id}" target="_blank" rel="noopener">Abrir</a>` : ''}</td>
       <td></td>
       <td></td>`;
 

@@ -420,7 +420,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 // La librería de subida se carga recién al enviar. Si se importara aquí
 // arriba y el CDN no respondiera, se caería todo el script y el
 // formulario quedaría inservible.
-const cargarSubida = () => import('https://esm.sh/@vercel/blob@0.27.0/client');
+const cargarSubida = () => import('https://esm.sh/@vercel/blob@2.8.1/client');
 
 const $ = id => document.getElementById(id);
 
@@ -653,13 +653,21 @@ $('formulario').addEventListener('submit', async e => {
     const doc = $('num_doc').value.trim();
 
     btn.textContent = 'SUBIENDO CV…';
-    const { upload } = await cargarSubida();
-    const ruta = new Date().getFullYear() + '/' + doc + '.pdf';
-    const subido = await upload(ruta, archivoCv, {
-      access: 'public',
-      contentType: 'application/pdf',
-      handleUploadUrl: '/api/subir-cv'
-    });
+    let subido;
+    try {
+      const { upload } = await cargarSubida();
+      const ruta = new Date().getFullYear() + '/' + doc + '.pdf';
+      subido = await upload(ruta, archivoCv, {
+        access: 'private',
+        contentType: 'application/pdf',
+        handleUploadUrl: '/api/subir-cv'
+      });
+    } catch (fallo) {
+      // La librería devuelve mensajes técnicos en inglés. El postulante
+      // no debe verlos; el detalle queda en la consola para depurar.
+      console.error('subida del CV:', fallo);
+      throw new Error('No se pudo subir el currículum. Revisa tu conexión e inténtalo de nuevo.');
+    }
 
     btn.textContent = 'ENVIANDO…';
     const fila = {
@@ -688,7 +696,7 @@ $('formulario').addEventListener('submit', async e => {
       fuente_reclutamiento: $('fuente').value || null,
       expectativa_salarial: Number($('expectativa').value),
       disponibilidad_inmediata: $('disponibilidad').checked,
-      cv_url: subido.url,
+      cv_pathname: subido.pathname,
       cv_nombre: archivoCv.name
     };
 

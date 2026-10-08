@@ -169,3 +169,26 @@ create table if not exists cache_identidad (
 
 -- Purga lo vencido. Conviene correrla de vez en cuando.
 -- delete from cache_identidad where guardado_en < now() - interval '30 days';
+
+-- ---------- 8. CV en almacenamiento privado ----------------------
+-- Los CV dejan de ser públicos: se leen por su ruta interna desde
+-- /api/cv, que exige sesión de RR.HH. La dirección del archivo
+-- nunca sale del servidor.
+alter table postulantes
+  add column if not exists cv_pathname text;
+
+-- cv_url deja de ser obligatorio: las postulaciones nuevas guardan la
+-- ruta privada en cv_pathname y ya no tienen enlace público. Sin esto,
+-- ninguna postulación nueva podría guardarse.
+alter table postulantes
+  alter column cv_url drop not null;
+
+-- Al menos uno de los dos debe existir.
+alter table postulantes
+  drop constraint if exists postulantes_cv_presente;
+alter table postulantes
+  add constraint postulantes_cv_presente
+  check (cv_pathname is not null or cv_url is not null);
+
+-- Los CV subidos antes de este cambio siguen con su enlace público
+-- en cv_url. Los nuevos guardan la ruta en cv_pathname.
