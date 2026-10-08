@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Postula a JJC — Proyecto CC0174</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16191c;
+  --steel:#5b6770;
+  --rule:#d6dbde;
+  --field:#f3f5f6;
+  --paper:#ffffff;
+  --rojo:#c8102e;
+  --ok:#1c7a4b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font:400 16px/1.55 'Barlow',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,legend,.marca{font-family:'Barlow Condensed','Barlow',sans-serif;letter-spacing:.01em}
+
+/* ---------- estructura ---------- */
+.envoltura{display:grid;grid-template-columns:1fr;gap:0;max-width:1180px;margin:0 auto}
+@media(min-width:960px){
+  .envoltura{grid-template-columns:340px 1fr;gap:64px;padding:0 32px}
+}
+
+/* ---------- rail izquierdo ---------- */
+.rail{padding:32px 20px 8px}
+@media(min-width:960px){
+  .rail{position:sticky;top:0;height:100vh;padding:56px 0 32px;display:flex;flex-direction:column}
+}
+.marca{font-size:13px;font-weight:600;color:var(--rojo);letter-spacing:.18em}
+.rail h1{
+  font-size:clamp(38px,6vw,58px);font-weight:700;line-height:.96;
+  margin:14px 0 16px;text-wrap:balance;
+}
+.rail p{color:var(--steel);font-size:15px;max-width:34ch;margin:0}
+.indice{margin-top:auto;padding-top:40px;display:none}
+@media(min-width:960px){.indice{display:block}}
+.indice ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.indice li{
+  display:flex;gap:14px;align-items:baseline;
+  padding:11px 0;border-bottom:1px solid var(--rule);
+  font-size:14px;color:var(--steel);
+}
+.indice li b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.indice li.activo{color:var(--ink)}
+.indice li.activo::marker{color:var(--rojo)}
+.indice li.activo b{color:var(--rojo)}
+
+/* ---------- formulario ---------- */
+.formulario{padding:8px 20px 80px;max-width:720px}
+@media(min-width:960px){.formulario{padding:56px 0 96px}}
+fieldset{border:0;margin:0 0 8px;padding:0}
+legend{
+  font-size:15px;font-weight:600;letter-spacing:.16em;
+  padding:0 0 10px;width:100%;border-bottom:2px solid var(--ink);
+  margin-bottom:26px;
+}
+.fila{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:18px}
+@media(min-width:620px){
+  .fila.dos{grid-template-columns:1fr 1fr}
+  .fila.tres{grid-template-columns:1fr 1fr 1fr}
+  .fila.doc{grid-template-columns:0.8fr 1.2fr}
+}
+label{display:block;font-size:13.5px;font-weight:500;color:var(--steel);margin-bottom:6px}
+label .req{color:var(--rojo)}
+input[type=text],input[type=email],input[type=tel],input[type=date],
+input[type=number],select,textarea{
+  width:100%;padding:11px 12px;font:400 15.5px/1.4 'Barlow',sans-serif;color:var(--ink);
+  background:var(--field);border:1px solid transparent;border-bottom:1px solid var(--rule);
+  border-radius:3px 3px 0 0;transition:border-color .12s,background .12s;
+}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--steel) 50%),linear-gradient(135deg,var(--steel) 50%,transparent 50%);background-position:calc(100% - 18px) 19px,calc(100% - 13px) 19px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:38px}
+input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);border-color:var(--ink);border-bottom-width:2px;padding-bottom:10px}
+input:focus-visible,select:focus-visible{outline:2px solid var(--rojo);outline-offset:2px}
+.error input,.error select{border-bottom-color:var(--rojo)}
+.aviso{display:none;font-size:13px;color:var(--rojo);margin-top:5px}
+.error .aviso{display:block}
+.ayuda{font-size:13px;color:var(--steel);margin-top:5px}
+
+/* consulta de DNI */
+.busca{display:flex;gap:8px;align-items:stretch}
+.busca input{flex:1}
+button.consultar{
+  flex:none;padding:0 18px;background:var(--ink);color:#fff;border:0;border-radius:3px;
+  font:600 14px/1 'Barlow Condensed',sans-serif;letter-spacing:.1em;cursor:pointer;white-space:nowrap;
+}
+button.consultar:hover{background:var(--rojo)}
+button.consultar:disabled{background:var(--steel);cursor:progress}
+.estado-dni{font-size:13px;margin-top:6px;color:var(--steel);min-height:19px}
+.estado-dni.ok{color:var(--ok);font-weight:500}
+input.verificado{background:#f1f8f4;border-bottom-color:var(--ok);color:var(--steel)}
+
+.check{display:flex;gap:11px;align-items:flex-start;background:var(--field);padding:13px 14px;border-radius:3px}
+.check input{margin:3px 0 0;width:17px;height:17px;accent-color:var(--rojo);flex:none}
+.check label{margin:0;color:var(--ink);font-weight:400;font-size:15px}
+
+/* CV */
+.cv{border:1.5px dashed var(--rule);border-radius:4px;padding:22px;text-align:center;background:var(--field)}
+.cv.cargado{border-style:solid;border-color:var(--ok);background:#f1f8f4}
+.cv input[type=file]{display:none}
+.cv .boton-archivo{
+  display:inline-block;cursor:pointer;font-weight:600;font-size:15px;
+  border:1.5px solid var(--ink);padding:9px 20px;border-radius:3px;background:var(--paper);
+}
+.cv .boton-archivo:hover{background:var(--ink);color:var(--paper)}
+.cv p{margin:11px 0 0;font-size:13.5px;color:var(--steel)}
+.cv strong{color:var(--ok)}
+
+/* envío */
+.pie{margin-top:36px;border-top:1px solid var(--rule);padding-top:26px}
+button.enviar{
+  width:100%;padding:16px;background:var(--rojo);color:#fff;border:0;border-radius:3px;
+  font:600 17px/1 'Barlow Condensed',sans-serif;letter-spacing:.14em;cursor:pointer;
+}
+button.enviar:hover{background:#a60d26}
+button.enviar:disabled{background:var(--steel);cursor:progress}
+.mensaje{margin-top:16px;font-size:14.5px;color:var(--rojo);min-height:22px}
+
+/* confirmación */
+.listo{display:none;padding:64px 20px;max-width:620px}
+@media(min-width:960px){.listo{padding:120px 0}}
+.listo.visible{display:block}
+.listo h2{font-size:44px;font-weight:700;margin:0 0 12px;line-height:1}
+.listo .codigo{
+  display:inline-block;margin:20px 0;padding:14px 24px;background:var(--ink);color:#fff;
+  font:600 30px/1 'Barlow Condensed',sans-serif;letter-spacing:.06em;border-radius:3px;
+}
+.listo p{color:var(--steel);max-width:46ch}
+@media(prefers-reduced-motion:no-preference){
+  .listo.visible{animation:entra .4s ease-out}
+  @keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+
+<div class="envoltura">
+
+  <aside class="rail">
+    <div class="marca">JJC CONTRATISTAS GENERALES · CC0174</div>
+    <h1>Trabaja con nosotros en obra</h1>
+    <p>Completa tus datos y adjunta tu currículum. Recursos Humanos revisa cada postulación y te contacta si tu perfil encaja con el puesto.</p>
+    <nav class="indice">
+      <ol>
+        <li data-paso="personal"><b>1</b> Información personal</li>
+        <li data-paso="academica"><b>2</b> Información académica</li>
+        <li data-paso="postulacion"><b>3</b> Postulación y CV</li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main>
+    <form class="formulario" id="formulario" novalidate>
+
+      <!-- ============ 1. PERSONAL ============ -->
+      <fieldset id="personal">
+        <legend>Información personal</legend>
+
+        <div class="fila">
+          <div class="campo">
+            <label for="nombres">Nombres <span class="req">*</span></label>
+            <input type="text" id="nombres" autocomplete="given-name">
+            <span class="aviso">Escribe tus nombres.</span>
+          </div>
+        </div>
+
+        <div class="fila dos">
+          <div class="campo">
+            <label for="ap_paterno">Apellido paterno <span class="req">*</span></label>
+            <input type="text" id="ap_paterno">
+            <span class="aviso">Escribe tu apellido paterno.</span>
+          </div>
+          <div class="campo">
+            <label for="ap_materno">Apellido materno <span class="req">*</span></label>
+            <input type="text" id="ap_materno">
+            <span class="aviso">Escribe tu apellido materno.</span>
+          </div>
+        </div>
+
+        <div class="fila doc">
+          <div class="campo">
+            <label for="tipo_doc">Tipo de documento</label>
+            <select id="tipo_doc">
+              <option value="DNI">DNI</option>
+              <option value="CE">Carné de extranjería</option>
+              <option value="PAS">Pasaporte</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="num_doc">Número de documento <span class="req">*</span></label>
+            <div class="busca">
+              <input type="text" id="num_doc" inputmode="numeric" maxlength="12">
+              <button type="button" class="consultar" id="btnDni">TRAER MIS DATOS</button>
+            </div>
+            <span class="aviso" id="aviso_doc">El DNI tiene 8 dígitos.</span>
+            <p class="estado-dni" id="estadoDni">Escribe tu DNI y toca el botón para completar tus nombres automáticamente.</p>
+          </div>
+        </div>
+
+        <div class="fila tres">
+          <div class="campo">
+            <label for="nacionalidad">Nacionalidad</label>
+            <input type="text" id="nacionalidad" value="Peruana">
+          </div>
+          <div class="campo">
+            <label for="fecha_nac">Fecha de nacimiento</label>
+            <input type="date" id="fecha_nac">
+          </div>
+          <div class="campo">
+            <label for="estado_civil">Estado civil</label>
+            <select id="estado_civil">
+              <option value="">Seleccionar</option>
+              <option>Soltero(a)</option><option>Casado(a)</option>
+              <option>Conviviente</option><option>Divorciado(a)</option><option>Viudo(a)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fila tres">
+          <div class="campo">
+            <label for="genero">Género</label>
+            <select id="genero">
+              <option value="">Seleccionar</option>
+              <option>Femenino</option><option>Masculino</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="celular">Teléfono celular <span class="req">*</span></label>
+            <input type="tel" id="celular" inputmode="numeric" maxlength="9" placeholder="9########">
+            <span class="aviso">Ingresa 9 dígitos, empezando con 9.</span>
+          </div>
+          <div class="campo">
+            <label for="correo">Correo electrónico <span class="req">*</span></label>
+            <input type="email" id="correo" autocomplete="email">
+            <span class="aviso">Revisa el correo, parece incompleto.</span>
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="campo">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" placeholder="Av. / Jr. / Calle, número">
+          </div>
+        </div>
+
+        <div class="fila tres">
+          <div class="campo">
+            <label for="departamento">Departamento</label>
+            <select id="departamento"><option value="">Seleccionar</option></select>
+          </div>
+          <div class="campo">
+            <label for="provincia">Provincia</label>
+            <select id="provincia" disabled><option value="">Elige departamento</option></select>
+          </div>
+          <div class="campo">
+            <label for="distrito">Distrito</label>
+            <select id="distrito" disabled><option value="">Elige provincia</option></select>
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="check">
+            <input type="checkbox" id="discapacidad">
+            <label for="discapacidad">Soy una persona con discapacidad inscrita en el CONADIS</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ============ 2. ACADÉMICA ============ -->
+      <fieldset id="academica">
+        <legend>Información académica</legend>
+
+        <div class="fila dos">
+          <div class="campo">
+            <label for="nivel">Nivel educativo</label>
+            <select id="nivel">
+              <option value="">Seleccionar</option>
+              <option>Secundaria</option><option>Técnico</option>
+              <option>Universitario</option><option>Maestría</option><option>Doctorado</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="estado_est">Estado</label>
+            <select id="estado_est">
+              <option value="">Seleccionar</option>
+              <option>En curso</option><option>Egresado</option>
+              <option>Bachiller</option><option>Titulado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fila dos">
+          <div class="campo">
+            <label for="centro">Centro de estudios</label>
+            <input type="text" id="centro">
+          </div>
+          <div class="campo">
+            <label for="especialidad">Especialidad</label>
+            <input type="text" id="especialidad">
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="campo">
+            <label for="colegiatura">Número de colegiatura</label>
+            <input type="text" id="colegiatura">
+            <p class="ayuda">Solo si tu profesión exige colegiatura. Déjalo vacío si no aplica.</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ============ 3. POSTULACIÓN ============ -->
+      <fieldset id="postulacion">
+        <legend>Información de postulación</legend>
+
+        <div class="fila dos">
+          <div class="campo">
+            <label for="puesto">Puesto al que postula <span class="req">*</span></label>
+            <select id="puesto"><option value="">Cargando puestos…</option></select>
+            <span class="aviso">Elige un puesto.</span>
+          </div>
+          <div class="campo">
+            <label for="experiencia">Años de experiencia</label>
+            <input type="number" id="experiencia" min="0" max="60" step="0.5">
+          </div>
+        </div>
+
+        <div class="fila dos">
+          <div class="campo">
+            <label for="fuente">¿Cómo te enteraste de la vacante?</label>
+            <select id="fuente">
+              <option value="">Seleccionar</option>
+              <option>Facebook</option><option>LinkedIn</option><option>Instagram</option>
+              <option>WhatsApp</option><option>Referido</option>
+              <option>Bolsa laboral</option><option>Otros</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="expectativa">Expectativa salarial (S/) <span class="req">*</span></label>
+            <input type="number" id="expectativa" min="0" step="50">
+            <span class="aviso">Indica un monto mensual.</span>
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="check">
+            <input type="checkbox" id="disponibilidad" checked>
+            <label for="disponibilidad">Tengo disponibilidad inmediata para trabajar en obra</label>
+          </div>
+        </div>
+
+        <div class="fila">
+          <div class="campo" id="campo_cv">
+            <label>Currículum vitae <span class="req">*</span></label>
+            <div class="cv" id="cajaCv">
+              <label class="boton-archivo" for="cv">Elegir archivo PDF</label>
+              <input type="file" id="cv" accept="application/pdf">
+              <p id="cvTexto">Formato PDF, hasta 5 MB.</p>
+            </div>
+            <span class="aviso">Adjunta tu CV en PDF para poder enviar la postulación.</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="pie">
+        <div class="check" style="margin-bottom:18px">
+          <input type="checkbox" id="consentimiento">
+          <label for="consentimiento">Autorizo a JJC Contratistas Generales S.A. a tratar mis datos personales con fines de selección, conforme a la Ley 29733.</label>
+        </div>
+        <button type="submit" class="enviar" id="btnEnviar">ENVIAR POSTULACIÓN</button>
+        <div class="mensaje" id="mensaje"></div>
+      </div>
+    </form>
+
+    <section class="listo" id="listo">
+      <h2>Postulación registrada</h2>
+      <p>Guarda este código: con él Recursos Humanos puede ubicar tu expediente.</p>
+      <div class="codigo" id="codigoListo">POST-00000</div>
+      <p>Revisaremos tu perfil frente al puesto elegido. Si avanzas en el proceso, te escribiremos al correo o celular que registraste.</p>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+// El formulario no habla con la base directamente: todo pasa por las
+// funciones de /api, donde viven las credenciales. No hay nada que
+// configurar en este archivo.
+// La librería de subida se carga recién al enviar. Si se importara aquí
+// arriba y el CDN no respondiera, se caería todo el script y el
+// formulario quedaría inservible.
+const cargarSubida = () => import('https://esm.sh/@vercel/blob@0.27.0/client');
+
+const $ = id => document.getElementById(id);
+
+// Si una función falla al arrancar, Vercel responde una página de error
+// en vez de JSON. Sin esto, el postulante vería un error crudo de
+// JavaScript en pantalla.
+async function leerJson(r) {
+  const texto = await r.text();
+  try {
+    return JSON.parse(texto);
+  } catch {
+    console.error('respuesta no-JSON del servidor:', r.status, texto.slice(0, 200));
+    return { error: 'El servicio no está disponible en este momento. Escribe tus datos a mano.' };
+  }
+}
+
+/* ---- ubigeo encadenado (INEI, 25 departamentos / 196 provincias / 1874 distritos) ---- */
+let UBIGEO = null;
+
+const vaciar = (sel, texto) => {
+  sel.innerHTML = '';
+  sel.add(new Option(texto, ''));
+  sel.disabled = true;
+};
+
+(async () => {
+  try {
+    const r = await fetch('/ubigeo.json');
+    if (!r.ok) throw new Error();
+    UBIGEO = await r.json();
+  } catch {
+    // Sin el archivo, los tres campos quedan como texto libre y el formulario sigue sirviendo.
+    ['departamento','provincia','distrito'].forEach(id => {
+      const s = $(id), t = document.createElement('input');
+      t.type = 'text'; t.id = id; s.replaceWith(t);
+    });
+    return;
+  }
+
+  const selDep = $('departamento');
+  selDep.innerHTML = '';
+  selDep.add(new Option('Seleccionar', ''));
+  Object.entries(UBIGEO)
+    .sort((a, b) => a[1].n.localeCompare(b[1].n, 'es'))
+    .forEach(([cod, dep]) => selDep.add(new Option(dep.n, cod)));
+
+  selDep.addEventListener('change', () => {
+    const dep = UBIGEO[selDep.value];
+    vaciar($('distrito'), 'Elige provincia');
+    if (!dep) { vaciar($('provincia'), 'Elige departamento'); return; }
+    const selProv = $('provincia');
+    selProv.innerHTML = '';
+    selProv.add(new Option('Seleccionar', ''));
+    Object.entries(dep.p)
+      .sort((a, b) => a[1].n.localeCompare(b[1].n, 'es'))
+      .forEach(([cod, prov]) => selProv.add(new Option(prov.n, cod)));
+    selProv.disabled = false;
+  });
+
+  $('provincia').addEventListener('change', () => {
+    const dep = UBIGEO[$('departamento').value];
+    const prov = dep && dep.p[$('provincia').value];
+    if (!prov) { vaciar($('distrito'), 'Elige provincia'); return; }
+    const selDist = $('distrito');
+    selDist.innerHTML = '';
+    selDist.add(new Option('Seleccionar', ''));
+    Object.entries(prov.d)
+      .sort((a, b) => a[1][0].localeCompare(b[1][0], 'es'))
+      .forEach(([cod, dist]) => selDist.add(new Option(dist[0], cod)));
+    selDist.disabled = false;
+  });
+})();
+
+/* Nombres y códigos de lo que el postulante eligió. */
+function ubigeoElegido() {
+  if (!UBIGEO) return {
+    departamento: $('departamento').value || null,
+    provincia: $('provincia').value || null,
+    distrito: $('distrito').value || null,
+    ubigeo_inei: null, ubigeo_reniec: null
+  };
+  const cd = $('departamento').value, cp = $('provincia').value, cx = $('distrito').value;
+  const dep = UBIGEO[cd], prov = dep && dep.p[cp], dist = prov && prov.d[cx];
+  return {
+    departamento: dep ? dep.n : null,
+    provincia: prov ? prov.n : null,
+    distrito: dist ? dist[0] : null,
+    ubigeo_inei: dist ? cd + cp + cx : null,
+    ubigeo_reniec: dist && dist[1] ? dist[1] : null
+  };
+}
+
+/* ---- puestos ---- */
+(async () => {
+  const sel = $('puesto');
+  let data = null;
+  try { const r = await fetch('/api/puestos'); if (r.ok) data = await r.json(); } catch (e) {}
+  sel.innerHTML = '<option value="">Seleccionar puesto</option>';
+  if (!data?.length) { sel.innerHTML = '<option value="">No se pudieron cargar los puestos</option>'; return; }
+  let areaActual = null, grupo = null;
+  data.forEach(p => {
+    if (p.area !== areaActual) { areaActual = p.area; grupo = document.createElement('optgroup'); grupo.label = p.area || 'Otros'; sel.appendChild(grupo); }
+    grupo.appendChild(new Option(p.nombre, p.nombre));
+  });
+})();
+
+/* ---- consulta de DNI ---- */
+let dniVerificado = false;
+const camposNombre = ['nombres','ap_paterno','ap_materno'];
+
+function limpiarVerificacion() {
+  dniVerificado = false;
+  camposNombre.forEach(id => $(id).classList.remove('verificado'));
+  $('estadoDni').classList.remove('ok');
+}
+
+$('tipo_doc').addEventListener('change', () => {
+  const esDni = $('tipo_doc').value === 'DNI';
+  $('btnDni').style.display = esDni ? '' : 'none';
+  $('estadoDni').textContent = esDni
+    ? 'Escribe tu DNI y toca el botón para completar tus nombres automáticamente.'
+    : 'Escribe tus nombres y apellidos tal como figuran en tu documento.';
+  limpiarVerificacion();
+});
+
+$('num_doc').addEventListener('input', limpiarVerificacion);
+
+$('btnDni').addEventListener('click', async () => {
+  const dni = $('num_doc').value.trim();
+  const est = $('estadoDni');
+  est.classList.remove('ok');
+
+  if (!/^\d{8}$/.test(dni)) { est.textContent = 'El DNI debe tener 8 dígitos.'; $('num_doc').focus(); return; }
+
+  const btn = $('btnDni');
+  btn.disabled = true; btn.textContent = 'CONSULTANDO…';
+  est.textContent = 'Consultando…';
+
+  try {
+    const r = await fetch('/api/dni?numero=' + dni);
+    const d = await leerJson(r);
+    if (!r.ok) throw new Error(d.error || 'Sin respuesta');
+
+    $('nombres').value    = d.nombres;
+    $('ap_paterno').value = d.apellido_paterno;
+    $('ap_materno').value = d.apellido_materno;
+    camposNombre.forEach(id => { $(id).classList.add('verificado'); marcar(id, false); });
+
+    dniVerificado = true;
+    est.textContent = 'Datos verificados. Si algo no coincide con tu DNI, corrígelo.';
+    est.classList.add('ok');
+    marcar('num_doc', false);
+
+  } catch (err) {
+    est.textContent = err.message;
+    limpiarVerificacion();
+  } finally {
+    btn.disabled = false; btn.textContent = 'TRAER MIS DATOS';
+  }
+});
+
+/* ---- índice lateral según el bloque visible ---- */
+const pasos = document.querySelectorAll('.indice li');
+const obs = new IntersectionObserver(entradas => {
+  entradas.forEach(e => {
+    if (e.isIntersecting) {
+      pasos.forEach(li => li.classList.toggle('activo', li.dataset.paso === e.target.id));
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+['personal','academica','postulacion'].forEach(id => obs.observe($(id)));
+
+/* ---- CV ---- */
+let archivoCv = null;
+$('cv').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.type !== 'application/pdf') { $('cvTexto').textContent = 'El archivo debe ser PDF.'; archivoCv = null; return; }
+  if (f.size > 5 * 1024 * 1024)     { $('cvTexto').textContent = 'El archivo pesa más de 5 MB. Comprímelo e inténtalo otra vez.'; archivoCv = null; return; }
+  archivoCv = f;
+  $('cajaCv').classList.add('cargado');
+  $('cvTexto').innerHTML = '<strong>' + f.name + '</strong> · ' + (f.size/1024/1024).toFixed(1) + ' MB';
+  $('campo_cv').classList.remove('error');
+});
+
+/* ---- validación ---- */
+const marcar = (id, mal) => $(id).closest('.campo').classList.toggle('error', mal);
+
+function validar() {
+  let ok = true;
+  const req = ['nombres','ap_paterno','ap_materno'];
+  req.forEach(id => { const mal = !$(id).value.trim(); marcar(id, mal); if (mal) ok = false; });
+
+  const tipo = $('tipo_doc').value, doc = $('num_doc').value.trim();
+  const docMal = tipo === 'DNI' ? !/^\d{8}$/.test(doc) : doc.length < 6;
+  $('aviso_doc').textContent = tipo === 'DNI' ? 'El DNI tiene 8 dígitos.' : 'Ingresa el número de tu documento.';
+  marcar('num_doc', docMal); if (docMal) ok = false;
+
+  const celMal = !/^9\d{8}$/.test($('celular').value.trim());
+  marcar('celular', celMal); if (celMal) ok = false;
+
+  const corMal = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('correo').value.trim());
+  marcar('correo', corMal); if (corMal) ok = false;
+
+  const puestoMal = !$('puesto').value; marcar('puesto', puestoMal); if (puestoMal) ok = false;
+  const expMal = !$('expectativa').value || Number($('expectativa').value) <= 0;
+  marcar('expectativa', expMal); if (expMal) ok = false;
+
+  const cvMal = !archivoCv; $('campo_cv').classList.toggle('error', cvMal); if (cvMal) ok = false;
+
+  return ok;
+}
+
+/* ---- envío ---- */
+$('formulario').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msj = $('mensaje'); msj.textContent = '';
+
+  if (!$('consentimiento').checked) { msj.textContent = 'Marca la autorización de tratamiento de datos para continuar.'; return; }
+  if (!validar()) {
+    msj.textContent = 'Revisa los campos marcados en rojo.';
+    document.querySelector('.error')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  const btn = $('btnEnviar');
+  btn.disabled = true; btn.textContent = 'ENVIANDO…';
+
+  try {
+    const doc = $('num_doc').value.trim();
+
+    btn.textContent = 'SUBIENDO CV…';
+    const { upload } = await cargarSubida();
+    const ruta = new Date().getFullYear() + '/' + doc + '.pdf';
+    const subido = await upload(ruta, archivoCv, {
+      access: 'public',
+      contentType: 'application/pdf',
+      handleUploadUrl: '/api/subir-cv'
+    });
+
+    btn.textContent = 'ENVIANDO…';
+    const fila = {
+      nombres: $('nombres').value.trim(),
+      apellido_paterno: $('ap_paterno').value.trim(),
+      apellido_materno: $('ap_materno').value.trim(),
+      tipo_documento: $('tipo_doc').value,
+      numero_documento: doc,
+      datos_verificados: dniVerificado,
+      nacionalidad: $('nacionalidad').value.trim() || 'Peruana',
+      fecha_nacimiento: $('fecha_nac').value || null,
+      estado_civil: $('estado_civil').value || null,
+      genero: $('genero').value || null,
+      celular: $('celular').value.trim(),
+      correo: $('correo').value.trim().toLowerCase(),
+      direccion: $('direccion').value.trim() || null,
+      ...ubigeoElegido(),
+      discapacidad: $('discapacidad').checked,
+      nivel_educativo: $('nivel').value || null,
+      centro_estudios: $('centro').value.trim() || null,
+      especialidad: $('especialidad').value.trim() || null,
+      estado_estudios: $('estado_est').value || null,
+      numero_colegiatura: $('colegiatura').value.trim() || null,
+      puesto: $('puesto').value,
+      experiencia_anios: $('experiencia').value ? Number($('experiencia').value) : null,
+      fuente_reclutamiento: $('fuente').value || null,
+      expectativa_salarial: Number($('expectativa').value),
+      disponibilidad_inmediata: $('disponibilidad').checked,
+      cv_url: subido.url,
+      cv_nombre: archivoCv.name
+    };
+
+    const r = await fetch('/api/postular', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fila)
+    });
+    const data = await leerJson(r);
+    if (!r.ok) throw new Error(data.error || 'Sin respuesta');
+
+    $('codigoListo').textContent = data.codigo;
+    $('formulario').style.display = 'none';
+    $('listo').classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    console.error(err);
+    msj.textContent = err.message || 'No se pudo registrar la postulación. Inténtalo de nuevo.';
+    btn.disabled = false; btn.textContent = 'ENVIAR POSTULACIÓN';
+  }
+});
+</script>
+</body>
+</html>

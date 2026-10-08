@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       select nombres, apellido_paterno, apellido_materno
         from cache_identidad
        where numero_documento = ${numero}
-         and guardado_en > now() - make_interval(days => ${DIAS_CACHE})
+         and guardado_en > now() - make_interval(days => ${DIAS_CACHE}::int)
        limit 1
     `;
 
