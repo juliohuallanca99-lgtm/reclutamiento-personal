@@ -139,3 +139,33 @@ alter table postulantes
   add column if not exists ubigeo_reniec text;
 
 create index if not exists idx_postulantes_ubigeo on postulantes (ubigeo_inei);
+
+-- ---------- 7. Protección de la cuota mensual --------------------
+-- El plan contratado tiene un tope de consultas al mes. Los límites
+-- deben vivir en la base, no en memoria: en Vercel cada instancia
+-- tiene su propia memoria y un contador ahí no frena nada.
+
+-- Distingue una llamada real al proveedor (gasta cuota) de un
+-- resultado servido desde la caché (no gasta).
+alter table consultas_dni
+  add column if not exists origen text not null default 'proveedor';
+
+create index if not exists idx_consultas_ip
+  on consultas_dni (origen_ip, consultado_en desc);
+
+create index if not exists idx_consultas_cuota
+  on consultas_dni (consultado_en) where origen = 'proveedor';
+
+-- Caché de resultados: evita pagar dos veces por el mismo DNI.
+-- No es un padrón paralelo: solo responde cuando se le da el número
+-- exacto, se purga sola y guarda únicamente nombres.
+create table if not exists cache_identidad (
+  numero_documento text primary key,
+  nombres          text,
+  apellido_paterno text,
+  apellido_materno text,
+  guardado_en      timestamptz not null default now()
+);
+
+-- Purga lo vencido. Conviene correrla de vez en cuando.
+-- delete from cache_identidad where guardado_en < now() - interval '30 days';

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Postulantes — Recursos Humanos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16191c; --steel:#5b6770; --rule:#d6dbde;
+  --field:#f3f5f6; --paper:#fff; --rojo:#c8102e; --ok:#1c7a4b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--field);color:var(--ink);font:400 15px/1.5 'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,.marca,th,button,.pastilla{font-family:'Barlow Condensed','Barlow',sans-serif}
+
+/* ---------- ingreso ---------- */
+.ingreso{display:none;min-height:100vh;place-items:center;padding:24px}
+.ingreso.visible{display:grid}
+.tarjeta{background:var(--paper);padding:38px 34px;border-radius:4px;width:100%;max-width:370px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tarjeta .marca{font-size:12px;font-weight:600;letter-spacing:.18em;color:var(--rojo)}
+.tarjeta h1{font-size:33px;font-weight:700;margin:10px 0 26px;line-height:1}
+.tarjeta label{display:block;font-size:13.5px;font-weight:500;color:var(--steel);margin:0 0 6px}
+.tarjeta input{width:100%;padding:11px 12px;font:400 15.5px 'Barlow',sans-serif;background:var(--field);
+  border:1px solid transparent;border-bottom:1px solid var(--rule);border-radius:3px 3px 0 0;margin-bottom:17px}
+.tarjeta input:focus{outline:none;background:var(--paper);border-color:var(--ink);border-bottom-width:2px}
+.tarjeta button{width:100%;padding:14px;background:var(--rojo);color:#fff;border:0;border-radius:3px;
+  font:600 16px/1 'Barlow Condensed';letter-spacing:.14em;cursor:pointer}
+.tarjeta button:hover{background:#a60d26}
+.tarjeta button:disabled{background:var(--steel);cursor:progress}
+.tarjeta .fallo{color:var(--rojo);font-size:13.5px;margin-top:13px;min-height:19px}
+
+/* ---------- panel ---------- */
+.panel{display:none}
+.panel.visible{display:block}
+header{background:var(--ink);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+header .marca{font-size:12px;font-weight:600;letter-spacing:.16em;color:#9aa5ac}
+header h1{font-size:23px;font-weight:600;margin:0;flex:1}
+header .quien{font-size:13.5px;color:#9aa5ac}
+header button{background:none;border:1px solid #4a5258;color:#fff;padding:7px 15px;border-radius:3px;
+  font:600 13px/1 'Barlow Condensed';letter-spacing:.1em;cursor:pointer}
+header button:hover{border-color:#fff}
+
+.barra{background:var(--paper);border-bottom:1px solid var(--rule);padding:15px 22px;
+  display:flex;gap:13px;align-items:flex-end;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+.barra .grupo{display:flex;flex-direction:column;gap:5px}
+.barra label{font-size:12px;font-weight:500;color:var(--steel)}
+.barra input,.barra select{padding:8px 10px;font:400 14.5px 'Barlow',sans-serif;background:var(--field);
+  border:1px solid var(--rule);border-radius:3px;min-width:132px}
+.barra input:focus,.barra select:focus{outline:none;border-color:var(--ink)}
+.barra .buscar input{min-width:215px}
+.barra .espacio{flex:1}
+button.excel{background:var(--ok);color:#fff;border:0;padding:10px 19px;border-radius:3px;
+  font:600 14px/1 'Barlow Condensed';letter-spacing:.1em;cursor:pointer;white-space:nowrap}
+button.excel:hover{background:#155c39}
+button.excel:disabled{background:var(--steel);cursor:progress}
+button.limpiar{background:none;border:1px solid var(--rule);color:var(--steel);padding:10px 15px;
+  border-radius:3px;font:600 14px/1 'Barlow Condensed';letter-spacing:.1em;cursor:pointer}
+button.limpiar:hover{border-color:var(--ink);color:var(--ink)}
+
+.resumen{padding:13px 22px 4px;font-size:13.5px;color:var(--steel)}
+.resumen b{color:var(--ink);font-weight:600}
+
+.cuota{padding:0 22px 12px;font-size:13px;color:var(--steel);display:none}
+.cuota.visible{display:flex;align-items:center;gap:10px}
+.cuota .barra-cuota{width:120px;height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.cuota .barra-cuota i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.cuota.alerta{color:var(--rojo);font-weight:500}
+.cuota.alerta .barra-cuota i{background:var(--rojo)}
+
+.marco{overflow-x:auto;padding:0 22px 40px}
+table{width:100%;border-collapse:collapse;background:var(--paper);font-size:14px}
+th{text-align:left;font-size:12.5px;font-weight:600;letter-spacing:.09em;color:#fff;background:var(--ink);
+  padding:10px 11px;white-space:nowrap;position:sticky;top:0}
+td{padding:10px 11px;border-bottom:1px solid var(--rule);vertical-align:middle;white-space:nowrap}
+tbody tr:hover{background:#fafbfb}
+td.ancho{white-space:normal;min-width:185px}
+.codigo{font-weight:600;font-variant-numeric:tabular-nums}
+.sello{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:6px}
+.vacio{padding:70px 22px;text-align:center;color:var(--steel)}
+.vacio b{display:block;font:600 21px 'Barlow Condensed';color:var(--ink);margin-bottom:7px}
+
+select.estado{padding:5px 8px;font:500 13.5px 'Barlow',sans-serif;border:1px solid var(--rule);
+  border-radius:3px;background:var(--paper);cursor:pointer}
+select.estado:focus{outline:none;border-color:var(--ink)}
+tr[data-estado="Seleccionado"] select.estado{border-color:var(--ok);color:var(--ok);font-weight:600}
+tr[data-estado="Descartado"]  select.estado{color:var(--steel)}
+tr[data-estado="Descartado"]  td{opacity:.6}
+tr[data-estado="Entrevista"]  select.estado{border-color:var(--rojo);color:var(--rojo);font-weight:600}
+
+a.cv{color:var(--rojo);font-weight:500;text-decoration:none;border-bottom:1px solid transparent}
+a.cv:hover{border-bottom-color:var(--rojo)}
+.nota{width:100%;min-width:175px;padding:5px 8px;font:400 13.5px 'Barlow',sans-serif;
+  border:1px solid transparent;background:var(--field);border-radius:3px;resize:vertical;height:32px}
+.nota:focus{outline:none;border-color:var(--ink);background:var(--paper);height:66px}
+</style>
+</head>
+<body>
+
+<!-- ===================== INGRESO ===================== -->
+<div class="ingreso" id="ingreso">
+  <form class="tarjeta" id="formIngreso">
+    <div class="marca">JJC CONTRATISTAS · CC0174</div>
+    <h1>Postulantes</h1>
+    <label for="usuario">Usuario</label>
+    <input type="text" id="usuario" autocomplete="username" autocapitalize="off">
+    <label for="clave">Contraseña</label>
+    <input type="password" id="clave" autocomplete="current-password">
+    <button type="submit" id="btnIngresar">INGRESAR</button>
+    <div class="fallo" id="fallo"></div>
+  </form>
+</div>
+
+<!-- ===================== PANEL ===================== -->
+<div class="panel" id="panel">
+  <header>
+    <div>
+      <div class="marca">JJC CONTRATISTAS · CC0174</div>
+      <h1>Postulantes</h1>
+    </div>
+    <div class="espacio" style="flex:1"></div>
+    <span class="quien" id="quien"></span>
+    <button id="btnSalir">SALIR</button>
+  </header>
+
+  <div class="barra">
+    <div class="grupo buscar">
+      <label for="fBuscar">Buscar</label>
+      <input type="text" id="fBuscar" placeholder="Nombre, DNI o código">
+    </div>
+    <div class="grupo">
+      <label for="fPuesto">Puesto</label>
+      <select id="fPuesto"><option value="">Todos</option></select>
+    </div>
+    <div class="grupo">
+      <label for="fEstado">Estado</label>
+      <select id="fEstado">
+        <option value="">Todos</option>
+        <option>Nuevo</option><option>En revisión</option><option>Entrevista</option>
+        <option>Seleccionado</option><option>Descartado</option>
+      </select>
+    </div>
+    <div class="grupo">
+      <label for="fDesde">Desde</label>
+      <input type="date" id="fDesde">
+    </div>
+    <div class="grupo">
+      <label for="fHasta">Hasta</label>
+      <input type="date" id="fHasta">
+    </div>
+    <button class="limpiar" id="btnLimpiar">LIMPIAR</button>
+    <div class="espacio"></div>
+    <button class="excel" id="btnExcel">DESCARGAR EXCEL</button>
+  </div>
+
+  <div class="resumen" id="resumen">Cargando…</div>
+  <div class="cuota" id="cuota"></div>
+
+  <div class="marco">
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Código</th><th>Fecha</th><th>Postulante</th><th>Documento</th>
+          <th>Puesto</th><th>Exp.</th><th>Celular</th><th>Correo</th>
+          <th>Expectativa</th><th>CV</th><th>Estado</th><th>Observaciones</th>
+        </tr>
+      </thead>
+      <tbody id="cuerpo"></tbody>
+    </table>
+    <div class="vacio" id="vacio" style="display:none">
+      <b>Sin resultados</b>
+      Ajusta los filtros o espera nuevas postulaciones.
+    </div>
+  </div>
+</div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const ESTADOS = ['Nuevo','En revisión','Entrevista','Seleccionado','Descartado'];
+
+/* ---------------- sesión ---------------- */
+async function comprobarSesion() {
+  try {
+    const r = await fetch('/api/ingresar');
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+function abrirPanel(u) {
+  $('quien').textContent = u.nombre;
+  $('ingreso').classList.remove('visible');
+  $('panel').classList.add('visible');
+  cargarPuestos();
+  cargarCuota();
+  cargar();
+}
+
+$('formIngreso').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('btnIngresar'), fallo = $('fallo');
+  fallo.textContent = '';
+  btn.disabled = true; btn.textContent = 'VERIFICANDO…';
+  try {
+    const r = await fetch('/api/ingresar', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ usuario: $('usuario').value, clave: $('clave').value })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'No se pudo ingresar');
+    abrirPanel(d);
+  } catch (err) {
+    fallo.textContent = err.message;
+    $('clave').value = ''; $('clave').focus();
+  } finally {
+    btn.disabled = false; btn.textContent = 'INGRESAR';
+  }
+});
+
+$('btnSalir').addEventListener('click', async () => {
+  await fetch('/api/salir', { method:'POST' });
+  location.reload();
+});
+
+/* ---------------- filtros ---------------- */
+const filtros = () => new URLSearchParams({
+  buscar: $('fBuscar').value.trim(),
+  puesto: $('fPuesto').value,
+  estado: $('fEstado').value,
+  desde:  $('fDesde').value,
+  hasta:  $('fHasta').value
+});
+
+/* ---------------- consumo del plan de consultas ---------------- */
+async function cargarCuota() {
+  const caja = $('cuota');
+  try {
+    const r = await fetch('/api/cuota');
+    if (!r.ok) return;
+    const c = await r.json();
+    const apretado = c.porcentaje >= 75;
+    caja.className = 'cuota visible' + (apretado ? ' alerta' : '');
+    caja.innerHTML =
+      `<span>Consultas de DNI: <b>${c.usadas}</b> de ${c.plan} este mes</span>` +
+      `<span class="barra-cuota"><i style="width:${Math.min(100, c.porcentaje)}%"></i></span>` +
+      (c.ahorradas_por_cache ? `<span>${c.ahorradas_por_cache} servidas desde caché</span>` : '') +
+      (apretado ? '<span>— conviene ampliar el plan</span>' : '');
+  } catch {}
+}
+
+async function cargarPuestos() {
+  try {
+    const r = await fetch('/api/puestos');
+    if (!r.ok) return;
+    (await r.json()).forEach(p => $('fPuesto').add(new Option(p.nombre, p.nombre)));
+  } catch {}
+}
+
+let temporizador;
+['fBuscar','fPuesto','fEstado','fDesde','fHasta'].forEach(id => {
+  const ev = id === 'fBuscar' ? 'input' : 'change';
+  $(id).addEventListener(ev, () => {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(cargar, ev === 'input' ? 350 : 0);
+  });
+});
+
+$('btnLimpiar').addEventListener('click', () => {
+  ['fBuscar','fPuesto','fEstado','fDesde','fHasta'].forEach(id => $(id).value = '');
+  cargar();
+});
+
+/* ---------------- listado ---------------- */
+const fecha = v => v ? new Date(v).toLocaleDateString('es-PE',
+  { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
+const soles = v => v == null ? '' : 'S/ ' + Number(v).toLocaleString('es-PE', { minimumFractionDigits:2 });
+const limpio = s => String(s ?? '').replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+
+async function cargar() {
+  $('resumen').textContent = 'Cargando…';
+  try {
+    const r = await fetch('/api/postulantes?' + filtros());
+    if (r.status === 401) { location.reload(); return; }
+    const filas = await r.json();
+    if (!r.ok) throw new Error(filas.error);
+    pintar(filas);
+  } catch (e) {
+    $('resumen').textContent = 'No se pudo cargar el listado.';
+  }
+}
+
+function pintar(filas) {
+  const cuerpo = $('cuerpo');
+  cuerpo.innerHTML = '';
+  $('vacio').style.display = filas.length ? 'none' : 'block';
+  $('tabla').style.display = filas.length ? '' : 'none';
+
+  const cuenta = ESTADOS.map(e => {
+    const n = filas.filter(f => f.estado === e).length;
+    return n ? `${n} ${e.toLowerCase()}` : null;
+  }).filter(Boolean).join(' · ');
+  $('resumen').innerHTML = `<b>${filas.length}</b> postulante${filas.length === 1 ? '' : 's'}`
+    + (cuenta ? ' — ' + cuenta : '');
+
+  filas.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.dataset.estado = f.estado;
+    tr.innerHTML = `
+      <td class="codigo">${limpio(f.codigo)}</td>
+      <td>${fecha(f.creado_en)}</td>
+      <td class="ancho">${limpio(f.apellido_paterno)} ${limpio(f.apellido_materno)}, ${limpio(f.nombres)}</td>
+      <td>${limpio(f.numero_documento)}${f.datos_verificados ? '<span class="sello" title="Datos verificados contra el documento"></span>' : ''}</td>
+      <td class="ancho">${limpio(f.puesto)}</td>
+      <td>${f.experiencia_anios ?? ''}</td>
+      <td>${limpio(f.celular)}</td>
+      <td>${limpio(f.correo)}</td>
+      <td>${soles(f.expectativa_salarial)}</td>
+      <td>${f.cv_url ? `<a class="cv" href="${limpio(f.cv_url)}" target="_blank" rel="noopener">Abrir</a>` : ''}</td>
+      <td></td>
+      <td></td>`;
+
+    // Estado
+    const sel = document.createElement('select');
+    sel.className = 'estado';
+    ESTADOS.forEach(e => sel.add(new Option(e, e, false, e === f.estado)));
+    sel.addEventListener('change', () => guardar(f.id, sel.value, nota.value, tr, sel));
+    tr.children[10].appendChild(sel);
+
+    // Observaciones
+    const nota = document.createElement('textarea');
+    nota.className = 'nota';
+    nota.value = f.observaciones || '';
+    nota.placeholder = f.revisado_por ? 'Revisó ' + f.revisado_por : 'Agregar nota';
+    nota.addEventListener('blur', () => {
+      if (nota.value !== (f.observaciones || '')) {
+        guardar(f.id, sel.value, nota.value, tr, sel);
+        f.observaciones = nota.value;
+      }
+    });
+    tr.children[11].appendChild(nota);
+
+    cuerpo.appendChild(tr);
+  });
+}
+
+async function guardar(id, estado, observaciones, tr, sel) {
+  sel.disabled = true;
+  try {
+    const r = await fetch('/api/postulantes', {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, estado, observaciones })
+    });
+    if (r.status === 401) { location.reload(); return; }
+    if (!r.ok) throw new Error();
+    tr.dataset.estado = estado;
+  } catch {
+    $('resumen').textContent = 'No se pudo guardar el cambio. Revisa tu conexión.';
+  } finally {
+    sel.disabled = false;
+  }
+}
+
+/* ---------------- Excel ---------------- */
+$('btnExcel').addEventListener('click', async () => {
+  const btn = $('btnExcel');
+  btn.disabled = true; btn.textContent = 'GENERANDO…';
+  try {
+    const r = await fetch('/api/exportar?' + filtros());
+    if (r.status === 401) { location.reload(); return; }
+    if (!r.ok) throw new Error();
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'postulantes-' + new Date().toISOString().slice(0,10) + '.xlsx';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch {
+    $('resumen').textContent = 'No se pudo generar el Excel.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'DESCARGAR EXCEL';
+  }
+});
+
+/* ---------------- arranque ---------------- */
+const sesion = await comprobarSesion();
+if (sesion) abrirPanel(sesion);
+else { $('ingreso').classList.add('visible'); $('usuario').focus(); }
+</script>
+</body>
+</html>
