@@ -261,11 +261,11 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
           </div>
           <div class="campo">
             <label for="provincia">Provincia</label>
-            <input type="text" id="provincia">
+            <select id="provincia" disabled><option value="">Elige departamento</option></select>
           </div>
           <div class="campo">
             <label for="distrito">Distrito</label>
-            <input type="text" id="distrito">
+            <select id="distrito" disabled><option value="">Elige provincia</option></select>
           </div>
         </div>
 
@@ -392,28 +392,100 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
   </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-/* ====== CONFIGURA ESTAS DOS LÍNEAS ====== */
-const SUPABASE_URL  = 'https://TU-PROYECTO.supabase.co';
-const SUPABASE_ANON = 'TU-ANON-KEY';
-/* ======================================== */
+<script type="module">
+// El formulario no habla con la base directamente: todo pasa por las
+// funciones de /api, donde viven las credenciales. No hay nada que
+// configurar en este archivo.
+// La librería de subida se carga recién al enviar. Si se importara aquí
+// arriba y el CDN no respondiera, se caería todo el script y el
+// formulario quedaría inservible.
+const cargarSubida = () => import('https://esm.sh/@vercel/blob@0.27.0/client');
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-const $  = id => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-const DEPARTAMENTOS = ['Amazonas','Áncash','Apurímac','Arequipa','Ayacucho','Cajamarca','Callao','Cusco',
-'Huancavelica','Huánuco','Ica','Junín','La Libertad','Lambayeque','Lima','Loreto','Madre de Dios',
-'Moquegua','Pasco','Piura','Puno','San Martín','Tacna','Tumbes','Ucayali'];
+/* ---- ubigeo encadenado (INEI, 25 departamentos / 196 provincias / 1874 distritos) ---- */
+let UBIGEO = null;
 
-DEPARTAMENTOS.forEach(d => $('departamento').add(new Option(d, d)));
+const vaciar = (sel, texto) => {
+  sel.innerHTML = '';
+  sel.add(new Option(texto, ''));
+  sel.disabled = true;
+};
 
-/* ---- puestos desde Supabase ---- */
+(async () => {
+  try {
+    const r = await fetch('/ubigeo.json');
+    if (!r.ok) throw new Error();
+    UBIGEO = await r.json();
+  } catch {
+    // Sin el archivo, los tres campos quedan como texto libre y el formulario sigue sirviendo.
+    ['departamento','provincia','distrito'].forEach(id => {
+      const s = $(id), t = document.createElement('input');
+      t.type = 'text'; t.id = id; s.replaceWith(t);
+    });
+    return;
+  }
+
+  const selDep = $('departamento');
+  selDep.innerHTML = '';
+  selDep.add(new Option('Seleccionar', ''));
+  Object.entries(UBIGEO)
+    .sort((a, b) => a[1].n.localeCompare(b[1].n, 'es'))
+    .forEach(([cod, dep]) => selDep.add(new Option(dep.n, cod)));
+
+  selDep.addEventListener('change', () => {
+    const dep = UBIGEO[selDep.value];
+    vaciar($('distrito'), 'Elige provincia');
+    if (!dep) { vaciar($('provincia'), 'Elige departamento'); return; }
+    const selProv = $('provincia');
+    selProv.innerHTML = '';
+    selProv.add(new Option('Seleccionar', ''));
+    Object.entries(dep.p)
+      .sort((a, b) => a[1].n.localeCompare(b[1].n, 'es'))
+      .forEach(([cod, prov]) => selProv.add(new Option(prov.n, cod)));
+    selProv.disabled = false;
+  });
+
+  $('provincia').addEventListener('change', () => {
+    const dep = UBIGEO[$('departamento').value];
+    const prov = dep && dep.p[$('provincia').value];
+    if (!prov) { vaciar($('distrito'), 'Elige provincia'); return; }
+    const selDist = $('distrito');
+    selDist.innerHTML = '';
+    selDist.add(new Option('Seleccionar', ''));
+    Object.entries(prov.d)
+      .sort((a, b) => a[1][0].localeCompare(b[1][0], 'es'))
+      .forEach(([cod, dist]) => selDist.add(new Option(dist[0], cod)));
+    selDist.disabled = false;
+  });
+})();
+
+/* Nombres y códigos de lo que el postulante eligió. */
+function ubigeoElegido() {
+  if (!UBIGEO) return {
+    departamento: $('departamento').value || null,
+    provincia: $('provincia').value || null,
+    distrito: $('distrito').value || null,
+    ubigeo_inei: null, ubigeo_reniec: null
+  };
+  const cd = $('departamento').value, cp = $('provincia').value, cx = $('distrito').value;
+  const dep = UBIGEO[cd], prov = dep && dep.p[cp], dist = prov && prov.d[cx];
+  return {
+    departamento: dep ? dep.n : null,
+    provincia: prov ? prov.n : null,
+    distrito: dist ? dist[0] : null,
+    ubigeo_inei: dist ? cd + cp + cx : null,
+    ubigeo_reniec: dist && dist[1] ? dist[1] : null
+  };
+}
+
+/* ---- puestos ---- */
 (async () => {
   const sel = $('puesto');
-  const { data, error } = await db.from('puestos').select('nombre, area').order('area').order('nombre');
+  let data = null;
+  try { const r = await fetch('/api/puestos'); if (r.ok) data = await r.json(); } catch (e) {}
   sel.innerHTML = '<option value="">Seleccionar puesto</option>';
-  if (error || !data?.length) { sel.innerHTML = '<option value="">No se pudieron cargar los puestos</option>'; return; }
+  if (!data?.length) { sel.innerHTML = '<option value="">No se pudieron cargar los puestos</option>'; return; }
   let areaActual = null, grupo = null;
   data.forEach(p => {
     if (p.area !== areaActual) { areaActual = p.area; grupo = document.createElement('optgroup'); grupo.label = p.area || 'Otros'; sel.appendChild(grupo); }
@@ -544,11 +616,18 @@ $('formulario').addEventListener('submit', async e => {
   btn.disabled = true; btn.textContent = 'ENVIANDO…';
 
   try {
-    const doc  = $('num_doc').value.trim();
-    const ruta = new Date().getFullYear() + '/' + doc + '-' + Date.now() + '.pdf';
-    const { error: errCv } = await db.storage.from('cv').upload(ruta, archivoCv, { contentType:'application/pdf' });
-    if (errCv) throw errCv;
+    const doc = $('num_doc').value.trim();
 
+    btn.textContent = 'SUBIENDO CV…';
+    const { upload } = await cargarSubida();
+    const ruta = new Date().getFullYear() + '/' + doc + '.pdf';
+    const subido = await upload(ruta, archivoCv, {
+      access: 'public',
+      contentType: 'application/pdf',
+      handleUploadUrl: '/api/subir-cv'
+    });
+
+    btn.textContent = 'ENVIANDO…';
     const fila = {
       nombres: $('nombres').value.trim(),
       apellido_paterno: $('ap_paterno').value.trim(),
@@ -563,9 +642,7 @@ $('formulario').addEventListener('submit', async e => {
       celular: $('celular').value.trim(),
       correo: $('correo').value.trim().toLowerCase(),
       direccion: $('direccion').value.trim() || null,
-      departamento: $('departamento').value || null,
-      provincia: $('provincia').value.trim() || null,
-      distrito: $('distrito').value.trim() || null,
+      ...ubigeoElegido(),
       discapacidad: $('discapacidad').checked,
       nivel_educativo: $('nivel').value || null,
       centro_estudios: $('centro').value.trim() || null,
@@ -577,12 +654,17 @@ $('formulario').addEventListener('submit', async e => {
       fuente_reclutamiento: $('fuente').value || null,
       expectativa_salarial: Number($('expectativa').value),
       disponibilidad_inmediata: $('disponibilidad').checked,
-      cv_path: ruta,
+      cv_url: subido.url,
       cv_nombre: archivoCv.name
     };
 
-    const { data, error } = await db.from('postulantes').insert(fila).select('codigo').single();
-    if (error) throw error;
+    const r = await fetch('/api/postular', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fila)
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Sin respuesta');
 
     $('codigoListo').textContent = data.codigo;
     $('formulario').style.display = 'none';
@@ -591,7 +673,7 @@ $('formulario').addEventListener('submit', async e => {
 
   } catch (err) {
     console.error(err);
-    msj.textContent = 'No se pudo registrar la postulación. Verifica tu conexión e inténtalo de nuevo.';
+    msj.textContent = err.message || 'No se pudo registrar la postulación. Inténtalo de nuevo.';
     btn.disabled = false; btn.textContent = 'ENVIAR POSTULACIÓN';
   }
 });
