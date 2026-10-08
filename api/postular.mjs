@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   if (!texto(d.apellido_materno)) faltan.push('apellido materno');
   if (!texto(d.numero_documento)) faltan.push('documento');
   if (!texto(d.puesto))           faltan.push('puesto');
-  if (!texto(d.cv_url, 600))      faltan.push('CV');
+  if (!texto(d.cv_pathname, 600)) faltan.push('CV');
 
   if (faltan.length) {
     return res.status(400).json({ error: 'Faltan datos: ' + faltan.join(', ') + '.' });
@@ -37,8 +37,9 @@ export default async function handler(req, res) {
   if (d.tipo_documento === 'DNI' && !/^\d{8}$/.test(String(d.numero_documento))) {
     return res.status(400).json({ error: 'El DNI debe tener 8 dígitos.' });
   }
-  // El CV tiene que venir del almacén propio, no de un enlace cualquiera.
-  if (!/^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i.test(String(d.cv_url))) {
+  // La ruta la define el almacén al subir: año/documento con sufijo.
+  // Así nadie puede registrar una ruta arbitraria.
+  if (!/^\d{4}\/[\w-]+\.pdf$/i.test(String(d.cv_pathname))) {
     return res.status(400).json({ error: 'El archivo del CV no es válido.' });
   }
 
@@ -67,7 +68,7 @@ export default async function handler(req, res) {
         numero_colegiatura,
         puesto, experiencia_anios, fuente_reclutamiento,
         expectativa_salarial, disponibilidad_inmediata,
-        cv_url, cv_nombre
+        cv_pathname, cv_nombre
       ) values (
         ${texto(d.nombres)}, ${texto(d.apellido_paterno)}, ${texto(d.apellido_materno)},
         ${texto(d.tipo_documento, 10) || 'DNI'}, ${texto(d.numero_documento, 15)},
@@ -86,7 +87,7 @@ export default async function handler(req, res) {
         ${texto(d.puesto, 120)}, ${numero(d.experiencia_anios)},
         ${texto(d.fuente_reclutamiento, 40)}, ${numero(d.expectativa_salarial)},
         ${d.disponibilidad_inmediata !== false},
-        ${texto(d.cv_url, 600)}, ${texto(d.cv_nombre, 200)}
+        ${texto(d.cv_pathname, 600)}, ${texto(d.cv_nombre, 200)}
       )
       returning codigo
     `;

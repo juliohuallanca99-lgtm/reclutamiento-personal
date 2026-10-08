@@ -21,7 +21,7 @@ async function handler(req, res) {
                nivel_educativo, especialidad, estado_estudios,
                puesto, experiencia_anios, fuente_reclutamiento,
                expectativa_salarial, disponibilidad_inmediata,
-               cv_url, cv_nombre, estado, observaciones,
+               cv_pathname, cv_url, cv_nombre, estado, observaciones,
                revisado_por, revisado_en, creado_en
           from postulantes
          where (${String(puesto)} = '' or puesto = ${String(puesto)})

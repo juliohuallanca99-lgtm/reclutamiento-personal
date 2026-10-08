@@ -11,6 +11,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
+  // Sin almacén conectado no hay a dónde subir. Se avisa aquí para que
+  // el registro diga qué falta, en vez de un error genérico.
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    console.error('falta BLOB_READ_WRITE_TOKEN: crea el almacén Blob en Vercel > Storage y vuelve a desplegar');
+    return res.status(500).json({ error: 'El almacenamiento de archivos no está configurado.' });
+  }
+
   try {
     const respuesta = await handleUpload({
       request: req,

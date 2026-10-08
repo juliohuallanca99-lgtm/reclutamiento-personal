@@ -37,7 +37,7 @@ const COLUMNAS = [
   { header: 'Fuente',              key: 'fuente_reclutamiento', width: 15 },
   { header: 'Expectativa (S/)',    key: 'expectativa_salarial', width: 16 },
   { header: 'Disp. inmediata',     key: 'disponibilidad',       width: 15 },
-  { header: 'CV',                  key: 'cv_url',               width: 12 },
+  { header: 'CV',                  key: 'cv',                   width: 12 },
   { header: 'Observaciones',       key: 'observaciones',        width: 40 },
   { header: 'Revisado por',        key: 'revisado_por',         width: 22 },
   { header: 'Revisado el',         key: 'revisado_en',          width: 18 }
@@ -102,6 +102,7 @@ async function handler(req, res) {
         revisado_en:      f.revisado_en ? new Date(f.revisado_en) : null,
         fecha_nacimiento: f.fecha_nacimiento ? new Date(f.fecha_nacimiento) : null,
         edad:             edadDe(f.fecha_nacimiento),
+        cv:               (f.cv_pathname || f.cv_url) ? f.id : null,
         datos_verificados: f.datos_verificados ? 'Sí' : 'No',
         discapacidad:      f.discapacidad ? 'Sí' : 'No',
         disponibilidad:    f.disponibilidad_inmediata ? 'Sí' : 'No'
@@ -115,13 +116,16 @@ async function handler(req, res) {
     hoja.getColumn('expectativa_salarial').numFmt = '#,##0.00';
     hoja.getColumn('numero_documento').alignment = { horizontal: 'left' };
 
-    // El CV como enlace en vez de una URL larguísima
-    const colCv = hoja.getColumn('cv_url').number;
+    // El CV no se enlaza directo al archivo: ahora es privado. El
+    // enlace apunta a /api/cv, que pide sesión. Quien abra el Excel
+    // sin haber entrado al panel verá el login, no el documento.
+    const base = 'https://' + (req.headers['x-forwarded-host'] || req.headers.host);
+    const colCv = hoja.getColumn('cv').number;
     for (let i = 2; i <= hoja.rowCount; i++) {
       const celda = hoja.getRow(i).getCell(colCv);
-      const url = celda.value;
-      if (typeof url === 'string' && url.startsWith('http')) {
-        celda.value = { text: 'Abrir CV', hyperlink: url };
+      const id = celda.value;
+      if (id) {
+        celda.value = { text: 'Abrir CV', hyperlink: `${base}/api/cv?id=${id}` };
         celda.font = { color: { argb: 'FF0563C1' }, underline: true };
       }
     }
