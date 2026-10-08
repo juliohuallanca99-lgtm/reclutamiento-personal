@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cuentas — Recursos Humanos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16191c; --steel:#5b6770; --rule:#d6dbde;
+  --field:#f3f5f6; --paper:#fff; --rojo:#c8102e; --ok:#1c7a4b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--field);color:var(--ink);
+  font:400 15px/1.5 'Barlow',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  display:grid;place-items:center;min-height:100vh;padding:24px;
+}
+h1,.marca,button,legend{font-family:'Barlow Condensed','Barlow',sans-serif}
+
+.tarjeta{
+  background:var(--paper);padding:38px 34px;border-radius:4px;
+  width:100%;max-width:420px;box-shadow:0 1px 3px rgba(0,0,0,.08);
+}
+.marca{font-size:12px;font-weight:600;letter-spacing:.18em;color:var(--rojo)}
+h1{font-size:33px;font-weight:700;margin:10px 0 6px;line-height:1}
+.entrada{color:var(--steel);font-size:14px;margin:0 0 26px}
+
+label{display:block;font-size:13.5px;font-weight:500;color:var(--steel);margin:0 0 6px}
+input{
+  width:100%;padding:11px 12px;font:400 15.5px 'Barlow',sans-serif;color:var(--ink);
+  background:var(--field);border:1px solid transparent;border-bottom:1px solid var(--rule);
+  border-radius:3px 3px 0 0;margin-bottom:6px;
+}
+input:focus{outline:none;background:var(--paper);border-color:var(--ink);border-bottom-width:2px;padding-bottom:10px}
+input:focus-visible{outline:2px solid var(--rojo);outline-offset:2px}
+.campo{margin-bottom:16px}
+.campo.error input{border-bottom-color:var(--rojo)}
+.pista{font-size:12.5px;color:var(--steel);margin:0}
+.campo.error .pista{color:var(--rojo)}
+
+.separador{border:0;border-top:1px solid var(--rule);margin:4px 0 22px}
+
+button{
+  width:100%;padding:14px;background:var(--rojo);color:#fff;border:0;border-radius:3px;
+  font:600 16px/1 'Barlow Condensed';letter-spacing:.14em;cursor:pointer;
+}
+button:hover{background:#a60d26}
+button:disabled{background:var(--steel);cursor:progress}
+
+.aviso{margin-top:15px;font-size:14px;min-height:21px;color:var(--rojo)}
+.aviso.bien{color:var(--ok);font-weight:500}
+
+.sesion{
+  background:var(--field);border-left:3px solid var(--ok);
+  padding:11px 13px;margin-bottom:22px;font-size:13.5px;color:var(--steel);
+}
+.sesion b{color:var(--ink);font-weight:600}
+.oculto{display:none}
+.pie{margin-top:24px;font-size:13.5px}
+.pie a{color:var(--steel);text-decoration:none;border-bottom:1px solid var(--rule)}
+.pie a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+</style>
+</head>
+<body>
+
+<form class="tarjeta" id="formulario">
+  <div class="marca">JJC CONTRATISTAS · CC0174</div>
+  <h1>Crear cuenta</h1>
+  <p class="entrada" id="entrada">Comprobando acceso…</p>
+
+  <div class="sesion oculto" id="sesion"></div>
+
+  <div class="campo" id="campo_instalacion">
+    <label for="instalacion">Clave de instalación</label>
+    <input type="password" id="instalacion" autocomplete="off">
+    <p class="pista">La que configuraste como CLAVE_INSTALACION.</p>
+  </div>
+
+  <hr class="separador" id="separador">
+
+  <div class="campo" id="campo_usuario">
+    <label for="usuario">Usuario</label>
+    <input type="text" id="usuario" autocapitalize="off" autocomplete="off" placeholder="rrhh">
+    <p class="pista">Entre 3 y 30 caracteres: letras, números, punto o guion.</p>
+  </div>
+
+  <div class="campo" id="campo_nombre">
+    <label for="nombre">Nombre para mostrar</label>
+    <input type="text" id="nombre" autocomplete="off" placeholder="Recursos Humanos">
+    <p class="pista">Aparece en el panel y en quién revisó cada postulación.</p>
+  </div>
+
+  <div class="campo" id="campo_clave">
+    <label for="clave">Contraseña</label>
+    <input type="password" id="clave" autocomplete="new-password">
+    <p class="pista">Mínimo 10 caracteres.</p>
+  </div>
+
+  <div class="campo" id="campo_repetir">
+    <label for="repetir">Repetir contraseña</label>
+    <input type="password" id="repetir" autocomplete="new-password">
+    <p class="pista">Las dos deben coincidir.</p>
+  </div>
+
+  <button type="submit" id="btn">CREAR CUENTA</button>
+  <div class="aviso" id="aviso"></div>
+
+  <p class="pie"><a href="/panel.html">Ir al panel de postulantes</a></p>
+</form>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+
+async function leerJson(r) {
+  const t = await r.text();
+  try { return JSON.parse(t); }
+  catch { console.error('respuesta no-JSON:', r.status, t.slice(0, 200));
+          return { error: 'El servicio no está disponible en este momento.' }; }
+}
+
+/* Si ya hay sesión, no hace falta la clave de instalación. */
+let conSesion = false;
+(async () => {
+  try {
+    const r = await fetch('/api/ingresar');
+    if (r.ok) {
+      const u = await leerJson(r);
+      conSesion = true;
+      $('campo_instalacion').classList.add('oculto');
+      $('separador').classList.add('oculto');
+      $('sesion').classList.remove('oculto');
+      $('sesion').innerHTML = `Sesión activa como <b>${u.nombre}</b>. Puedes crear cuentas sin la clave de instalación.`;
+      $('entrada').textContent = 'Agrega otra cuenta para el equipo de Recursos Humanos.';
+      $('usuario').focus();
+      return;
+    }
+  } catch {}
+  $('entrada').textContent = 'Primera cuenta del sistema. Necesitas la clave de instalación.';
+  $('instalacion').focus();
+})();
+
+const marcar = (id, mal) => $(id).classList.toggle('error', mal);
+
+$('formulario').addEventListener('submit', async e => {
+  e.preventDefault();
+  const aviso = $('aviso');
+  aviso.className = 'aviso';
+  aviso.textContent = '';
+
+  const instalacion = $('instalacion').value;
+  const usuario = $('usuario').value.trim().toLowerCase();
+  const nombre  = $('nombre').value.trim();
+  const clave   = $('clave').value;
+  const repetir = $('repetir').value;
+
+  let ok = true;
+  const faltaInst = !conSesion && !instalacion;
+  marcar('campo_instalacion', faltaInst); if (faltaInst) ok = false;
+
+  const malUsuario = !/^[a-z0-9._-]{3,30}$/.test(usuario);
+  marcar('campo_usuario', malUsuario); if (malUsuario) ok = false;
+
+  marcar('campo_nombre', !nombre); if (!nombre) ok = false;
+
+  const malClave = clave.length < 10;
+  marcar('campo_clave', malClave); if (malClave) ok = false;
+
+  const noCoincide = clave !== repetir;
+  marcar('campo_repetir', noCoincide); if (noCoincide) ok = false;
+
+  if (!ok) { aviso.textContent = 'Revisa los campos marcados en rojo.'; return; }
+
+  const btn = $('btn');
+  btn.disabled = true; btn.textContent = 'CREANDO…';
+
+  try {
+    const r = await fetch('/api/crear-usuario', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ instalacion, usuario, nombre, clave })
+    });
+    const d = await leerJson(r);
+    if (!r.ok) throw new Error(d.error || 'No se pudo crear la cuenta.');
+
+    aviso.className = 'aviso bien';
+    aviso.innerHTML = `Cuenta <b>${usuario}</b> creada. Ya puede entrar al panel.`;
+    ['instalacion','usuario','nombre','clave','repetir'].forEach(id => $(id).value = '');
+
+  } catch (err) {
+    aviso.textContent = err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'CREAR CUENTA';
+  }
+});
+</script>
+</body>
+</html>
