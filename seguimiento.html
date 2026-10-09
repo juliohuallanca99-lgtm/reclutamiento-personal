@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es" style="color-scheme: light;"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seguimiento de ingreso de personal · Marcobre Bateas</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<style>
+:root{--bg:#eef1f4;--sf:#fff;--ink:#16222c;--mu:#5d6b78;--ln:#d9dfe5;--ac:#f0b400;--acd:#16222c;--ok:#1d8a5a;--okb:#dcf2e7;--pe:#8a94a0;--peb:#e8ebef;--ob:#c8372d;--obb:#fbe0dd;--pr:#b87400;--prb:#fdf0cc;--sh:0 1px 2px rgba(22,34,44,.08);--oa:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f161c;--sf:#18222b;--ink:#e8edf1;--mu:#93a1ad;--ln:#2b3946;--acd:#f0b400;--oa:#16222c;--okb:#12382a;--peb:#242f39;--obb:#431b18;--prb:#3d3010;--ok:#4cc58a;--ob:#ff7a70;--pr:#f0b400}}
+:root[data-theme="dark"]{--bg:#0f161c;--sf:#18222b;--ink:#e8edf1;--mu:#93a1ad;--ln:#2b3946;--acd:#f0b400;--oa:#16222c;--okb:#12382a;--peb:#242f39;--obb:#431b18;--prb:#3d3010;--ok:#4cc58a;--ob:#ff7a70;--pr:#f0b400}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Barlow,system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px 40px}
+header{background:var(--acd);color:var(--oa);border-bottom:4px solid var(--ac);margin:0 -16px 18px;padding:18px 16px}
+header .in{max-width:1240px;margin:0 auto;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font:700 30px/1.05 'Barlow Condensed',sans-serif;margin:0;letter-spacing:.3px}header p{margin:4px 0 0;opacity:.8;font-size:14px}
+.tb{background:transparent;border:1px solid currentColor;border-radius:6px;padding:6px 12px;opacity:.9}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--ln)}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:600;color:var(--mu)}
+nav button[aria-selected=true]{color:var(--ink);border-color:var(--ac)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.k{background:var(--sf);border:1px solid var(--ln);border-left:5px solid var(--ac);border-radius:6px;padding:12px 14px;box-shadow:var(--sh)}
+.k b{font:700 34px/1 'Barlow Condensed',sans-serif;display:block}.k span{color:var(--mu);font-size:13px}
+.k.g{border-left-color:var(--ok)}.k.o{border-left-color:var(--ob)}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:6px;padding:16px;margin-bottom:16px;box-shadow:var(--sh)}
+h2{font:700 20px 'Barlow Condensed',sans-serif;margin:0 0 12px;letter-spacing:.3px}
+.pipe{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.col{background:var(--bg);border-radius:6px;padding:10px}.col h3{margin:0 0 8px;font-size:14px;display:flex;justify-content:space-between}
+.chip{display:block;width:100%;text-align:left;background:var(--sf);border:1px solid var(--ln);border-radius:5px;padding:8px 10px;margin-bottom:6px}
+.chip:hover{border-color:var(--ac)}.chip small{display:block;color:var(--mu)}
+.bar{height:8px;background:var(--peb);border-radius:4px;overflow:hidden;min-width:70px}.bar i{display:block;height:100%;background:var(--ok)}
+.sb{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;margin:7px 0;font-size:14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.f{border:1px solid var(--ln);background:var(--sf);border-radius:999px;padding:5px 13px;font-size:14px}
+.f[aria-pressed=true]{background:var(--acd);color:var(--oa);border-color:var(--acd)}
+input[type=search]{border:1px solid var(--ln);background:var(--sf);color:var(--ink);border-radius:6px;padding:7px 10px;min-width:200px;font:inherit}
+.sp{flex:1}
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:6px;background:var(--sf)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:9px 10px;border-bottom:1px solid var(--ln);text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600;white-space:nowrap;position:sticky;top:0}tr:last-child td{border-bottom:0}
+tbody tr.r:hover{background:var(--bg)}
+.bd{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.ok{background:var(--okb);color:var(--ok)}.pend{background:var(--peb);color:var(--mu)}.obs{background:var(--obb);color:var(--ob)}.prog{background:var(--prb);color:var(--pr)}.na{background:transparent;color:var(--mu)}
+.btn{border:1px solid var(--ln);background:var(--sf);border-radius:6px;padding:6px 12px;font-weight:600}.btn:hover{border-color:var(--ac)}
+.btn.p{background:var(--ac);border-color:var(--ac);color:#16222c}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.fc{background:var(--sf);border:1px solid var(--ln);border-top:4px solid var(--ac);border-radius:6px;padding:14px;box-shadow:var(--sh)}
+.fc.L{border-top-color:var(--ok)}.fc.O{border-top-color:var(--ob)}
+.av{width:42px;height:42px;border-radius:50%;background:var(--acd);color:var(--oa);display:grid;place-items:center;font:700 16px 'Barlow Condensed',sans-serif;flex:none}
+.row{display:flex;gap:10px;align-items:center}.mu{color:var(--mu);font-size:13px}
+.m{text-align:center;padding:7px 6px;font-size:12px;font-weight:600;border-bottom:1px solid var(--bg)}
+.m.ok,.m.pend,.m.obs,.m.prog,.m.na{border-radius:0}
+th.v{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;height:130px;padding:8px 4px}
+dialog{border:0;border-radius:8px;padding:0;max-width:760px;width:calc(100% - 24px);background:var(--sf);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(10,16,22,.6)}
+.dh{padding:18px;border-bottom:1px solid var(--ln);display:flex;gap:12px;align-items:center}
+.db{padding:18px;max-height:62vh;overflow:auto}.df{padding:12px 18px;border-top:1px solid var(--ln);display:flex;gap:8px;flex-wrap:wrap}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:8px 0 18px}
+.stp{border:1px solid var(--ln);border-left-width:4px;border-radius:5px;padding:7px 9px;font-size:13px}
+.stp.ok{border-left-color:var(--ok)}.stp.obs{border-left-color:var(--ob)}.stp.prog{border-left-color:var(--ac)}.stp.pend,.stp.na{border-left-color:var(--pe)}
+.stp b{display:block;font-size:12.5px;color:var(--mu);font-weight:500}
+[hidden]{display:none!important}select,.stp input{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:4px;padding:3px;width:100%;margin-top:3px}.ei{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:4px;padding:5px 8px;width:100%;margin:2px 0}.hb{display:flex;gap:8px;flex-wrap:wrap}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--acd);color:var(--oa);padding:8px 16px;border-radius:6px;display:none;z-index:9}
+.leg{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+@media(max-width:600px){.sb{grid-template-columns:100px 1fr 40px}h1{font-size:25px}}
+@media print{header,nav,.tools,.df{display:none}}
+</style></head><body><div class="wrap">
+<header><div class="in"><div><h1>Alineamiento de faja CV-315</h1><p>Seguimiento de ingreso de personal · Marcobre Bateas</p></div>
+<div class="hb" style="align-items:center;justify-content:flex-end"><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bi" type="button">Importar Excel</button><input type="file" id="fx" accept=".xlsx,.xls,.csv" hidden><div class="hb" id="hb" hidden=""><button class="tb" id="be" type="button" hidden="">Editar datos</button><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bt" type="button">Descargar PowerPoint</button><button class="tb" id="th" type="button">Cambiar tema</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
+<nav role="tablist" id="nav"></nav><main id="main"></main></div>
+<dialog id="dlg"></dialog><div class="toast" id="ts" role="status"></div>
+<script id="ds">const W=[],R=[];</script>
+<script id="app">
+const SN=['EMO','Validación JJC','Validación UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'],
+TN=['Inducción Anexo 4','Prevención lesiones en manos','IPERC','Ácido sulfúrico','Sustancias químicas','Riesgos eléctricos','Sistema de izaje','Seguridad con herramientas','Trabajos en altura','Trabajos en caliente','Bloqueo de energía'];
+const $=s=>document.querySelector(s),cap=s=>s.toLowerCase().replace(/(^|[\s,.])(\S)/g,(m,a,b)=>a+b.toUpperCase());
+const pc=a=>a.filter(x=>x.k==='ok').length;
+const calc=w=>{w.ps=pc(w.st);w.pt=pc(w.tr);w.pct=Math.round((w.ps+w.pt)/18*100);w.g=w.e==='LABORANDO'?'L':w.st.some(x=>x.k==='obs')?'O':'T'};W.forEach(calc);
+let ed=false,dirty=false,AR=null,arm=false;const FN='Estatus de personal EMPL- Servicio de Alineamiento CV 315';
+const GL={L:'Laborando',T:'En trámite',O:'Observado'};
+let tab='res',flt='all',q='',vw='tab',mx='st',rf='all',cur=0,ct=-1,dd=false;
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const hm=w=>w.mov&&w.mov.k==='prog';
+const mvc=w=>`<div class="stp ${hm(w)?'prog':'na'}" style="grid-column:span 2"><b>🚚 Movilización · fecha probable</b>${ed?`<div class="row"><input type="date" data-mv value="${hm(w)?(w.mov.d||''):''}" aria-label="Fecha probable de movilización"><button class="btn" data-mvx type="button" style="padding:3px 8px">Quitar</button></div>`:(hm(w)?w.mov.l:'Sin fecha')}</div>`;
+const bd=c=>`<span class="bd ${c.k}">${c.l}</span>`;
+const ini=n=>n.split(/[\s,]+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('');
+const vis=()=>W.filter(w=>(flt==='all'||w.g===flt)&&(w.n+w.f+w.dni).toLowerCase().includes(q.toLowerCase()));
+function nav(){$('#nav').innerHTML=[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')}
+function res(){const n=g=>W.filter(w=>w.g===g).length,av=Math.round(W.reduce((a,w)=>a+w.pct,0)/W.length);
+const ord=['EXAMEN MEDICO','FIRMA DE ANEXO A','LABORANDO'],es=[...new Set([...ord,...W.map(w=>w.e)])].filter(e=>W.some(w=>w.e===e));
+const sb=(l,v,t)=>`<div class="sb"><span>${l}</span><div class="bar"><i style="width:${v/t*100}%"></i></div><b>${v}/${t}</b></div>`;
+return `<div class="kpis"><div class="k"><b>${W.length}</b><span>Personal total</span></div><div class="k g"><b>${n('L')}</b><span>Laborando</span></div><div class="k"><b>${n('T')}</b><span>En trámite</span></div><div class="k o"><b>${n('O')}</b><span>Con observación médica</span></div><div class="k"><b>${av}%</b><span>Avance promedio</span></div></div>
+<div class="card"><h2>Dónde está cada persona hoy</h2><div class="pipe">${es.map(e=>`<div class="col"><h3>${cap(e)}<span>${W.filter(w=>w.e===e).length}</span></h3>${W.filter(w=>w.e===e).map(w=>`<button class="chip" data-f="${W.indexOf(w)}" type="button">${cap(w.n)}<small>${cap(w.f)} · ${w.pct}%</small></button>`).join('')}</div>`).join('')}</div></div>
+<div class="card"><h2>Personas que completaron cada etapa</h2>${SN.map((s,i)=>sb(s,W.filter(w=>w.st[i].k==='ok').length,W.length)).join('')}</div>
+<div class="card"><h2>Personas con cada capacitación aprobada</h2>${TN.map((s,i)=>sb(s,W.filter(w=>w.tr[i].k==='ok').length,W.length)).join('')}</div>`}
+function ficha(w){const i=W.indexOf(w);return `<div class="fc ${w.g}"><div class="row"><div class="av">${ini(w.n)}</div><div><b>${cap(w.n)}</b><div class="mu">${cap(w.f)}</div></div></div>
+<div class="row" style="margin:10px 0">${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}<span class="mu">DNI ${w.dni}${w.tel?' · ☎ '+w.tel:''}</span></div>
+<div class="mu">Etapas ${w.ps}/7 · Capacitaciones ${w.pt}/11</div><div class="mu">🚚 Movilización: ${hm(w)?w.mov.l:'sin fecha'}</div><div class="bar" style="margin:6px 0 12px"><i style="width:${w.pct}%"></i></div>
+<button class="btn p" data-f="${i}" type="button">Ver ficha completa</button></div>`}
+function per(){const v=vis();const fl=[['all','Todos'],['L','Laborando'],['T','En trámite'],['O','Observados']];
+let h=`<div class="tools">${fl.map(([k,l])=>`<button class="f" aria-pressed="${flt===k}" data-fl="${k}" type="button">${l}</button>`).join('')}<input type="search" id="q" placeholder="Buscar nombre, cargo o DNI" value="${q}" aria-label="Buscar"><span class="sp"></span>
+${ed?'<button class="btn p" data-add type="button">+ Agregar trabajador</button>':''}<button class="f" aria-pressed="${vw==='tab'}" data-v="tab" type="button">Tabla</button><button class="f" aria-pressed="${vw==='fic'}" data-v="fic" type="button">Fichas</button></div>`;
+if(!v.length)return h+'<div class="card">Ningún trabajador coincide. Quita un filtro o cambia la búsqueda.</div>';
+if(vw==='fic')return h+`<div class="grid">${v.map(ficha).join('')}</div>`;
+return h+`<div class="tw"><table><thead><tr><th>#</th><th>Nombres y apellidos</th><th>Función</th><th>Estado del proceso</th><th>Etapas</th><th>Capacitaciones</th><th>Movilización</th><th></th></tr></thead><tbody>${v.map(w=>`<tr class="r"><td>${w.i}</td><td><b>${cap(w.n)}</b><div class="mu">DNI ${w.dni}</div></td><td>${cap(w.f)}</td><td>${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}</td><td><div class="bar"><i style="width:${w.ps/7*100}%"></i></div><span class="mu">${w.ps}/7</span></td><td><div class="bar"><i style="width:${w.pt/11*100}%"></i></div><span class="mu">${w.pt}/11</span></td><td>${hm(w)?w.mov.l:'<span class="mu">—</span>'}</td><td><button class="btn" data-f="${W.indexOf(w)}" type="button">Ficha</button></td></tr>`).join('')}</tbody></table></div>`}
+function eta(){const L=mx==='st'?SN:TN,k=mx==='st'?'st':'tr';
+const cnt=j=>W.filter(w=>w.tr[j].k==='ok').length;
+const menu=dd?`<div role="menu" style="position:absolute;top:100%;left:0;z-index:5;min-width:300px;margin-top:4px;padding:4px;background:var(--sf);border:1px solid var(--ln);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.25)">${[-1,...TN.keys()].map(j=>`<button class="btn" role="menuitem" data-ct="${j}" type="button" style="display:flex;justify-content:space-between;gap:14px;width:100%;border:0;text-align:left;${ct===j?'background:var(--bg);':''}"><span>${j<0?'Todas (matriz completa)':TN[j]}</span><span class="mu">${j<0?'':cnt(j)+'/'+W.length}</span></button>`).join('')}</div>`:'';
+const det=()=>{const j=ct,G=[['ok','Aprobado'],['prog','Programado'],['pend','Pendiente'],['obs','Observado']],g=x=>W.filter(w=>{const c=w.tr[j];return x==='pend'?(c.k==='pend'||c.k==='na'):c.k===x});
+return `<div class="card"><div class="row" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:6px"><h2 style="margin:0">${TN[j]}</h2><button class="btn" data-ct="-1" type="button">Ver matriz completa</button></div><p class="mu" style="margin-top:0">${cnt(j)} de ${W.length} personas la tienen aprobada.</p><div class="pipe">${G.map(([x,l])=>{const a=g(x);return `<div class="col"><h3><span class="bd ${x}">${l}</span><span>${a.length}</span></h3>${a.length?a.map(w=>{const c=w.tr[j];return `<button class="chip" data-f="${W.indexOf(w)}" type="button">${cap(w.n)}<small>${x==='prog'?'Fecha: '+esc(c.l):x==='obs'&&c.c?esc(c.c):cap(w.f)}</small></button>`}).join(''):'<div class="mu">Nadie</div>'}</div>`}).join('')}</div></div>`};
+const mtx=()=>`<div class="tw"><table><thead><tr><th>Trabajador</th>${L.map(s=>`<th class="v">${s}</th>`).join('')}<th>Avance</th></tr></thead><tbody>${W.map(w=>`<tr class="r"><td><button class="btn" style="border:0;padding:0;background:none;text-align:left" data-f="${W.indexOf(w)}" type="button"><b>${cap(w.n)}</b></button></td>${w[k].map(c=>`<td class="m ${c.k}" title="${esc(c.l+(c.c?': '+c.c:''))}">${c.k==='ok'?'✓':c.k==='na'?'—':c.k==='pend'?'·':c.l}</td>`).join('')}<td><b>${mx==='st'?w.ps+'/7':w.pt+'/11'}</b></td></tr>`).join('')}</tbody></table></div>`;
+return `<div class="tools"><button class="f" aria-pressed="${mx==='st'}" data-m="st" type="button">Etapas de ingreso</button><div id="ddw" style="position:relative;display:inline-block"><button class="f" aria-pressed="${mx==='tr'}" aria-haspopup="menu" aria-expanded="${dd}" data-m="tr" type="button">Capacitaciones Tecsup${mx==='tr'&&ct>=0?': '+TN[ct]:''} ▾</button>${menu}</div></div>
+<div class="leg"><span class="bd ok">Aprobado / listo</span><span class="bd prog">Programado (fecha)</span><span class="bd pend">Pendiente</span><span class="bd obs">Observado</span></div>
+${mx==='tr'&&ct>=0?det():mtx()}`}
+function req(){const v=R.filter(r=>rf==='all'||(rf==='c'?r.cs:!r.cs));
+return `<div class="tools">${[['all','Todos'],['c','Con candidato'],['b','En búsqueda']].map(([k,l])=>`<button class="f" aria-pressed="${rf===k}" data-r="${k}" type="button">${l}</button>`).join('')}<span class="mu">${v.length} requerimientos</span></div>
+<div class="tw"><table><thead><tr><th>#</th><th>Puesto</th><th>Cat.</th><th>Tipo</th><th>Dueño</th><th>Inicio</th><th>Candidato</th><th>Comentarios</th></tr></thead><tbody>${v.map(r=>`<tr class="r"><td>${r.id}</td><td><b>${r.p}</b><div class="mu">${r.cc} · ${r.o}</div></td><td>${r.c}</td><td>${r.nr}</td><td>${r.d}</td><td>${r.fi}</td><td>${r.cs?cap(r.cs)+`<div class="mu">${cap(r.pl)}</div>`:'<span class="bd prog">En búsqueda</span>'}</td><td>${r.cm}</td></tr>`).join('')}</tbody></table></div>
+<p class="mu">Datos de la hoja «Hoja1». Las fechas de inicio y los comentarios corresponden a abril–junio de 2026.</p>`}
+function render(){nav();$('#main').innerHTML={res,per,eta}[tab]();const s=$('#q');if(s){s.focus();s.setSelectionRange(q.length,q.length)}}
+const key=n=>n.toUpperCase().replace(/[,.]/g,'').split(/\s+/).sort().join(' ');
+function open(i){cur=i;arm=false;const w=W[i],r=R.find(r=>r.cs&&key(r.cs)===key(w.n));
+const OP=[['ok','Aprobado'],['pend','Pendiente'],['obs','Observado'],['prog','Programado'],['na','Sin dato']];
+const it=(k,j,c)=>ed?`<div class="stp ${c.k}"><b>${(k==='st'?SN:TN)[j]}</b><select data-s="${k},${j}" aria-label="${(k==='st'?SN:TN)[j]}">${OP.map(([v,l])=>`<option value="${v}"${c.k===v?' selected':''}>${l}</option>`).join('')}</select>${c.k==='prog'?`<input type="text" data-d="${k},${j}" value="${esc(c.l)}" placeholder="dd/mm" aria-label="Fecha dd/mm">`:''}${c.k==='obs'?`<input type="text" data-c="${k},${j}" value="${esc(c.c)}" placeholder="Comentario de la observación" aria-label="Comentario de la observación">`:''}</div>`:`<div class="stp ${c.k}"><b>${(k==='st'?SN:TN)[j]}</b>${c.l}${c.k==='obs'&&c.c?`<div class="mu" style="margin-top:3px">${esc(c.c)}</div>`:''}</div>`;
+const head=ed?`<div class="dh"><div class="av">${ini(w.n)}</div><div style="flex:1"><input class="ei" data-x="n" value="${w.n}" aria-label="Nombre"><input class="ei" data-x="f" value="${w.f}" placeholder="Función" aria-label="Función"><input class="ei" data-x="tel" value="${w.tel||''}" placeholder="Teléfono" aria-label="Teléfono"><div class="row"><input class="ei" data-x="dni" value="${w.dni||''}" placeholder="DNI" aria-label="DNI"></div><input class="ei" data-x="e" list="el" value="${w.e}" aria-label="Estado del proceso"><datalist id="el">${['EXAMEN MEDICO','FIRMA DE ANEXO A','AUT-REC','FOTOCHECK','MOVILIZACION','LABORANDO'].map(x=>`<option value="${x}">`).join('')}</datalist></div></div>`
+:`<div class="dh"><div class="av">${ini(w.n)}</div><div style="flex:1"><b style="font-size:19px">${cap(w.n)}</b><div class="mu">${cap(w.f)} · DNI ${w.dni}</div></div>${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}</div>`;
+$('#dlg').innerHTML=head+`<div class="db"><div class="row" style="margin-bottom:14px"><div class="bar" style="flex:1;height:12px"><i style="width:${w.pct}%"></i></div><b>${w.pct}%</b></div>
+<h2>Etapas del proceso · ${w.ps}/7</h2><div class="steps">${w.st.map((c,j)=>it('st',j,c)).join('')}${mvc(w)}</div>
+<h2>Capacitaciones · ${w.pt}/11</h2><div class="steps">${w.tr.map((c,j)=>it('tr',j,c)).join('')}</div>
+</div>
+<div class="df"><button class="btn" data-n="-1" type="button">‹ Anterior</button><button class="btn" data-n="1" type="button">Siguiente ›</button><span class="sp"></span>
+${ed?'<button class="btn" id="dl" type="button">Eliminar trabajador</button>':''}<button class="btn" id="cp" type="button">Copiar resumen</button><button class="btn p" id="cl" type="button">Cerrar</button></div>`;
+const d=$('#dlg');if(!d.open)d.showModal()}
+function toast(t){const e=$('#ts');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',1800)}
+document.addEventListener('click',e=>{const t=e.target.closest('button,a');if(!t)return;const d=t.dataset;
+if(d.t){tab=d.t;render()}else if(d.fl){flt=d.fl;render()}else if(d.v){vw=d.v;render()}else if(d.m){if(d.m==='tr'&&mx==='tr')dd=!dd;else{mx=d.m;dd=d.m==='tr'}render()}
+else if(d.ct!==undefined){ct=+d.ct;dd=false;render()}else if(d.r){rf=d.r;render()}
+else if(d.f!==undefined)open(+d.f);
+else if(d.n){open((cur+ +d.n+W.length)%W.length)}
+else if(t.id==='cl')$('#dlg').close();
+else if(t.id==='bc'){const h=$('#hb'),o=h.hidden;h.hidden=!o;t.setAttribute('aria-expanded',o);t.setAttribute('aria-label',o?'Ocultar opciones':'Mostrar opciones')}
+else if(t.id==='be'){ed=!ed;t.textContent=ed?'Salir de edición':'Editar datos';render()}
+else if(t.id==='bi')$('#fx').click();else if(t.id==='bp')pub();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');else if(t.id==='bt')dl('p');
+else if(d.mvx!==undefined){W[cur].mov={k:'na',l:'—'};mark();open(cur)}
+else if(d.add!==undefined){crearFicha()}
+else if(t.id==='dl'){if(!arm){arm=true;t.textContent='Confirmar eliminación'}else{eliminarFicha()}}
+else if(t.id==='cp'){const w=W[cur],f=w.st.map((c,j)=>SN[j]+': '+c.l).join('; ');const s=`${cap(w.n)} (${cap(w.f)}) — ${cap(w.e)}. Avance ${w.pct}%. ${f}`;(navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(()=>toast('Resumen copiado'),()=>toast('No se pudo copiar'))}
+else if(t.id==='th'){const r=document.documentElement,dk=matchMedia('(prefers-color-scheme:dark)').matches,c=r.dataset.theme||(dk?'dark':'light');r.dataset.theme=c==='dark'?'light':'dark'}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;render()}});
+$('#dlg').addEventListener('click',e=>{if(e.target===$('#dlg'))$('#dlg').close()});
+document.addEventListener('keydown',e=>{if($('#dlg').open){if(e.key==='ArrowRight')open((cur+1)%W.length);if(e.key==='ArrowLeft')open((cur-1+W.length)%W.length)}});
+$('#dlg').addEventListener('close',()=>render());
+document.addEventListener('change',e=>{const el=e.target,w=W[cur];if(!el.closest('#dlg')||!w)return;
+if(el.dataset.s){const[k,j]=el.dataset.s.split(','),c=w[k][j],v=el.value;c.k=v;c.l={ok:'Aprobado',pend:'Pendiente',obs:'Observado',na:'—',prog:''}[v];if(v!=='obs')delete c.c;calc(w);mark();open(cur);if(v==='obs')setTimeout(()=>{const f=document.querySelector(`[data-c="${k},${j}"]`);if(f)f.focus()})}
+else if(el.dataset.mv!==undefined){const v=el.value;if(v){const[y,m,d]=v.split('-');w.mov={k:'prog',l:d+'/'+m+'/'+y,d:v}}else w.mov={k:'na',l:'—'};mark();open(cur)}
+else if(el.dataset.c){const[k,j]=el.dataset.c.split(',');w[k][j].c=el.value.trim();mark()}
+else if(el.dataset.d){const[k,j]=el.dataset.d.split(',');w[k][j].l=el.value.trim();mark()}
+else if(el.dataset.x){const k=el.dataset.x;w[k]=k==='n'||k==='f'||k==='e'?el.value.toUpperCase().trim():el.value.trim();calc(w);mark()}});
+function mark(){dirty=true;agendarGuardado()}
+const clean=w=>{const{ps,pt,pct,g,...b}=w;return b};
+function doc(){const c=document.documentElement.cloneNode(true),js=o=>JSON.stringify(o).replace(/</g,'\\u003c');
+c.querySelector('#ds').textContent='const W='+js(W.map(clean))+',R='+js(R)+';';
+['#main','#dlg','#nav'].forEach(s=>c.querySelector(s).innerHTML='');
+c.querySelector('#dlg').removeAttribute('open');const ts=c.querySelector('#ts');ts.removeAttribute('style');ts.textContent='';
+c.removeAttribute('data-theme');c.querySelector('#hb').setAttribute('hidden','');c.querySelector('#bc').setAttribute('aria-expanded','false');c.querySelector('#bc').setAttribute('aria-label','Mostrar opciones');c.querySelector('#bp').setAttribute('hidden','');c.querySelector('#be').setAttribute('hidden','');c.querySelector('#be').textContent='Editar datos';
+c.querySelectorAll('script').forEach(s=>{if(!['ds','app'].includes(s.id)&&!(s.src||'').startsWith('https://cdnjs.cloudflare.com'))s.remove()});
+return '<!DOCTYPE html>\n'+c.outerHTML}
+async function pub(){await guardarYa()}
+async function dl(kind){const D=(window.claude?await claude.use('downloads'):null)||{save:async({filename,data})=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data]));a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}};
+try{let data,ext;if(kind==='x'){if(typeof XLSX==='undefined'){toast('No se cargó el generador de Excel');return}
+const H=['ITEM','DNI','NOMBRES Y APELLIDOS','FUNCION','N° Telefono','EMO','VALIDACION / JJC','VALIDACIÓN / UME','ANEXO 8','ANEXO A','AUT- REC','FOTOCHECK','ESTADO DEL PROCESO','MOVILIZACION',...TN,'OBSERVACIONES'];
+const v=c=>c.k==='na'?'':c.l.toUpperCase();
+const rows=[H,...W.map(w=>[w.i,w.dni,w.n,w.f,w.tel||'',...w.st.map(v),w.e,v(w.mov),...w.tr.map(v),[...w.st.map((c,j)=>c.c?SN[j]+': '+c.c:''),...w.tr.map((c,j)=>c.c?TN[j]+': '+c.c:'')].filter(Boolean).join(' | ')])];
+const wb=XLSX.utils.book_new(),s1=XLSX.utils.aoa_to_sheet(rows);
+s1['!cols']=H.map((h,i)=>({wch:i===2?34:i===3?30:16}));
+XLSX.utils.book_append_sheet(wb,s1,'EMPL');
+data=XLSX.write(wb,{type:'array',bookType:'xlsx'});ext='xlsx'}else if(kind==='p'){if(typeof PptxGenJS==='undefined'){toast('No se cargó el generador de PowerPoint');return}toast('Generando PowerPoint…');const pr=new PptxGenJS();buildDeck(pr,W);data=await pr.write({outputType:'arraybuffer'});ext='pptx'}else{data=doc();ext='html'}
+await D.save({filename:FN+'.'+ext,data});toast('Archivo guardado')}catch(e){if(!e||e.code!=='declined')toast('No se pudo descargar')}}
+function buildDeck(pres,W0){
+const SN=['EMO','Validación JJC','Validación UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'],
+TN=['Inducción Anexo 4','Prevención lesiones en manos','IPERC','Ácido sulfúrico','Sustancias químicas','Riesgos eléctricos','Sistema de izaje','Seguridad con herramientas','Trabajos en altura','Trabajos en caliente','Bloqueo de energía'],
+TS=['Induc. Anexo 4','Prev. lesiones manos','IPERC','Ácido sulfúrico','Sust. químicas','Riesgos eléctricos','Sist. izaje','Seg. herramientas','Trab. altura','Trab. caliente','Bloqueo energía'];
+const C={ink:'16222C',ac:'F0B400',mu:'5D6B78',ln:'D9DFE5',bg:'EEF1F4',ok:['DCF2E7','1D8A5A'],pend:['E8EBEF','5D6B78'],obs:['FBE0DD','C8372D'],prog:['FDF0CC','B87400'],na:['FFFFFF','8A94A0']};
+const F='Arial',cap=s=>String(s||'').toLowerCase().replace(/(^|[\s,.])(\S)/g,(m,a,b)=>a+b.toUpperCase());
+const okc=a=>a.filter(x=>x.k==='ok').length,hm=w=>w.mov&&w.mov.k==='prog';
+const W=W0.map(w=>Object.assign({},w,{ps:okc(w.st),pt:okc(w.tr)}));
+W.forEach(w=>{w.pct=Math.round((w.ps+w.pt)/18*100);w.g=w.e==='LABORANDO'?'L':w.st.some(x=>x.k==='obs')?'O':'T'});
+const R=pres.ShapeType.rect;
+pres.layout='LAYOUT_16x9';pres.title='Estatus de personal EMPL- Servicio de Alineamiento CV 315';
+const head=(s,t,sub)=>{s.background={color:'FFFFFF'};s.addShape(R,{x:0,y:0,w:10,h:0.7,fill:{color:C.ink},line:{color:C.ink,width:0}});s.addShape(R,{x:0,y:0.7,w:10,h:0.05,fill:{color:C.ac},line:{color:C.ac,width:0}});
+s.addText(t,{x:0.4,y:0.08,w:sub?6.2:9.2,h:0.54,fontFace:F,fontSize:18,bold:true,color:'FFFFFF',valign:'middle',margin:0,isTextBox:true,fit:'shrink'});
+if(sub)s.addText(sub,{x:6.6,y:0.08,w:3,h:0.54,fontFace:F,fontSize:10,color:'C9D2DA',align:'right',valign:'middle',margin:0,isTextBox:true})};
+const cell=c=>{const p=C[c.k]||C.na;return{text:c.k==='ok'?'✓':c.k==='na'?'—':c.k==='pend'?'·':c.k==='obs'?'Obs.':c.l,options:{fill:{color:p[0]},color:p[1],align:'center',valign:'middle',bold:true}}};
+const th=t=>({text:t,options:{fill:{color:C.ink},color:'FFFFFF',bold:true,align:'center',valign:'middle'}});
+// 1 portada
+let s=pres.addSlide();s.background={color:C.ink};
+s.addShape(R,{x:0.6,y:1.7,w:0.12,h:1.6,fill:{color:C.ac},line:{color:C.ac,width:0}});
+s.addText('Estatus de personal EMPL',{x:0.95,y:1.65,w:8.4,h:0.7,fontFace:F,fontSize:32,bold:true,color:'FFFFFF',margin:0,isTextBox:true});
+s.addText('Servicio de Alineamiento CV 315',{x:0.95,y:2.35,w:8.4,h:0.6,fontFace:F,fontSize:24,color:C.ac,margin:0,isTextBox:true});
+s.addText('Seguimiento de ingreso de personal · '+W.length+' trabajadores',{x:0.95,y:3.0,w:8.4,h:0.4,fontFace:F,fontSize:14,color:'C9D2DA',margin:0,isTextBox:true});
+// 2 resumen
+s=pres.addSlide();head(s,'Resumen del proceso');
+const n=g=>W.filter(w=>w.g===g).length,av=Math.round(W.reduce((a,w)=>a+w.pct,0)/(W.length||1));
+[[W.length,'Personal total',C.ac],[n('L'),'Laborando','1D8A5A'],[n('T'),'En trámite',C.ac],[n('O'),'Con observación','C8372D'],[av+'%','Avance promedio',C.ac]].forEach(([v,l,c],i)=>{
+ const x=0.4+i*1.86;s.addShape(R,{x,y:1.0,w:1.72,h:1.0,fill:{color:C.bg},line:{color:C.ln,width:0.75}});s.addShape(R,{x,y:1.0,w:0.07,h:1.0,fill:{color:c},line:{color:c,width:0}});
+ s.addText(String(v),{x:x+0.2,y:1.05,w:1.45,h:0.55,fontFace:F,fontSize:26,bold:true,color:C.ink,margin:0,isTextBox:true});
+ s.addText(l,{x:x+0.2,y:1.6,w:1.45,h:0.3,fontFace:F,fontSize:10,color:C.mu,margin:0,isTextBox:true})});
+s.addChart(pres.charts.BAR,[{name:'Completaron',labels:SN,values:SN.map((_,i)=>W.filter(w=>w.st[i].k==='ok').length)}],{x:0.4,y:2.2,w:5.6,h:3.2,barDir:'bar',chartColors:['1D8A5A'],showTitle:true,title:'Personas que completaron cada etapa',titleFontSize:11,titleFontFace:F,titleColor:C.ink,showValue:true,dataLabelFontSize:9,dataLabelPosition:'outEnd',catAxisLabelFontSize:9,catAxisLabelFontFace:F,valAxisMaxVal:Math.max(W.length,1),valAxisMinVal:0,valAxisHidden:true,valGridLine:{style:'none'},catGridLine:{style:'none'},catAxisOrientation:'maxMin',showLegend:false});
+const es=[...new Set(W.map(w=>w.e))];
+s.addText('Estado del proceso',{x:6.3,y:2.25,w:3.3,h:0.3,fontFace:F,fontSize:11,bold:true,color:C.ink,margin:0,isTextBox:true});
+s.addTable([[th('Estado'),th('Personas')],...es.map(e=>[{text:cap(e),options:{fontFace:F,fontSize:10}},{text:String(W.filter(w=>w.e===e).length),options:{align:'center',bold:true,fontFace:F,fontSize:10}}])],{x:6.3,y:2.6,w:3.3,colW:[2.3,1.0],rowH:0.3,fontFace:F,fontSize:10,border:{type:'solid',color:C.ln,pt:0.75}});
+// 3 etapas
+const mat=(t,L,key,cw,first,hh)=>{const s=pres.addSlide();head(s,t);const rh=Math.min(0.3,(4.55-hh)/(W.length||1));
+ const rows=[[th('Trabajador'),...L.map(th),th('Avance')],...W.map(w=>[{text:cap(w.n),options:{fontFace:F,fontSize:8,bold:true,color:C.ink,valign:'middle'}},...w[key].map(cell),{text:key==='st'?w.ps+'/7':w.pt+'/11',options:{align:'center',bold:true,fontSize:8,valign:'middle'}}])];
+ return{s,rows,rh}};
+let m=mat('Etapas del proceso',SN,'st');
+m.rows[0].push(th('Movilización'));m.rows.slice(1).forEach((r,i)=>r.push({text:hm(W[i])?W[i].mov.l:'—',options:{align:'center',fontSize:8,bold:true,color:hm(W[i])?C.prog[1]:C.na[1],fill:{color:hm(W[i])?C.prog[0]:'FFFFFF'},valign:'middle'}}));
+m.s.addTable(m.rows,{x:0.4,y:0.95,w:9.2,colW:[2.3,...SN.map(()=>0.7),0.7,1.3],rowH:[0.32,...W.map(()=>m.rh)],fontFace:F,fontSize:8,border:{type:'solid',color:C.ln,pt:0.5}});
+m.s.addText('✓ aprobado   ·  pendiente   Obs. observado   fecha: programado',{x:0.4,y:5.3,w:9.2,h:0.25,fontFace:F,fontSize:8,color:C.mu,margin:0,isTextBox:true});
+// 4 capacitaciones
+m=mat('Capacitaciones',TS,'tr');
+m.s.addTable(m.rows,{x:0.4,y:0.95,w:9.2,colW:[1.9,...TS.map(()=>0.6),0.7],rowH:[0.55,...W.map(()=>Math.min(0.3,(4.45-0.55)/(W.length||1)))],fontFace:F,fontSize:7,border:{type:'solid',color:C.ln,pt:0.5}});
+// fichas
+W.forEach(w=>{const s=pres.addSlide();head(s,cap(w.n),cap(w.f));
+ s.addText([{text:'DNI '+(w.dni||'—')+'   ·   ',options:{color:C.mu}},{text:'Estado: '+cap(w.e),options:{bold:true,color:w.g==='L'?C.ok[1]:w.g==='O'?C.obs[1]:C.prog[1]}},{text:'   ·   Movilización: '+(hm(w)?w.mov.l:'sin fecha'),options:{color:C.mu}}],{x:0.4,y:0.88,w:9.2,h:0.32,fontFace:F,fontSize:11,margin:0,isTextBox:true});
+ s.addShape(R,{x:0.4,y:1.28,w:8.4,h:0.16,fill:{color:C.bg},line:{color:C.ln,width:0.5}});
+ if(w.pct>0)s.addShape(R,{x:0.4,y:1.28,w:8.4*w.pct/100,h:0.16,fill:{color:'1D8A5A'},line:{color:'1D8A5A',width:0}});
+ s.addText(w.pct+'%',{x:8.9,y:1.2,w:0.7,h:0.32,fontFace:F,fontSize:12,bold:true,color:C.ink,margin:0,isTextBox:true,align:'right'});
+ const chip=(x,y,cw,ch,nm,c)=>{const p=C[c.k]||C.na;s.addText([{text:nm,options:{fontSize:8,color:C.mu,breakLine:true}},{text:c.k==='obs'?'Observado':c.l,options:{fontSize:10,bold:true,color:p[1]}}],{x,y,w:cw,h:ch,fill:{color:p[0]},fontFace:F,valign:'middle',margin:[2,6,2,6],isTextBox:true})};
+ s.addText('Etapas del proceso · '+w.ps+'/7',{x:0.4,y:1.65,w:9.2,h:0.3,fontFace:F,fontSize:12,bold:true,color:C.ink,margin:0,isTextBox:true});
+ w.st.forEach((c,j)=>chip(0.4+j*1.325,2.0,1.25,0.6,SN[j],c));
+ s.addText('Capacitaciones · '+w.pt+'/11',{x:0.4,y:2.78,w:9.2,h:0.3,fontFace:F,fontSize:12,bold:true,color:C.ink,margin:0,isTextBox:true});
+ w.tr.forEach((c,j)=>chip(0.4+(j%4)*2.34,3.13+Math.floor(j/4)*0.56,2.2,0.5,TN[j],c));
+ const ob=[...w.st.map((c,j)=>c.c?SN[j]+': '+c.c:''),...w.tr.map((c,j)=>c.c?TN[j]+': '+c.c:'')].filter(Boolean);
+ if(ob.length)s.addText([{text:'Observaciones: ',options:{bold:true,color:C.obs[1]}},{text:ob.join('  |  '),options:{color:C.ink}}],{x:0.4,y:4.85,w:9.2,h:0.55,fontFace:F,fontSize:9,margin:0,isTextBox:true,valign:'top'})});
+}
+
+$('#be').hidden=false;
+
+document.addEventListener('click',e=>{if(dd&&!e.target.closest('#ddw')){dd=false;render()}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dd){dd=false;render()}});
+/* ===================================================================
+   Conexión con el sistema. Lo de arriba es la página original; esto
+   reemplaza el guardado por artefacto con la base de datos y agrega
+   la carga desde Excel.
+   =================================================================== */
+
+async function leerJson(r){
+  const t = await r.text();
+  try { return JSON.parse(t); }
+  catch { console.error('respuesta no-JSON:', r.status, t.slice(0,200));
+          return { error:'El servicio no está disponible en este momento.' }; }
+}
+
+/* ---- guardado: se agenda solo, sin botón que recordar ---- */
+let reloj=null, guardando=false, pendiente=false;
+
+function senal(txt, ver=true){
+  const b=$('#bp'); if(!b) return;
+  b.textContent=txt; b.hidden=!ver;
+}
+
+function agendarGuardado(){
+  senal('Guardando…');
+  clearTimeout(reloj);
+  reloj=setTimeout(guardarYa, 700);
+}
+
+async function guardarYa(){
+  clearTimeout(reloj);
+  if(guardando){ pendiente=true; return; }
+  const w=W[cur];
+  if(!w || !w.id){ senal('', false); return; }
+  guardando=true;
+  try{
+    const r=await fetch('/api/seguimiento',{
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id:w.id, dni:w.dni, n:w.n, f:w.f, t:w.t,
+                             e:w.e, st:w.st, tr:w.tr, mov:w.mov, obs:w.obs })
+    });
+    if(r.status===401){ location.href='/panel.html'; return; }
+    const d=await leerJson(r);
+    if(!r.ok) throw new Error(d.error||'No se pudo guardar');
+    Object.assign(w, d); calc(w);
+    dirty=false; senal('Guardado'); setTimeout(()=>senal('',false), 1500);
+  }catch(e){
+    console.error(e); senal('Sin guardar'); toast(e.message||'No se pudo guardar');
+  }finally{
+    guardando=false;
+    if(pendiente){ pendiente=false; agendarGuardado(); }
+  }
+}
+
+/* ---- alta y baja de fichas ---- */
+async function crearFicha(){
+  try{
+    const r=await fetch('/api/seguimiento',{method:'POST'});
+    if(r.status===401){ location.href='/panel.html'; return; }
+    const d=await leerJson(r);
+    if(!r.ok) throw new Error(d.error||'No se pudo crear');
+    W.push(d); calc(d); render(); open(W.length-1);
+  }catch(e){ toast(e.message||'No se pudo crear la ficha'); }
+}
+
+async function eliminarFicha(){
+  const w=W[cur]; if(!w||!w.id) return;
+  try{
+    const r=await fetch('/api/seguimiento?id='+w.id,{method:'DELETE'});
+    if(r.status===401){ location.href='/panel.html'; return; }
+    if(!r.ok) throw new Error((await leerJson(r)).error||'No se pudo eliminar');
+    W.splice(cur,1); $('#dlg').close(); render(); toast('Ficha eliminada');
+  }catch(e){ toast(e.message||'No se pudo eliminar'); }
+  arm=false;
+}
+
+/* ---- carga desde Excel ---- */
+document.addEventListener('change', async e=>{
+  if(e.target.id!=='fx') return;
+  const archivo=e.target.files[0];
+  e.target.value='';
+  if(!archivo) return;
+  if(typeof XLSX==='undefined'){ toast('No se cargó el lector de Excel'); return; }
+
+  toast('Leyendo el archivo…');
+  try{
+    const libro=XLSX.read(await archivo.arrayBuffer(),{type:'array'});
+    const hoja=libro.Sheets[libro.SheetNames[0]];
+    const filas=XLSX.utils.sheet_to_json(hoja,{header:1,raw:false,defval:''})
+                      .filter(f=>Array.isArray(f)&&f.some(c=>String(c).trim()));
+    if(filas.length<2){ toast('El archivo no tiene filas de datos'); return; }
+
+    const r=await fetch('/api/seguimiento-importar',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ archivo: archivo.name, filas })
+    });
+    if(r.status===401){ location.href='/panel.html'; return; }
+    const d=await leerJson(r);
+    if(!r.ok) throw new Error(d.error||'No se pudo cargar');
+
+    await cargar(); render();
+    resumenCarga(d, archivo.name);
+  }catch(err){
+    console.error(err); toast(err.message||'No se pudo leer el archivo');
+  }
+});
+
+/* Lo que pasó con la carga, en el mismo diálogo de siempre. */
+function resumenCarga(d, nombre){
+  const li = t => `<li>${esc(t)}</li>`;
+  $('#dlg').innerHTML =
+    `<div class="dh"><div style="flex:1"><b>Carga completada</b>
+       <div class="mu">${esc(nombre)}</div></div></div>
+     <div class="db">
+       <div class="kpis" style="margin-bottom:14px">
+         <div class="k g"><b>${d.nuevos}</b><span>Personas nuevas</span></div>
+         <div class="k"><b>${d.actualizados}</b><span>Actualizadas</span></div>
+         <div class="k ${d.omitidas?'o':''}"><b>${d.omitidas}</b><span>Filas omitidas</span></div>
+       </div>
+       ${d.columnas_no_encontradas?.length
+         ? `<p><b>No encontré estas columnas</b>, así que esos campos quedaron sin dato:</p>
+            <ul>${d.columnas_no_encontradas.map(li).join('')}</ul>` : ''}
+       ${d.avisos?.length
+         ? `<p><b>Filas que no pude cargar:</b></p><ul>${d.avisos.map(li).join('')}</ul>` : ''}
+       ${!d.columnas_no_encontradas?.length && !d.avisos?.length
+         ? '<p>Todas las columnas se reconocieron y no hubo filas con problemas.</p>' : ''}
+     </div>
+     <div class="df"><span class="sp"></span>
+       <button class="btn p" id="cl" type="button">Cerrar</button></div>`;
+  const dl=$('#dlg'); if(!dl.open) dl.showModal();
+}
+
+/* ---- arranque ---- */
+async function cargar(){
+  const r=await fetch('/api/seguimiento');
+  if(r.status===401){ location.href='/panel.html'; return false; }
+  const d=await leerJson(r);
+  if(!r.ok) throw new Error(d.error||'No se pudo cargar');
+  W.length=0; d.forEach(x=>{ W.push(x); calc(x); });
+  return true;
+}
+
+async function arrancar(){
+  $('#main').innerHTML='<div class="card">Cargando el seguimiento…</div>';
+  try{
+    if(await cargar()===false) return;
+    render();
+    if(!W.length) $('#main').innerHTML =
+      `<div class="card"><h2>Todavía no hay personal cargado</h2>
+       <p class="mu">Usa <b>Importar Excel</b> en la parte superior para traer el cuadro
+       de seguimiento, o <b>Editar datos</b> para agregar a alguien a mano.</p></div>`;
+  }catch(e){
+    console.error(e);
+    $('#main').innerHTML=`<div class="card"><h2>No se pudo cargar</h2>
+      <p class="mu">${esc(e.message||'Revisa tu conexión e inténtalo de nuevo.')}</p></div>`;
+  }
+}
+
+arrancar();
+</script>
+</body></html>
