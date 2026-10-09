@@ -330,7 +330,7 @@ document.addEventListener('change', async e=>{
                       .filter(f=>Array.isArray(f)&&f.some(c=>String(c).trim()));
     if(filas.length<2){ toast('El archivo no tiene filas de datos'); return; }
 
-    const r=await fetch('/api/seguimiento-importar',{
+    const r=await fetch('/api/seguimiento?accion=importar',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ archivo: archivo.name, filas })
     });

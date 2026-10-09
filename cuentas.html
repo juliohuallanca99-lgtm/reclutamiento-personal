@@ -128,7 +128,7 @@ async function leerJson(r) {
 let conSesion = false;
 (async () => {
   try {
-    const r = await fetch('/api/ingresar');
+    const r = await fetch('/api/sesion');
     if (r.ok) {
       const u = await leerJson(r);
       conSesion = true;

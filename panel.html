@@ -129,6 +129,7 @@ a.cv:hover{border-bottom-color:var(--rojo)}
     </div>
     <div class="espacio" style="flex:1"></div>
     <span class="quien" id="quien"></span>
+    <a class="boton-cabecera" href="/seguimiento.html">SEGUIMIENTO</a>
     <a class="boton-cabecera" href="/cuentas.html">CUENTAS</a>
     <button id="btnSalir">SALIR</button>
   </header>
@@ -191,7 +192,7 @@ const ESTADOS = ['Nuevo','En revisión','Entrevista','Seleccionado','Descartado'
 /* ---------------- sesión ---------------- */
 async function comprobarSesion() {
   try {
-    const r = await fetch('/api/ingresar');
+    const r = await fetch('/api/sesion');
     if (!r.ok) return null;
     return await r.json();
   } catch { return null; }
@@ -212,7 +213,7 @@ $('formIngreso').addEventListener('submit', async e => {
   fallo.textContent = '';
   btn.disabled = true; btn.textContent = 'VERIFICANDO…';
   try {
-    const r = await fetch('/api/ingresar', {
+    const r = await fetch('/api/sesion', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ usuario: $('usuario').value, clave: $('clave').value })
     });
@@ -228,7 +229,7 @@ $('formIngreso').addEventListener('submit', async e => {
 });
 
 $('btnSalir').addEventListener('click', async () => {
-  await fetch('/api/salir', { method:'POST' });
+  await fetch('/api/sesion', { method:'DELETE' });
   location.reload();
 });
 
