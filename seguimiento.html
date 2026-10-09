@@ -5,7 +5,6 @@
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@600;700&amp;display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
 <style>
 :root{--bg:#eef1f4;--sf:#fff;--ink:#16222c;--mu:#5d6b78;--ln:#d9dfe5;--ac:#f0b400;--acd:#16222c;--ok:#1d8a5a;--okb:#dcf2e7;--pe:#8a94a0;--peb:#e8ebef;--ob:#c8372d;--obb:#fbe0dd;--pr:#b87400;--prb:#fdf0cc;--sh:0 1px 2px rgba(22,34,44,.08);--oa:#fff;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -142,7 +141,7 @@ else if(d.n){open((cur+ +d.n+W.length)%W.length)}
 else if(t.id==='cl')$('#dlg').close();
 else if(t.id==='bc'){const h=$('#hb'),o=h.hidden;h.hidden=!o;t.setAttribute('aria-expanded',o);t.setAttribute('aria-label',o?'Ocultar opciones':'Mostrar opciones')}
 else if(t.id==='be'){ed=!ed;t.textContent=ed?'Salir de edición':'Editar datos';render()}
-else if(t.id==='bi')$('#fx').click();else if(t.id==='bp')pub();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');else if(t.id==='bt')dl('p');
+else if(t.id==='bi')$('#fx').click();else if(t.id==='bp')pub();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');else if(t.id==='bt')descargarPpt();
 else if(d.mvx!==undefined){W[cur].mov={k:'na',l:'—'};mark();open(cur)}
 else if(d.add!==undefined){crearFicha()}
 else if(t.id==='dl'){if(!arm){arm=true;t.textContent='Confirmar eliminación'}else{eliminarFicha()}}
@@ -168,6 +167,26 @@ c.removeAttribute('data-theme');c.querySelector('#hb').setAttribute('hidden','')
 c.querySelectorAll('script').forEach(s=>{if(!['ds','app'].includes(s.id)&&!(s.src||'').startsWith('https://cdnjs.cloudflare.com'))s.remove()});
 return '<!DOCTYPE html>\n'+c.outerHTML}
 async function pub(){await guardarYa()}
+/* El PowerPoint se arma en el servidor (lib/powerpoint.mjs): sin CDN y
+   con el mismo diseño para todos. */
+async function descargarPpt(){
+ const b=$('#bt'); if(b){b.disabled=true;b.textContent='Generando…'}
+ toast('Generando PowerPoint…');
+ try{
+  const r=await fetch('/api/seguimiento?accion=powerpoint');
+  if(r.status===401){toast('Tu sesión expiró. Vuelve a entrar.');location.href='/panel.html';return}
+  if(!r.ok)throw new Error(r.status);
+  const blob=await r.blob();
+  const cd=r.headers.get('Content-Disposition')||'';
+  const m=/filename="([^"]+)"/.exec(cd);
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=m?m[1]:FN+'.pptx';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  toast('PowerPoint descargado');
+ }catch(e){console.error(e);toast('No se pudo generar el PowerPoint')}
+ finally{if(b){b.disabled=false;b.textContent='Descargar PowerPoint'}}
+}
 async function dl(kind){const D=(window.claude?await claude.use('downloads'):null)||{save:async({filename,data})=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data]));a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}};
 try{let data,ext;if(kind==='x'){if(typeof XLSX==='undefined'){toast('No se cargó el generador de Excel');return}
 const H=['ITEM','DNI','NOMBRES Y APELLIDOS','FUNCION','N° Telefono','EMO','VALIDACION / JJC','VALIDACIÓN / UME','ANEXO 8','ANEXO A','AUT- REC','FOTOCHECK','ESTADO DEL PROCESO','MOVILIZACION',...TN,'OBSERVACIONES'];
@@ -176,7 +195,7 @@ const rows=[H,...W.map(w=>[w.i,w.dni,w.n,w.f,w.tel||'',...w.st.map(v),w.e,v(w.mo
 const wb=XLSX.utils.book_new(),s1=XLSX.utils.aoa_to_sheet(rows);
 s1['!cols']=H.map((h,i)=>({wch:i===2?34:i===3?30:16}));
 XLSX.utils.book_append_sheet(wb,s1,'EMPL');
-data=XLSX.write(wb,{type:'array',bookType:'xlsx'});ext='xlsx'}else if(kind==='p'){if(typeof PptxGenJS==='undefined'){toast('No se cargó el generador de PowerPoint');return}toast('Generando PowerPoint…');const pr=new PptxGenJS();buildDeck(pr,W);data=await pr.write({outputType:'arraybuffer'});ext='pptx'}else{data=doc();ext='html'}
+data=XLSX.write(wb,{type:'array',bookType:'xlsx'});ext='xlsx'}else{data=doc();ext='html'}
 await D.save({filename:FN+'.'+ext,data});toast('Archivo guardado')}catch(e){if(!e||e.code!=='declined')toast('No se pudo descargar')}}
 function buildDeck(pres,W0){
 const SN=['EMO','Validación JJC','Validación UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'],
