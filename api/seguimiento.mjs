@@ -10,6 +10,7 @@
 
 import { sql } from '../lib/db.mjs';
 import { protegido } from '../lib/sesion.mjs';
+import { construirPresentacion } from '../lib/powerpoint.mjs';
 
 const ESTADOS_CELDA = ['ok', 'pend', 'obs', 'prog', 'na'];
 const ETIQUETAS = {
@@ -287,7 +288,7 @@ async function importar(req, res) {
 
 async function handler(req, res) {
 
-  /* ---------------- listado ---------------- */
+  /* ---------------- listado y PowerPoint ---------------- */
   if (req.method === 'GET') {
     try {
       const filas = await sql`
@@ -297,7 +298,23 @@ async function handler(req, res) {
           from seguimiento_personal
          order by item nulls last, id
       `;
-      return res.status(200).json(filas.map(aPagina));
+      const personal = filas.map(aPagina);
+
+      // La presentación se arma aquí, en el servidor: así no depende
+      // de que el navegador logre cargar una librería externa.
+      if (req.query.accion === 'powerpoint') {
+        const archivo = await construirPresentacion(personal, {
+          generadoPor: req.sesion.n
+        });
+        const sello = new Date().toISOString().slice(0, 10);
+        res.setHeader('Content-Type',
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+        res.setHeader('Content-Disposition',
+          `attachment; filename="Seguimiento CV-315 ${sello}.pptx"`);
+        return res.status(200).send(Buffer.from(archivo));
+      }
+
+      return res.status(200).json(personal);
     } catch (e) {
       console.error('seguimiento GET:', e);
       return res.status(500).json({ error: 'No se pudo cargar el seguimiento.' });
