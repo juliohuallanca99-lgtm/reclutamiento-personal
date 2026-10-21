@@ -46,8 +46,9 @@ const aPagina = f => ({
   dni: f.dni || '',
   n: f.nombre,
   f: f.funcion || '',
-  tel: f.telefono || '',
-  t: f.tipo || '',
+  // La página llama «t» al teléfono y «s» al servicio.
+  t: f.telefono || '',
+  s: f.servicio || '',
   e: f.estado_proceso,
   st: f.etapas,
   tr: f.capacitaciones,
@@ -99,6 +100,7 @@ const COL_ESTADO   = ['ESTADO DEL PROCESO', 'ESTADO', 'ESTADO PROCESO'];
 const COL_MOV      = ['MOVILIZACION', 'MOVILIZACION FECHA PROBABLE'];
 const COL_OBS      = ['OBSERVACIONES', 'OBSERVACION', 'COMENTARIOS'];
 const COL_TEL      = ['N TELEFONO', 'TELEFONO', 'CELULAR', 'N CELULAR'];
+const COL_SERV     = ['SERVICIO', 'PROYECTO', 'SERV', 'FRENTE'];
 
 // Quita acentos, signos y espacios de más para comparar encabezados.
 const norm = s => String(s ?? '')
@@ -196,6 +198,7 @@ async function importar(req, res) {
   const iMov     = buscar(mapa, COL_MOV);
   const iObs     = buscar(mapa, COL_OBS);
   const iTel     = buscar(mapa, COL_TEL);
+  const iServ    = buscar(mapa, COL_SERV);
   const iEtapas  = ETAPAS.map(n => buscar(mapa, n));
   const iCapac   = CAPACITACIONES.map(n => buscar(mapa, n));
 
@@ -237,12 +240,13 @@ async function importar(req, res) {
 
       const [r] = await sql`
         insert into seguimiento_personal
-          (item, dni, nombre, funcion, telefono, estado_proceso, etapas,
+          (item, dni, nombre, funcion, telefono, servicio, estado_proceso, etapas,
            capacitaciones, movilizacion, observaciones, actualizado_por, actualizado_en)
         values
           (${item}, ${dni}, ${nombre.slice(0, 150)},
            ${String(dato(fila, iFuncion) ?? '').trim().slice(0, 150) || null},
            ${String(dato(fila, iTel) ?? '').replace(/\D/g, '').slice(0, 15) || null},
+           ${String(dato(fila, iServ) ?? '').trim().toUpperCase().slice(0, 120) || null},
            ${estado.slice(0, 60)},
            ${JSON.stringify(etapas)}::jsonb, ${JSON.stringify(capac)}::jsonb,
            ${mov}::jsonb, ${obs ? obs.slice(0, 2000) : null},
@@ -253,6 +257,7 @@ async function importar(req, res) {
           nombre          = excluded.nombre,
           funcion         = coalesce(excluded.funcion, seguimiento_personal.funcion),
           telefono        = coalesce(excluded.telefono, seguimiento_personal.telefono),
+          servicio        = coalesce(excluded.servicio, seguimiento_personal.servicio),
           estado_proceso  = excluded.estado_proceso,
           etapas          = excluded.etapas,
           capacitaciones  = excluded.capacitaciones,
@@ -292,7 +297,7 @@ async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const filas = await sql`
-        select id, item, dni, nombre, funcion, telefono, tipo, estado_proceso,
+        select id, item, dni, nombre, funcion, telefono, servicio, estado_proceso,
                etapas, capacitaciones, movilizacion, observaciones,
                actualizado_por, actualizado_en
           from seguimiento_personal
@@ -303,14 +308,27 @@ async function handler(req, res) {
       // La presentación se arma aquí, en el servidor: así no depende
       // de que el navegador logre cargar una librería externa.
       if (req.query.accion === 'powerpoint') {
-        const archivo = await construirPresentacion(personal, {
-          generadoPor: req.sesion.n
+        // Si la página tiene un servicio filtrado, la presentación sale
+        // solo de ese servicio; si no, de todo el personal.
+        const servicio = texto(req.query.servicio, 120);
+        const seleccion = servicio
+          ? personal.filter(p => p.s === servicio)
+          : personal;
+        if (!seleccion.length) {
+          return res.status(400).json({ error: 'No hay personal para ese servicio.' });
+        }
+        const archivo = await construirPresentacion(seleccion, {
+          generadoPor: req.sesion.n,
+          servicio
         });
-        const sello = new Date().toISOString().slice(0, 10);
+        // Fecha de Perú, no UTC: de noche, el servidor ya está en el
+        // día siguiente y el archivo saldría fechado mañana.
+        const sello = new Date().toLocaleDateString('en-CA',
+          { timeZone: 'America/Lima' });
         res.setHeader('Content-Type',
           'application/vnd.openxmlformats-officedocument.presentationml.presentation');
         res.setHeader('Content-Disposition',
-          `attachment; filename="Seguimiento CV-315 ${sello}.pptx"`);
+          `attachment; filename="Seguimiento de personal ${sello}.pptx"`);
         return res.status(200).send(Buffer.from(archivo));
       }
 
@@ -331,14 +349,15 @@ async function handler(req, res) {
       `;
       const [fila] = await sql`
         insert into seguimiento_personal
-          (item, nombre, estado_proceso, etapas, capacitaciones,
+          (item, nombre, servicio, estado_proceso, etapas, capacitaciones,
            actualizado_por, actualizado_en)
         values
-          (${siguiente}, 'NUEVO TRABAJADOR', 'EXAMEN MEDICO',
+          (${siguiente}, 'NUEVO TRABAJADOR', ${texto(req.body?.s, 120)},
+           'EXAMEN MEDICO',
            ${JSON.stringify(celdas([], N_ETAPAS))}::jsonb,
            ${JSON.stringify(celdas([], N_CAPACITACIONES))}::jsonb,
            ${req.sesion.n}, now())
-        returning id, item, dni, nombre, funcion, telefono, tipo, estado_proceso,
+        returning id, item, dni, nombre, funcion, telefono, servicio, estado_proceso,
                   etapas, capacitaciones, movilizacion, observaciones,
                   actualizado_por, actualizado_en
       `;
@@ -367,8 +386,8 @@ async function handler(req, res) {
           dni             = ${dni},
           nombre          = ${texto(d.n, 150)},
           funcion         = ${texto(d.f, 150)},
-          telefono        = ${String(d.tel ?? '').replace(/\D/g, '').slice(0, 15) || null},
-          tipo            = ${texto(d.t, 60)},
+          telefono        = ${String(d.t ?? d.tel ?? '').replace(/\D/g, '').slice(0, 15) || null},
+          servicio        = ${texto(d.s, 120)},
           estado_proceso  = ${texto(d.e, 60) || 'EXAMEN MEDICO'},
           etapas          = ${JSON.stringify(celdas(d.st, N_ETAPAS))}::jsonb,
           capacitaciones  = ${JSON.stringify(celdas(d.tr, N_CAPACITACIONES))}::jsonb,
@@ -379,7 +398,7 @@ async function handler(req, res) {
           actualizado_por = ${req.sesion.n},
           actualizado_en  = now()
         where id = ${id}
-        returning id, item, dni, nombre, funcion, telefono, tipo, estado_proceso,
+        returning id, item, dni, nombre, funcion, telefono, servicio, estado_proceso,
                   etapas, capacitaciones, movilizacion, observaciones,
                   actualizado_por, actualizado_en
       `;
