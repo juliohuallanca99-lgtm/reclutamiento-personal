@@ -74,7 +74,7 @@ dialog::backdrop{background:rgba(10,16,22,.6)}
 <body>
 <div class="wrap">
 <header><div class="in"><div><p>Seguimiento de ingreso de personal · Marcobre Bateas</p></div>
-<div class="hb" style="align-items:center;justify-content:flex-end"><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bi" type="button">Importar Excel</button><input type="file" id="fx" accept=".xlsx,.xls,.csv" hidden><div class="hb" id="hb" hidden=""><button class="tb" id="be" type="button" hidden="">Editar datos</button><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bt" type="button">Descargar PowerPoint</button><button class="tb" id="th" type="button">Cambiar tema</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
+<div class="hb" style="align-items:center;justify-content:flex-end"><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bn" type="button" style="background:var(--ac);color:#16222c;border-color:var(--ac);font-weight:600">+ Agregar personal</button><button class="tb" id="bi" type="button">Importar Excel</button><input type="file" id="fx" accept=".xlsx,.xls,.csv" hidden><button class="tb" id="be" type="button" hidden="">Editar datos</button><div class="hb" id="hb" hidden=""><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bt" type="button">Descargar PowerPoint</button><button class="tb" id="th" type="button">Cambiar tema</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
 <nav role="tablist" id="nav"></nav><main id="main"></main></div>
 <dialog id="dlg"></dialog><div class="toast" id="ts" role="status"></div>
 <script id="ds">const W=[],R=[];</script>
@@ -152,7 +152,7 @@ else if(d.n){open((cur+ +d.n+W.length)%W.length)}
 else if(t.id==='cl')$('#dlg').close();
 else if(t.id==='bc'){const h=$('#hb'),o=h.hidden;h.hidden=!o;t.setAttribute('aria-expanded',o);t.setAttribute('aria-label',o?'Ocultar opciones':'Mostrar opciones')}
 else if(t.id==='be'){ed=!ed;t.textContent=ed?'Salir de edición':'Editar datos';render()}
-else if(t.id==='bi')$('#fx').click();else if(t.id==='bp')guardarYa();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');else if(t.id==='bt')descargarPpt();
+else if(t.id==='bn')formularioNuevo();else if(t.id==='bi')$('#fx').click();else if(t.id==='bp')guardarYa();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');else if(t.id==='bt')descargarPpt();
 else if(d.mvx!==undefined){W[cur].mov={k:'na',l:'—'};mark();open(cur)}
 else if(d.add!==undefined){crearFicha()}
 else if(t.id==='dl'){if(!arm){arm=true;t.textContent='Confirmar eliminación'}else{eliminarFicha()}}
@@ -244,6 +244,74 @@ async function guardarYa(){
   }
 }
 
+
+/* ---- alta de personal: nombre y proyecto, en un solo paso -------- */
+function formularioNuevo(){
+  const servicios=[...new Set(W.map(w=>w.s).filter(Boolean))].sort();
+  const actual = sv!=='all' ? sv : '';
+  $('#dlg').innerHTML=
+    `<div class="dh"><div style="flex:1"><b style="font-size:19px">Agregar personal</b>
+       <div class="mu">Entra al proyecto que elijas y queda listo para seguir su proceso.</div></div></div>
+     <div class="db">
+       <label class="mu" for="np_n">Nombres y apellidos</label>
+       <input class="ei" id="np_n" placeholder="APELLIDO APELLIDO NOMBRE" autocomplete="off">
+       <label class="mu" for="np_s" style="display:block;margin-top:12px">Proyecto / servicio</label>
+       <select class="ei" id="np_s">
+         ${servicios.map(x=>`<option value="${esc(x)}"${x===actual?' selected':''}>${esc(sl(x))}</option>`).join('')}
+         <option value="__otro__">+ Otro proyecto…</option>
+       </select>
+       <input class="ei" id="np_so" placeholder="Nombre del proyecto nuevo" style="margin-top:6px;display:${servicios.length?'none':'block'}">
+       <div class="row" style="margin-top:12px;gap:8px">
+         <div style="flex:1"><label class="mu" for="np_d">DNI</label>
+           <input class="ei" id="np_d" inputmode="numeric" placeholder="Opcional por ahora"></div>
+         <div style="flex:1"><label class="mu" for="np_t">Teléfono</label>
+           <input class="ei" id="np_t" inputmode="numeric" placeholder="Opcional"></div>
+       </div>
+       <label class="mu" for="np_f" style="display:block;margin-top:12px">Función</label>
+       <input class="ei" id="np_f" placeholder="INGENIERO DE CONSTRUCCION" autocomplete="off">
+       <p class="mu" style="margin:12px 0 0">Las 7 etapas y las 11 capacitaciones empiezan en
+       «Pendiente»; las vas cambiando desde su ficha conforme avance.</p>
+     </div>
+     <div class="df"><span class="sp"></span>
+       <button class="btn" id="np_x" type="button">Cancelar</button>
+       <button class="btn p" id="np_ok" type="button">Crear ficha</button></div>`;
+  const d=$('#dlg'); if(!d.open) d.showModal();
+  $('#np_n').focus();
+  $('#np_s').onchange=e=>{ $('#np_so').style.display = e.target.value==='__otro__' ? 'block' : 'none';
+                           if(e.target.value==='__otro__') $('#np_so').focus(); };
+  $('#np_x').onclick=()=>d.close();
+  $('#np_ok').onclick=guardarNuevo;
+  d.onkeydown=e=>{ if(e.key==='Enter' && e.target.tagName==='INPUT'){ e.preventDefault(); guardarNuevo(); } };
+}
+
+async function guardarNuevo(){
+  const n=$('#np_n').value.trim().toUpperCase();
+  if(!n){ toast('Falta el nombre'); $('#np_n').focus(); return; }
+  const elegido=$('#np_s').value;
+  const s = elegido==='__otro__' ? $('#np_so').value.trim().toUpperCase() : elegido;
+  const dni=$('#np_d').value.replace(/\D/g,'');
+  if(dni && !/^\d{6,12}$/.test(dni)){ toast('El DNI debe tener entre 6 y 12 dígitos'); return; }
+  const b=$('#np_ok'); b.disabled=true; b.textContent='Creando…';
+  try{
+    const r=await fetch('/api/seguimiento',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ n, s, dni, f:$('#np_f').value.trim().toUpperCase(), t:$('#np_t').value.replace(/\D/g,'') })
+    });
+    if(alLogin(r)) return;
+    const d=await leerJson(r);
+    if(!r.ok) throw new Error(d.error||'No se pudo crear');
+    W.push(d); calc(d);
+    if(sv!=='all' && d.s!==sv) sv='all';   // que no desaparezca de la vista
+    ed=true; $('#be').textContent='Salir de edición';
+    render(); open(W.length-1);
+    toast(d.s ? 'Agregado a '+sl(d.s) : 'Ficha creada');
+  }catch(e){
+    toast(e.message||'No se pudo crear la ficha');
+    b.disabled=false; b.textContent='Crear ficha';
+  }
+}
+
+/* ---- alta rápida desde la pestaña Personal (ya en edición) ---- */
 /* ---- alta y baja de fichas ---------------------------------------
    La ficha nace en el servicio que esté filtrado en pantalla: si
    estás viendo «Corrosión», el nuevo trabajador entra en Corrosión.  */
