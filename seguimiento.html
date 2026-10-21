@@ -70,11 +70,69 @@ dialog::backdrop{background:rgba(10,16,22,.6)}
 @media(max-width:600px){.sb{grid-template-columns:100px 1fr 40px}h1{font-size:25px}}
 @media print{header,nav,.tools,.df{display:none}}
 </style>
+<style id="marca">
+/* =================================================================
+   Identidad JJC. El azul institucional es la estructura; el ámbar
+   queda para lo que debe llamar la atención, no para el fondo.
+   ================================================================= */
+:root{--jjc:#001f62;--jjc2:#123a9e;--ac:#f0b400;
+      --bg:#f4f6f9;--sf:#fff;--ln:#dde3ea;--ink:#101a2b;--mu:#5a6b80;
+      --sh:0 1px 2px rgba(16,26,43,.07);--kpi:linear-gradient(180deg,#fff,#f7f9fc)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--tema-oscuro:1}}
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) [data-x]{}
+/* --- tema oscuro, en el mismo idioma azul --- */
+:root[data-theme="dark"]{--bg:#0b1220;--sf:#131d2e;--ln:#22314a;--ink:#e9eef6;--mu:#8fa0b8;
+  --sh:0 1px 3px rgba(0,0,0,.4);--kpi:linear-gradient(180deg,#16233a,#111a2b);
+  --okb:#0f3a2b;--peb:#1c2740;--obb:#3f1a1c;--prb:#3a2d0d;
+  --ok:#4cc58a;--ob:#ff7a70;--pr:#f3c13d;--oa:#fff}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1220;--sf:#131d2e;--ln:#22314a;--ink:#e9eef6;--mu:#8fa0b8;
+  --sh:0 1px 3px rgba(0,0,0,.4);--kpi:linear-gradient(180deg,#16233a,#111a2b);
+  --okb:#0f3a2b;--peb:#1c2740;--obb:#3f1a1c;--prb:#3a2d0d;
+  --ok:#4cc58a;--ob:#ff7a70;--pr:#f3c13d;--oa:#fff}}
+
+/* --- marca --- */
+.marca{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{height:40px;width:auto;display:block;flex:none}
+.rot h1{font:700 23px/1.05 'Barlow Condensed',sans-serif;margin:0;letter-spacing:.4px;text-transform:uppercase}
+.rot p{margin:3px 0 0;font-size:12.5px;letter-spacing:.06em;opacity:.8}
+@media(max-width:620px){.logo{height:30px}.rot h1{font-size:18px}.rot p{font-size:11px}}
+
+/* --- cabecera --- */
+header{background:linear-gradient(100deg,var(--jjc) 0%,#0a2f86 58%,var(--jjc2) 100%);
+  color:#fff;border-bottom:3px solid var(--ac);padding:16px;
+  box-shadow:0 6px 22px rgba(0,31,98,.18)}
+header .tb{border-color:rgba(255,255,255,.4);color:#fff}
+header .tb:hover{background:rgba(255,255,255,.12)}
+.tb.ico{padding:6px 10px;line-height:1}
+#bn{background:var(--ac)!important;color:var(--jjc)!important;border-color:var(--ac)!important}
+
+/* --- acentos --- */
+nav button[aria-selected=true]{color:var(--jjc);border-color:var(--jjc)}
+:root[data-theme="dark"] nav button[aria-selected=true]{color:#fff;border-color:var(--ac)}
+.k{background:var(--kpi);border-left:5px solid var(--jjc);box-shadow:0 1px 3px rgba(16,26,43,.10)}
+.k b{color:var(--jjc);letter-spacing:-.4px}
+.k.g{border-left-color:var(--ok)}.k.o{border-left-color:var(--ob)}
+.card h2{color:var(--jjc)}
+.f[aria-pressed=true]{background:var(--jjc);border-color:var(--jjc);color:#fff}
+.bar i{background:var(--jjc)}
+.btn.p{background:var(--jjc);border-color:var(--jjc);color:#fff}
+:root[data-theme="dark"] .k b,
+:root[data-theme="dark"] .card h2{color:var(--ink)}
+:root[data-theme="dark"] .f[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:var(--jjc)}
+:root[data-theme="dark"] .bar i{background:linear-gradient(90deg,#2f5bd0,#4cc58a)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .k b,
+  :root:not([data-theme="light"]) .card h2{color:var(--ink)}
+  :root:not([data-theme="light"]) nav button[aria-selected=true]{color:#fff;border-color:var(--ac)}
+  :root:not([data-theme="light"]) .f[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:var(--jjc)}
+  :root:not([data-theme="light"]) .bar i{background:linear-gradient(90deg,#2f5bd0,#4cc58a)}}
+</style>
 </head>
 <body>
 <div class="wrap">
-<header><div class="in"><div><p>Seguimiento de ingreso de personal · Marcobre Bateas</p></div>
-<div class="hb" style="align-items:center;justify-content:flex-end"><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bn" type="button" style="background:var(--ac);color:#16222c;border-color:var(--ac);font-weight:600">+ Agregar personal</button><button class="tb" id="bi" type="button">Importar Excel</button><input type="file" id="fx" accept=".xlsx,.xls,.csv" hidden><button class="tb" id="be" type="button" hidden="">Editar datos</button><div class="hb" id="hb" hidden=""><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bt" type="button">Descargar PowerPoint</button><button class="tb" id="th" type="button">Cambiar tema</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
+<header><div class="in"><div class="marca"><img class="logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJkAAABNCAYAAAC188aDAAAJ8klEQVR42u1dXYgdRRb+zs2AO0NQEIcoYkhiHhLZPEhIcLmB+A8jQsSHRHwQdpIIBiLjk2LIgJEs+KTMgC8TIihIbhREEEVEfJhJXmTiLpslu2zCjEh8UKMmkztj5E6ffbinnEpt9e/tn+o79cGl7+3bXV1V/fU5p06dOg14rCow8yPMfMr3hEdRBPsLr8ATzaMQCcbMvCwfTzSPwiSYiSnfQx5FEsyrTo+eCdYUEgWaitQRyKdQiUb+VgDMvAXATgC3A9ik/fUjgG8BXCaiL+smwQBMA2hE3GeW/9S2RUTP5E4yZu4AuNFDGbcAOEJEb4Q0dgbA/T3W8+9E1MzxBowAeBrAowA2pDh1EcA3AE4S0UnHCXZWfgYaySiEaGrbICIqokJ5YDyi/Okcyp/NoZ2DzDzFzAs91CPQvnekvMEa2mChKKJOjVWiDqdECo0CWCtPbZYOJe3cNQAOAFhk5glXbDBRkU4hL5Kxo+QaYea2kIGlvZxjm1VZh5l5rkqpJipyRtoY9CPJXCTYBIBPAQxJp+ukoB4GPea5quwNAP5csQ3GLt7XgT4lWAvA3ghi5DkyV9vTRPR1xUa+Lq3Jk6w8ghXtqmEAS0S0r2KC6RLMKddUo88INi4EC0qyFZXEOFyRkX+2TPuLmd9a1SRj5s0AXjP8PmVgvmyfmWbklz3gOiiaYtVKsi+0p7pRkB1ms8seq4Bg0wXamnHYm3aucwDAJcv+TTlW/nvLNe7N0zhl5jEk99zr1w0sD9slAFcBLAG4E8BdMkKFISUbYuxfrNAGq0RpANjHzAtEdDBrQ4Yt3u04HE15jQXxmOfi8WfmdkbvvWrjLDM/F1H+VvHud7Tz2mVLsJR9lrvH39LPiSSaTV3eUdIIpZFT54+KpOEUT6I6dgnAE0S0nYjeDdWJRBeI6CARDYgkKdXY14x8V0aNrEm0WKJFuTCCAm22PH05oxnP+4GI7kxthBHtYuZDZRn7FRr5UQTTEas6GzFGbVEIciy/mZKwLNffnNnaJ3q7ZCM/qMjID+MFYWWmAwAORMWjDVREslzKl5CdtGU1ALxERNcdd8nYjHwXSKYe6DWGVDvAzLBJtLq7MEYy+MQWieitGhLMqSqGkN4q0epOsnVaY5MS7X3HCdZ0mGCHER1ly0K0U/1Esp0ZDOJPHJdgLhn5pi16EsBTEUQj26iz7iS7I0NHfey4itTDkthBon0MYL8hvWza5A+i9WWoT90gA5hPjQffqXAdU6Ix8xUAH1kGBKx938fMqyP8uga4BmDZkA6uryTbqLkz2DICVvt+9iRzQzKcQTeqdrkG5IJMI75peSDMyONJIjpUd5L9lKGD9jhKtH/XgWgSjHDMsMdsRJskohf7wfC/nOGcZx2WaDrRwtwELkgwW110KfY3RbCqSZZHh12w2AJxeNJx1RlGNBdGmq9oddFXpuvbSSI6op9Ud0k2jXSOWAAYYubjNSMap3yQSquqoS4ndQkWRTLVoMB1hkWF58TgZQnXrgvRXLTR2DD8rQQLI9nDJVQw7SLYxYj/5jN0TgPAP5h5bUbb5PgqJ5oeEdKIIlgYyfZnUKWXU9ygcXRn8NPYbd9HHPMO/j+cOkkHDQH4VYIek9Z9UKJ0X43K/1Eg0bjiwUBgSDGKI5itE9/OEHrNzLw+YfkjKUOIVT2Ox5TbyVBnHRdjwq+bzNwywrbLDr/eYvRd0GObs4RfLxjXnUCKG39UcjkkrXygfTox5W9l5lFmngnJjpMEIykejiydHxiE0z+diLJbFRKtCpK1UxMM3fxkYesUKYEaIwDniGh7RMWmAeyyXINSqAxKcAPa6OZK63UVdVgdlXpQIz6l8reKSiuNaADOpzA50qpniunjobQqshHSsZTwJgDAeyluHiUsX7/GmYTlPysdTxmJFZWMRfdor8FKVCgD+MwRP1pZSGeDCTuzYDmpXZIyCV6g5TdVYnlHira0tPqF1TtPqDqOle4/6JohNlu0JzUac82Xs1a2l/WKR3MmmVn+TIb2nDEIkLvdYqlvuwqRwszbYmzG2mdaPEtErxfoRV4kol0Z1ElTVCxFqOC8h/RDVeTDJ6J/WvxozjluGxlJ8G2eiYItNy4A8HgPnb8LwOkSOl3N36nY9h0VEM356I0sJJsnoo15S37j+26Jseql8/eJY3kZxa1Z1AcL87h5wr5sot0PR9EI6bTA4t0FgBM9ECwsbl3/fY6IBnolmNb5JyW1wOkEdeCYOnPEsZNEtLHKtZyiOu+DfWYgylwofi1ByIjENB5bPczzTRvl24zT2TiHaw7tHNaSpsSNnG0j0aAmKdazDgaCogz/sNFlW8jxXA7l20aXHSHWcWYeruBGjAhB5lIOvtrywI3CYVhmBpLMdBQ2uiSDSLNE9K+cG9xENx/ZVQA/5aUK8/Y5AVBG+wbtr2sAfgZwycV6xxENyWYGdLsyvaPVY3UjRqIFmSa7PTwiiGazuz3BPAqTaDrZPME8CpVo475nPIp0b3gJ5lEY0ZpZX/rg4eHh4eHh4eHh4eHh4VEdnIiklDCiEQDDAL4iogvG/5vlP2AlBu6KuRRNwm4eBDBtxnZJKNF/1Qu3ZOJex+8AzhPRUkgdtwJ4CMBv6L6467qnT02gLczVMWcc04oIvdmiHTcu+6eM85tq4a62j0NCkGYsdZyxHDvl714yDFRMsFEAL8jPE+i+UGsvgA3MPGNZSHIOgCLKTnTDcs5r7bgmW1MaXZHtVW3fskjFD+T33QAeANBk5in1Zg1ZJd4EcB2AShv+DLox/d8R0TFPI7el2KxIhT3G/o4eQKdJspEQCTMmv8dsUyayRvGmVxrKNRaM44Zlf9uQeMum+rZJXA8HJRmA2wBrbv3nAdzLzLcS0TVtvxkC/qFImU0Zr3/TGgci+pGZl7DyElWFOeO4i8y8COAeTyH3SWaN2kzxmr9bC2oHe2r0D8lMNbRFH/Wao0yxi3T8Vbaf51inQQA3PDX6h2Sm+8F0XdynEY0BnBZTTam5IXTXgWZ9lc2fNPttECtJWz7x1OhDkhHREjOr9ZG70X0DnLkudK1IP6Vmz2RJZSC4ISQ1X/M8LwuDPfrRJlM3V3xV60weAtgv7/VpiavjXMLr2NaM3iLbl9B1xP4G4D91W5XkSZbSJksA5XI4IiQ7BCDJEq5fQvY7/4LVfoCrefzVquzvjP2/KxcCupl71hj5ZFWCZFMKqt+LIdIsDndZ9g35AUINwMwTKg+ZWkmuTQ3pDtGW6bTVporaRplqemhUfq+X3K835VNTxyWo45zp4NXqM+PvYj2I1o5LRmwjmeyftZBnIiSz4kXj3E5Ckm2LmOdc6+9gfYim8lK0RaptM/4fk/07jP1NybVxyti/R45vS7kTlmu2kmavlummllZeyxMsOf4H59KiyB6XWxQAAAAASUVORK5CYII=" alt="JJC Grupo"><div class="rot"><h1>Seguimiento de ingreso de personal</h1><p>Marcobre Bateas · Proyecto CC0174</p></div></div>
+<div class="hb" style="align-items:center;justify-content:flex-end"><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bn" type="button" style="background:var(--ac);color:#16222c;border-color:var(--ac);font-weight:600">+ Agregar personal</button><button class="tb" id="bi" type="button">Importar Excel</button><input type="file" id="fx" accept=".xlsx,.xls,.csv" hidden><button class="tb" id="be" type="button" hidden="">Editar datos</button><button class="tb ico" id="th" type="button" aria-label="Cambiar entre claro y oscuro" title="Cambiar entre claro y oscuro"><span id="thi">☾</span></button><div class="hb" id="hb" hidden=""><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bt" type="button">Descargar PowerPoint</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
 <nav role="tablist" id="nav"></nav><main id="main"></main></div>
 <dialog id="dlg"></dialog><div class="toast" id="ts" role="status"></div>
 <script id="ds">const W=[],R=[];</script>
@@ -157,7 +215,13 @@ else if(d.mvx!==undefined){W[cur].mov={k:'na',l:'—'};mark();open(cur)}
 else if(d.add!==undefined){crearFicha()}
 else if(t.id==='dl'){if(!arm){arm=true;t.textContent='Confirmar eliminación'}else{eliminarFicha()}}
 else if(t.id==='cp'){const w=W[cur],f=w.st.map((c,j)=>SN[j]+': '+c.l).join('; ');const s=`${cap(w.n)} (${cap(w.f)}, ${sl(w.s)}) — ${cap(w.e)}. Avance ${w.pct}%. ${f}`;(navigator.clipboard?navigator.clipboard.writeText(s):Promise.reject()).then(()=>toast('Resumen copiado'),()=>toast('No se pudo copiar'))}
-else if(t.id==='th'){const r=document.documentElement,dk=matchMedia('(prefers-color-scheme:dark)').matches,c=r.dataset.theme||(dk?'dark':'light');r.dataset.theme=c==='dark'?'light':'dark'}});
+else if(t.id==='th'){const r=document.documentElement,dk=matchMedia('(prefers-color-scheme:dark)').matches,c=r.dataset.theme||(dk?'dark':'light');tema(c==='dark'?'light':'dark')}});
+/* El tema elegido se recuerda en este navegador. */
+function tema(v){document.documentElement.dataset.theme=v;
+ const i=$('#thi');if(i)i.textContent=v==='dark'?'☀':'☾';
+ try{localStorage.setItem('tema',v)}catch(e){}}
+try{const g=localStorage.getItem('tema');
+ if(g)tema(g);else if(matchMedia('(prefers-color-scheme:dark)').matches){const i=$('#thi');if(i)i.textContent='☀'}}catch(e){}
 document.addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;render()}});
 $('#dlg').addEventListener('click',e=>{if(e.target===$('#dlg'))$('#dlg').close()});
 document.addEventListener('keydown',e=>{if($('#dlg').open){if(e.key==='ArrowRight')open((cur+1)%W.length);if(e.key==='ArrowLeft')open((cur-1+W.length)%W.length)}});
