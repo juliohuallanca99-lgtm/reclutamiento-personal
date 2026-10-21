@@ -347,13 +347,24 @@ async function handler(req, res) {
       const [{ siguiente }] = await sql`
         select coalesce(max(item), 0) + 1 as siguiente from seguimiento_personal
       `;
+      // La página puede mandar ya el nombre, el proyecto y los datos
+      // de contacto; lo que no venga queda en blanco y se completa
+      // después desde la ficha.
+      const d = req.body || {};
+      const dni = String(d.dni ?? '').replace(/\D/g, '').slice(0, 15);
+      if (dni && !/^\d{6,12}$/.test(dni)) {
+        return res.status(400).json({ error: 'El DNI debe tener entre 6 y 12 dígitos.' });
+      }
+
       const [fila] = await sql`
         insert into seguimiento_personal
-          (item, nombre, servicio, estado_proceso, etapas, capacitaciones,
-           actualizado_por, actualizado_en)
+          (item, nombre, dni, funcion, telefono, servicio, estado_proceso,
+           etapas, capacitaciones, actualizado_por, actualizado_en)
         values
-          (${siguiente}, 'NUEVO TRABAJADOR', ${texto(req.body?.s, 120)},
-           'EXAMEN MEDICO',
+          (${siguiente}, ${texto(d.n, 150) || 'NUEVO TRABAJADOR'},
+           ${dni || null}, ${texto(d.f, 150)},
+           ${String(d.t ?? '').replace(/\D/g, '').slice(0, 15) || null},
+           ${texto(d.s, 120)}, ${texto(d.e, 60) || 'EXAMEN MEDICO'},
            ${JSON.stringify(celdas([], N_ETAPAS))}::jsonb,
            ${JSON.stringify(celdas([], N_CAPACITACIONES))}::jsonb,
            ${req.sesion.n}, now())
@@ -363,6 +374,9 @@ async function handler(req, res) {
       `;
       return res.status(201).json(aPagina(fila));
     } catch (e) {
+      if (e.code === '23505') {
+        return res.status(409).json({ error: 'Ya hay una ficha con ese DNI.' });
+      }
       console.error('seguimiento POST:', e);
       return res.status(500).json({ error: 'No se pudo crear la ficha.' });
     }
