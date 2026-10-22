@@ -254,6 +254,9 @@ h2,.card h2{font:500 17px/1.3 'Barlow',sans-serif;letter-spacing:-.2px;margin:0 
 :root[data-theme="dark"] .p1-b{background:#2f5bd0}
 .p1-col.mal .p1-b{background:var(--ac)}
 .p1-col:hover .p1-b{filter:brightness(1.15)}
+.p1-b{position:relative;display:flex;justify-content:center}
+.p1-vi{margin-top:6px;font:700 15px 'Barlow Condensed',sans-serif;color:#fff}
+.p1-col.mal .p1-vi{color:#001f62}
 .p1-v{font:700 16px 'Barlow Condensed',sans-serif;color:var(--ink)}
 .p1-l{font-size:11.5px;color:var(--mu);text-align:center;line-height:1.15;min-height:28px}
 .p1-meta{position:absolute;left:0;right:0;bottom:calc(var(--h) + 34px);border-top:2px dashed var(--ok);pointer-events:none}
@@ -352,11 +355,20 @@ function res(){
 
   /* columnas por etapa */
   const et=SN.map((s,i)=>({i,s,c:SNC[i],ok:v.filter(w=>w.st[i].k==='ok').length}));
-  const peor=et.reduce((a,b)=>b.ok<a.ok?b:a,et[0]);
+  const minOk=Math.min(...et.map(e=>e.ok));
+  /* Si varias etapas empatan en el mínimo, todas son críticas: elegir
+     la primera haría creer que es la única que falta. */
+  const criticas=minOk<T ? et.filter(e=>e.ok===minOk) : [];
+  const esCritica=e=>criticas.some(c=>c.i===e.i);
+  /* ¿Les faltan las mismas personas a todas las etapas críticas? Entonces
+     el cuello de botella no son las etapas: son esas personas. */
+  const faltanEn=e=>v.filter(w=>w.st[e.i].k!=='ok').map(w=>W.indexOf(w)).sort().join(',');
+  const mismas=criticas.length>1 && criticas.every(c=>faltanEn(c)===faltanEn(criticas[0]));
   const H=180;
   const columnas=et.map(e=>{const h=Math.round(e.ok/T*H);
-    return `<button class="p1-col${e.i===peor.i&&peor.ok<T?' mal':''}" data-dt="st,${e.i}" type="button" title="${esc(e.s)}: ${e.ok} de ${T}">
-      <span class="p1-v">${e.ok}</span><span class="p1-b" style="height:${h}px"></span><span class="p1-l">${esc(e.c)}</span></button>`}).join('');
+    const dentro=h>=26;
+    return `<button class="p1-col${esCritica(e)?' mal':''}" data-dt="st,${e.i}" type="button" title="${esc(e.s)}: ${e.ok} de ${T}">
+      ${dentro?'':`<span class="p1-v">${e.ok}</span>`}<span class="p1-b" style="height:${Math.max(h,3)}px">${dentro?`<span class="p1-vi">${e.ok}</span>`:''}</span><span class="p1-l">${esc(e.c)}</span></button>`}).join('');
 
   /* estado por servicio, 100% apilado */
   const apilada=servicios.map(s=>{const g=v.filter(w=>w.s===s), t=g.length;
@@ -378,7 +390,11 @@ function res(){
   <div class="p1-kp">
     <div class="xk ac"><span class="xt">Avance promedio</span><b>${av}%</b><small>de 18 requisitos por persona</small></div>
     <div class="xk ok"><span class="xt">En obra</span><b data-num="${n('L')}">${n('L')}</b><small>${pctDe(n('L'),T)}% del personal</small></div>
-    <div class="xk pr"><span class="xt">Etapa crítica</span><b style="font-size:24px">${esc(peor.s)}</b><small>faltan ${T-peor.ok} personas</small></div>
+    <div class="xk pr"><span class="xt">${criticas.length>1?'Etapas críticas':'Etapa crítica'}</span>
+      <b style="font-size:24px">${!criticas.length?'Ninguna':criticas.length===1?esc(criticas[0].s):criticas.length===SN.length?'Todas por igual':criticas.length+' empatadas'}</b>
+      <small>${!criticas.length?'todas las etapas están completas'
+        :criticas.length===1?`faltan ${T-minOk} ${T-minOk===1?'persona':'personas'}`
+        :mismas?`son las mismas ${T-minOk===1?'persona':(T-minOk)+' personas'} en todas`:`a cada una le ${T-minOk===1?'falta 1 persona':'faltan '+(T-minOk)+' personas'}`}</small></div>
     <div class="xk"><span class="xt">Servicios activos</span><b data-num="${servicios.length}">${servicios.length}</b><small>${servicios.map(sl).join(' · ')}</small></div>
   </div>
 </div>
