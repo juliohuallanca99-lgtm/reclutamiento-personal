@@ -158,6 +158,37 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
   .listo.visible{animation:entra .4s ease-out}
   @keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 }
+
+/* subtítulos dentro de un bloque y fila de cuatro */
+.subtitulo{font:600 13px/1 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);
+  margin:26px 0 14px;padding-top:18px;border-top:1px solid var(--rule)}
+@media(min-width:620px){.fila.cuatro{grid-template-columns:1fr 1fr 1fr .8fr}}
+#nac_ubigeo[readonly]{color:var(--steel);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+
+/* ===== Anexo 8 · lista de seleccionados ===== */
+.anexo8{padding:8px 20px 80px;max-width:720px}
+@media(min-width:960px){.anexo8{padding:0 0 110px}}
+.anexo8 h2{font-size:15px;font-weight:600;letter-spacing:.16em;margin:0;padding:0 0 10px;border-bottom:2px solid var(--ink)}
+.a8-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:16px 0 14px}
+.a8-intro p{margin:0;color:var(--steel);font-size:14px;max-width:46ch}
+.a8-intro label{margin:0}
+.a8-intro input{width:auto;min-width:170px}
+.a8-tabla{overflow-x:auto;border:1px solid var(--rule);border-radius:3px}
+.a8-tabla table{border-collapse:collapse;width:100%;min-width:860px;font-size:13px}
+.a8-tabla th{background:#16191c;color:#fff;font-weight:600;font-size:11.5px;text-align:left;padding:9px 8px;white-space:nowrap}
+.a8-tabla td{padding:8px;border-top:1px solid var(--rule);vertical-align:top;white-space:nowrap}
+.a8-tabla td.nom{white-space:normal;min-width:180px;font-weight:600}
+.a8-tabla tr.fuera td{opacity:.45}
+.a8-tabla input[type=checkbox]{width:17px;height:17px;accent-color:var(--ink);cursor:pointer}
+.a8-tabla .falta{color:var(--rojo);font-weight:600}
+.a8-vacio{padding:26px 16px;text-align:center;color:var(--steel);font-size:14px}
+.a8-pie{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+.a8-pie span{color:var(--steel);font-size:14px}
+.a8-pie button{padding:13px 22px;background:#1c7a4b;color:#fff;border:0;border-radius:3px;cursor:pointer;
+  font:600 15px/1 'Barlow Condensed',sans-serif;letter-spacing:.12em}
+.a8-pie button:hover{background:#155c39}
+.a8-pie button:disabled{background:var(--steel);cursor:not-allowed}
+.a8-aviso{margin-top:10px;font-size:13px;color:var(--steel)}
 .verificando body{visibility:hidden}
 .cinta{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
 .cinta .quien{margin-right:auto;font-size:13px;color:var(--steel)}
@@ -197,12 +228,13 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
   <aside class="rail">
     <div class="marca">JJC CONTRATISTAS GENERALES · CC0174</div>
     <h1>Registrar postulante</h1>
-    <p>Completa los datos del postulante y adjunta su currículum. La postulación queda en el panel de Recursos Humanos para su revisión.</p>
+    <p>Completa los datos del postulante. Al registrarlo queda en el panel de Postulantes, pasa a Seguimiento y entra en la lista del Anexo 8.</p>
     <nav class="indice">
       <ol>
         <li data-paso="personal"><b>1</b> Información personal</li>
         <li data-paso="academica"><b>2</b> Información académica</li>
-        <li data-paso="postulacion"><b>3</b> Postulación y CV</li>
+        <li data-paso="postulacion"><b>3</b> Postulación</li>
+        <li data-paso="anexo8"><b>4</b> Anexo 8</li>
       </ol>
     </nav>
   </aside>
@@ -261,27 +293,65 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
             <input type="text" id="nacionalidad" value="Peruana">
           </div>
           <div class="campo">
-            <label for="fecha_nac">Fecha de nacimiento</label>
+            <label for="fecha_nac">Fecha de nacimiento <span class="req">*</span></label>
             <input type="date" id="fecha_nac">
+            <span class="aviso">Indica la fecha de nacimiento.</span>
           </div>
           <div class="campo">
-            <label for="estado_civil">Estado civil</label>
+            <label for="estado_civil">Estado civil <span class="req">*</span></label>
             <select id="estado_civil">
               <option value="">Seleccionar</option>
               <option>Soltero(a)</option><option>Casado(a)</option>
               <option>Conviviente</option><option>Divorciado(a)</option><option>Viudo(a)</option>
             </select>
+            <span class="aviso">Elige el estado civil.</span>
           </div>
         </div>
 
-        <div class="fila tres">
+        <div class="fila dos">
           <div class="campo">
-            <label for="genero">Género</label>
+            <label for="genero">Sexo <span class="req">*</span></label>
             <select id="genero">
               <option value="">Seleccionar</option>
-              <option>Femenino</option><option>Masculino</option>
+              <option>Masculino</option><option>Femenino</option>
             </select>
+            <span class="aviso">Elige el sexo.</span>
           </div>
+          <div class="campo">
+            <label for="brevete">Brevete</label>
+            <input type="text" id="brevete" placeholder="Ej. A-IIb · N.º de licencia" autocomplete="off">
+            <p class="ayuda">Solo si tiene licencia de conducir.</p>
+          </div>
+        </div>
+
+        <!-- Lugar de nacimiento: el ubigeo se completa solo -->
+        <h3 class="subtitulo">Lugar de nacimiento</h3>
+        <div class="fila cuatro">
+          <div class="campo">
+            <label for="nac_dep">Departamento <span class="req">*</span></label>
+            <select id="nac_dep"><option value="">Seleccionar</option></select>
+            <span class="aviso">Elige el departamento.</span>
+          </div>
+          <div class="campo">
+            <label for="nac_prov">Provincia <span class="req">*</span></label>
+            <select id="nac_prov" disabled><option value="">Elige departamento</option></select>
+            <span class="aviso">Elige la provincia.</span>
+          </div>
+          <div class="campo">
+            <label for="nac_dist">Distrito <span class="req">*</span></label>
+            <select id="nac_dist" disabled><option value="">Elige provincia</option></select>
+            <span class="aviso">Elige el distrito.</span>
+          </div>
+          <div class="campo">
+            <label for="nac_ubigeo">N.º de ubigeo</label>
+            <input type="text" id="nac_ubigeo" inputmode="numeric" maxlength="6" readonly placeholder="Automático">
+            <p class="ayuda" id="ayudaUbigeo">Se completa al elegir el distrito.</p>
+          </div>
+        </div>
+
+        <!-- Contacto y residencia actual -->
+        <h3 class="subtitulo">Contacto y residencia actual</h3>
+        <div class="fila dos">
           <div class="campo">
             <label for="celular">Teléfono celular <span class="req">*</span></label>
             <input type="tel" id="celular" inputmode="numeric" maxlength="9" placeholder="9########">
@@ -296,30 +366,34 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
         <div class="fila">
           <div class="campo">
-            <label for="direccion">Dirección</label>
+            <label for="direccion">Dirección actual <span class="req">*</span></label>
             <input type="text" id="direccion" placeholder="Av. / Jr. / Calle, número">
+            <span class="aviso">Escribe la dirección de residencia.</span>
           </div>
         </div>
 
         <div class="fila tres">
           <div class="campo">
-            <label for="departamento">Departamento</label>
+            <label for="departamento">Departamento de residencia <span class="req">*</span></label>
             <select id="departamento"><option value="">Seleccionar</option></select>
+            <span class="aviso">Elige el departamento.</span>
           </div>
           <div class="campo">
-            <label for="provincia">Provincia</label>
+            <label for="provincia">Provincia de residencia <span class="req">*</span></label>
             <select id="provincia" disabled><option value="">Elige departamento</option></select>
+            <span class="aviso">Elige la provincia.</span>
           </div>
           <div class="campo">
-            <label for="distrito">Distrito</label>
+            <label for="distrito">Distrito de residencia <span class="req">*</span></label>
             <select id="distrito" disabled><option value="">Elige provincia</option></select>
+            <span class="aviso">Elige el distrito.</span>
           </div>
         </div>
 
         <div class="fila">
           <div class="check">
             <input type="checkbox" id="discapacidad">
-            <label for="discapacidad">Soy una persona con discapacidad inscrita en el CONADIS</label>
+            <label for="discapacidad">Persona con discapacidad inscrita en el CONADIS</label>
           </div>
         </div>
       </fieldset>
@@ -330,12 +404,13 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
         <div class="fila dos">
           <div class="campo">
-            <label for="nivel">Nivel educativo</label>
+            <label for="nivel">Último grado de instrucción <span class="req">*</span></label>
             <select id="nivel">
               <option value="">Seleccionar</option>
-              <option>Secundaria</option><option>Técnico</option>
+              <option>Primaria</option><option>Secundaria</option><option>Técnico</option>
               <option>Universitario</option><option>Maestría</option><option>Doctorado</option>
             </select>
+            <span class="aviso">Elige el grado de instrucción.</span>
           </div>
           <div class="campo">
             <label for="estado_est">Estado</label>
@@ -373,14 +448,28 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
         <div class="fila dos">
           <div class="campo">
-            <label for="puesto">Puesto al que postula <span class="req">*</span></label>
+            <label for="puesto">Especialidad laboral / cargo <span class="req">*</span></label>
             <select id="puesto"><option value="">Cargando puestos…</option></select>
             <span class="aviso">Elige un puesto.</span>
           </div>
           <div class="campo">
+            <label for="tipo_mo">Tipo de mano de obra <span class="req">*</span></label>
+            <select id="tipo_mo">
+              <option value="">Seleccionar</option>
+              <option value="MOC">MOC · calificada</option>
+              <option value="MOSC">MOSC · semicalificada</option>
+              <option value="MONC">MONC · no calificada</option>
+            </select>
+            <span class="aviso">Elige el tipo de mano de obra.</span>
+          </div>
+        </div>
+
+        <div class="fila dos">
+          <div class="campo">
             <label for="experiencia">Años de experiencia</label>
             <input type="number" id="experiencia" min="0" max="60" step="0.5">
           </div>
+          <div class="campo"></div>
         </div>
 
         <div class="fila dos">
@@ -403,41 +492,55 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
         <div class="fila">
           <div class="check">
             <input type="checkbox" id="disponibilidad" checked>
-            <label for="disponibilidad">Tengo disponibilidad inmediata para trabajar en obra</label>
+            <label for="disponibilidad">Con disponibilidad inmediata para trabajar en obra</label>
           </div>
         </div>
 
-        <div class="fila">
-          <div class="campo" id="campo_cv">
-            <label>Currículum vitae <span class="req">*</span></label>
-            <div class="cv" id="cajaCv">
-              <label class="boton-archivo" for="cv">Elegir archivo PDF</label>
-              <input type="file" id="cv" accept="application/pdf">
-              <p id="cvTexto">Formato PDF, hasta 5 MB.</p>
-            </div>
-            <span class="aviso">Adjunta el CV en PDF para poder enviar la postulación.</span>
-          </div>
-        </div>
-      </fieldset>
+</fieldset>
 
       <div class="pie">
         <div class="check" style="margin-bottom:18px">
           <input type="checkbox" id="consentimiento">
           <label for="consentimiento">El postulante autorizó a JJC Contratistas Generales S.A. a tratar sus datos personales con fines de selección, conforme a la Ley 29733.</label>
         </div>
-        <button type="submit" class="enviar" id="btnEnviar">ENVIAR POSTULACIÓN</button>
+        <button type="submit" class="enviar" id="btnEnviar">REGISTRAR POSTULANTE</button>
         <div class="mensaje" id="mensaje"></div>
       </div>
     </form>
 
     <section class="listo" id="listo">
       <h2>Postulación registrada</h2>
-      <p>Código del expediente. Ya aparece en el panel de postulantes.</p>
+      <p>Código del expediente. Ya aparece en el panel de Postulantes<span id="enSeguimiento"></span> y en la lista del Anexo 8, aquí abajo.</p>
       <div class="codigo" id="codigoListo">POST-00000</div>
       <div class="acciones">
         <button class="prim" type="button" onclick="location.reload()">REGISTRAR OTRO POSTULANTE</button>
         <a class="sec" href="/panel.html">IR AL PANEL</a>
       </div>
+    </section>
+
+    <!-- ============ 4. ANEXO 8 ============ -->
+    <section class="anexo8" id="anexo8">
+      <h2>Anexo 8 · Lista de seleccionados</h2>
+      <div class="a8-intro">
+        <p>Formato JU-RSO-PRO-002.F04 de Marcobre. Marca a quiénes incluir y descarga el Excel con el formato oficial.</p>
+        <label>Registrados el<br><input type="date" id="a8fecha"></label>
+      </div>
+      <div class="a8-tabla">
+        <table>
+          <thead><tr>
+            <th><input type="checkbox" id="a8todos" checked aria-label="Marcar todos"></th>
+            <th>Fecha</th><th>Apellidos y nombres</th><th>DNI</th><th>Ubigeo</th>
+            <th>Nacimiento</th><th>Edad</th><th>Estado civil</th><th>Teléfono</th>
+            <th>Grado</th><th>Especialidad laboral</th><th>Sexo</th><th>MO</th>
+          </tr></thead>
+          <tbody id="a8cuerpo"><tr><td colspan="13" class="a8-vacio">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="a8-pie">
+        <span id="a8cuenta">0 personas</span>
+        <button type="button" id="a8bajar" disabled>DESCARGAR ANEXO 8</button>
+      </div>
+      <p class="a8-aviso" id="a8aviso"></p>
     </section>
   </main>
 </div>
@@ -446,10 +549,6 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 // El formulario no habla con la base directamente: todo pasa por las
 // funciones de /api, donde viven las credenciales. No hay nada que
 // configurar en este archivo.
-// La librería de subida se carga recién al enviar. Si se importara aquí
-// arriba y el CDN no respondiera, se caería todo el script y el
-// formulario quedaría inservible.
-const cargarSubida = () => import('https://esm.sh/@vercel/blob@2.8.1/client');
 
 /* Si la sesión vence mientras se llena el formulario, no se recarga la
    página (se perdería lo escrito): se avisa y se deja todo como está. */
@@ -483,7 +582,8 @@ async function leerJson(r) {
   }
 }
 
-/* ---- ubigeo encadenado (INEI, 25 departamentos / 196 provincias / 1874 distritos) ---- */
+/* ---- ubigeo encadenado (catastro RENIEC, el mismo del Anexo 8) ----
+   Una sola función arma las dos cascadas: residencia y nacimiento. */
 let UBIGEO = null;
 
 const vaciar = (sel, texto) => {
@@ -492,21 +592,8 @@ const vaciar = (sel, texto) => {
   sel.disabled = true;
 };
 
-(async () => {
-  try {
-    const r = await fetch('/ubigeo.json');
-    if (!r.ok) throw new Error();
-    UBIGEO = await r.json();
-  } catch {
-    // Sin el archivo, los tres campos quedan como texto libre y el formulario sigue sirviendo.
-    ['departamento','provincia','distrito'].forEach(id => {
-      const s = $(id), t = document.createElement('input');
-      t.type = 'text'; t.id = id; s.replaceWith(t);
-    });
-    return;
-  }
-
-  const selDep = $('departamento');
+function montarCascada(idDep, idProv, idDist, alElegir = () => {}) {
+  const selDep = $(idDep);
   selDep.innerHTML = '';
   selDep.add(new Option('Seleccionar', ''));
   Object.entries(UBIGEO)
@@ -515,9 +602,9 @@ const vaciar = (sel, texto) => {
 
   selDep.addEventListener('change', () => {
     const dep = UBIGEO[selDep.value];
-    vaciar($('distrito'), 'Elige provincia');
-    if (!dep) { vaciar($('provincia'), 'Elige departamento'); return; }
-    const selProv = $('provincia');
+    vaciar($(idDist), 'Elige provincia'); alElegir(null);
+    if (!dep) { vaciar($(idProv), 'Elige departamento'); return; }
+    const selProv = $(idProv);
     selProv.innerHTML = '';
     selProv.add(new Option('Seleccionar', ''));
     Object.entries(dep.p)
@@ -526,11 +613,12 @@ const vaciar = (sel, texto) => {
     selProv.disabled = false;
   });
 
-  $('provincia').addEventListener('change', () => {
-    const dep = UBIGEO[$('departamento').value];
-    const prov = dep && dep.p[$('provincia').value];
-    if (!prov) { vaciar($('distrito'), 'Elige provincia'); return; }
-    const selDist = $('distrito');
+  $(idProv).addEventListener('change', () => {
+    const dep = UBIGEO[$(idDep).value];
+    const prov = dep && dep.p[$(idProv).value];
+    alElegir(null);
+    if (!prov) { vaciar($(idDist), 'Elige provincia'); return; }
+    const selDist = $(idDist);
     selDist.innerHTML = '';
     selDist.add(new Option('Seleccionar', ''));
     Object.entries(prov.d)
@@ -538,17 +626,49 @@ const vaciar = (sel, texto) => {
       .forEach(([cod, dist]) => selDist.add(new Option(dist[0], cod)));
     selDist.disabled = false;
   });
+
+  $(idDist).addEventListener('change', () => alElegir(ubigeoDe(idDep, idProv, idDist)));
+}
+
+/* El N.º de ubigeo de nacimiento se llena solo. Unos pocos distritos
+   creados hace poco no tienen código en el catastro: ahí queda libre
+   para escribirlo a mano. */
+function ponerUbigeoNacimiento(u) {
+  const c = $('nac_ubigeo'), ayuda = $('ayudaUbigeo');
+  if (!u) { c.value = ''; c.readOnly = true; ayuda.textContent = 'Se completa al elegir el distrito.'; return; }
+  c.value = u.ubigeo_reniec || '';
+  c.readOnly = !!u.ubigeo_reniec;
+  ayuda.textContent = u.ubigeo_reniec ? 'Completado según el catastro.'
+                                      : 'Este distrito no tiene código en el catastro: escríbelo si lo conoces.';
+}
+
+(async () => {
+  try {
+    const r = await fetch('/ubigeo.json');
+    if (!r.ok) throw new Error();
+    UBIGEO = await r.json();
+  } catch {
+    // Sin el archivo, los campos quedan como texto libre y el formulario sigue sirviendo.
+    ['departamento','provincia','distrito','nac_dep','nac_prov','nac_dist'].forEach(id => {
+      const s = $(id), t = document.createElement('input');
+      t.type = 'text'; t.id = id; s.replaceWith(t);
+    });
+    $('nac_ubigeo').readOnly = false;
+    return;
+  }
+  montarCascada('departamento', 'provincia', 'distrito');
+  montarCascada('nac_dep', 'nac_prov', 'nac_dist', ponerUbigeoNacimiento);
 })();
 
-/* Nombres y códigos de lo que el postulante eligió. */
-function ubigeoElegido() {
+/* Nombres y códigos de lo elegido en una cascada. */
+function ubigeoDe(idDep, idProv, idDist) {
   if (!UBIGEO) return {
-    departamento: $('departamento').value || null,
-    provincia: $('provincia').value || null,
-    distrito: $('distrito').value || null,
+    departamento: $(idDep).value.trim() || null,
+    provincia: $(idProv).value.trim() || null,
+    distrito: $(idDist).value.trim() || null,
     ubigeo_inei: null, ubigeo_reniec: null
   };
-  const cd = $('departamento').value, cp = $('provincia').value, cx = $('distrito').value;
+  const cd = $(idDep).value, cp = $(idProv).value, cx = $(idDist).value;
   const dep = UBIGEO[cd], prov = dep && dep.p[cp], dist = prov && prov.d[cx];
   return {
     departamento: dep ? dep.n : null,
@@ -558,6 +678,7 @@ function ubigeoElegido() {
     ubigeo_reniec: dist && dist[1] ? dist[1] : null
   };
 }
+const ubigeoElegido = () => ubigeoDe('departamento', 'provincia', 'distrito');
 
 /* ---- puestos ---- */
 (async () => {
@@ -637,20 +758,7 @@ const obs = new IntersectionObserver(entradas => {
     }
   });
 }, { rootMargin: '-30% 0px -60% 0px' });
-['personal','academica','postulacion'].forEach(id => obs.observe($(id)));
-
-/* ---- CV ---- */
-let archivoCv = null;
-$('cv').addEventListener('change', e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  if (f.type !== 'application/pdf') { $('cvTexto').textContent = 'El archivo debe ser PDF.'; archivoCv = null; return; }
-  if (f.size > 5 * 1024 * 1024)     { $('cvTexto').textContent = 'El archivo pesa más de 5 MB. Comprímelo e inténtalo otra vez.'; archivoCv = null; return; }
-  archivoCv = f;
-  $('cajaCv').classList.add('cargado');
-  $('cvTexto').innerHTML = '<strong>' + f.name + '</strong> · ' + (f.size/1024/1024).toFixed(1) + ' MB';
-  $('campo_cv').classList.remove('error');
-});
+['personal','academica','postulacion','anexo8'].forEach(id => obs.observe($(id)));
 
 /* ---- validación ---- */
 const marcar = (id, mal) => $(id).closest('.campo').classList.toggle('error', mal);
@@ -671,11 +779,24 @@ function validar() {
   const corMal = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('correo').value.trim());
   marcar('correo', corMal); if (corMal) ok = false;
 
+  // Lo que el formato Anexo 8 no puede llevar vacío
+  ['fecha_nac','estado_civil','genero','nac_dep','nac_prov','nac_dist',
+   'direccion','departamento','provincia','distrito','nivel','tipo_mo']
+    .forEach(id => { const mal = !String($(id).value).trim(); marcar(id, mal); if (mal) ok = false; });
+
+  const fn = $('fecha_nac').value;
+  if (fn) {
+    const edad = (Date.now() - new Date(fn + 'T00:00:00')) / 31557600000;
+    const malEdad = edad < 18 || edad > 80;
+    if (malEdad) { $('fecha_nac').closest('.campo').querySelector('.aviso').textContent = 'Revisa la fecha: la edad debe estar entre 18 y 80 años.'; }
+    else { $('fecha_nac').closest('.campo').querySelector('.aviso').textContent = 'Indica la fecha de nacimiento.'; }
+    marcar('fecha_nac', malEdad); if (malEdad) ok = false;
+  }
+
   const puestoMal = !$('puesto').value; marcar('puesto', puestoMal); if (puestoMal) ok = false;
   const expMal = !$('expectativa').value || Number($('expectativa').value) <= 0;
   marcar('expectativa', expMal); if (expMal) ok = false;
 
-  const cvMal = !archivoCv; $('campo_cv').classList.toggle('error', cvMal); if (cvMal) ok = false;
 
   return ok;
 }
@@ -693,29 +814,12 @@ $('formulario').addEventListener('submit', async e => {
   }
 
   const btn = $('btnEnviar');
-  btn.disabled = true; btn.textContent = 'ENVIANDO…';
+  btn.disabled = true; btn.textContent = 'REGISTRANDO…';
 
   try {
     const doc = $('num_doc').value.trim();
 
-    btn.textContent = 'SUBIENDO CV…';
-    let subido;
-    try {
-      const { upload } = await cargarSubida();
-      const ruta = new Date().getFullYear() + '/' + doc + '.pdf';
-      subido = await upload(ruta, archivoCv, {
-        access: 'private',
-        contentType: 'application/pdf',
-        handleUploadUrl: '/api/subir-cv'
-      });
-    } catch (fallo) {
-      // La librería devuelve mensajes técnicos en inglés. El postulante
-      // no debe verlos; el detalle queda en la consola para depurar.
-      console.error('subida del CV:', fallo);
-      throw new Error('No se pudo subir el currículum. Revisa tu conexión e inténtalo de nuevo.');
-    }
-
-    btn.textContent = 'ENVIANDO…';
+    const nac = ubigeoDe('nac_dep', 'nac_prov', 'nac_dist');
     const fila = {
       nombres: $('nombres').value.trim(),
       apellido_paterno: $('ap_paterno').value.trim(),
@@ -727,6 +831,11 @@ $('formulario').addEventListener('submit', async e => {
       fecha_nacimiento: $('fecha_nac').value || null,
       estado_civil: $('estado_civil').value || null,
       genero: $('genero').value || null,
+      brevete: $('brevete').value.trim() || null,
+      nac_departamento: nac.departamento,
+      nac_provincia: nac.provincia,
+      nac_distrito: nac.distrito,
+      nac_ubigeo: $('nac_ubigeo').value.trim() || null,
       celular: $('celular').value.trim(),
       correo: $('correo').value.trim().toLowerCase(),
       direccion: $('direccion').value.trim() || null,
@@ -738,12 +847,11 @@ $('formulario').addEventListener('submit', async e => {
       estado_estudios: $('estado_est').value || null,
       numero_colegiatura: $('colegiatura').value.trim() || null,
       puesto: $('puesto').value,
+      tipo_mano_obra: $('tipo_mo').value,
       experiencia_anios: $('experiencia').value ? Number($('experiencia').value) : null,
       fuente_reclutamiento: $('fuente').value || null,
       expectativa_salarial: Number($('expectativa').value),
-      disponibilidad_inmediata: $('disponibilidad').checked,
-      cv_pathname: subido.pathname,
-      cv_nombre: archivoCv.name
+      disponibilidad_inmediata: $('disponibilidad').checked
     };
 
     const r = await fetch('/api/postular', {
@@ -755,16 +863,110 @@ $('formulario').addEventListener('submit', async e => {
     if (!r.ok) throw new Error(data.error || 'Sin respuesta');
 
     $('codigoListo').textContent = data.codigo;
+    $('enSeguimiento').textContent = data.seguimiento === 'creado' ? ', en Seguimiento'
+      : data.seguimiento === 'existente' ? ' (en Seguimiento ya tenía ficha)' : '';
     $('formulario').style.display = 'none';
     $('listo').classList.add('visible');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    a8Cargar();
 
   } catch (err) {
     console.error(err);
     msj.textContent = err.message || 'No se pudo registrar la postulación. Inténtalo de nuevo.';
-    btn.disabled = false; btn.textContent = 'ENVIAR POSTULACIÓN';
+    btn.disabled = false; btn.textContent = 'REGISTRAR POSTULANTE';
   }
 });
+
+/* ===================================================================
+   Anexo 8 · lista de seleccionados
+   Muestra a los registrados en una fecha (hoy por defecto) con el mismo
+   orden de columnas del formato. El Excel lo arma el servidor sobre la
+   plantilla oficial, con los logos y el encabezado de Marcobre.
+   =================================================================== */
+const hoyLima = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+const fmtFecha = v => { if (!v) return ''; const d = String(v).slice(0, 10).split('-'); return d.length === 3 ? `${d[2]}/${d[1]}/${d[0]}` : v; };
+const edadDe = f => { if (!f) return ''; const n = new Date(String(f).slice(0, 10) + 'T00:00:00');
+  let e = new Date().getFullYear() - n.getFullYear(); const m = new Date().getMonth() - n.getMonth();
+  if (m < 0 || (m === 0 && new Date().getDate() < n.getDate())) e--; return e; };
+const escA8 = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+let A8 = [];
+
+function a8Pintar() {
+  const cuerpo = $('a8cuerpo');
+  if (!A8.length) {
+    cuerpo.innerHTML = `<tr><td colspan="13" class="a8-vacio">No hay postulantes registrados el ${fmtFecha($('a8fecha').value)}.</td></tr>`;
+  } else {
+    const f = v => v ? escA8(v) : '<span class="falta">falta</span>';
+    cuerpo.innerHTML = A8.map((p, i) => `<tr class="${p.incluir ? '' : 'fuera'}">
+      <td><input type="checkbox" data-a8="${i}" ${p.incluir ? 'checked' : ''} aria-label="Incluir a ${escA8(p.nombres)}"></td>
+      <td>${fmtFecha(p.registro)}</td>
+      <td class="nom">${escA8([p.apellido_paterno, p.apellido_materno, p.nombres].join(' '))}</td>
+      <td>${escA8(p.numero_documento)}</td>
+      <td>${f(p.nac_ubigeo)}</td>
+      <td>${p.fecha_nacimiento ? fmtFecha(p.fecha_nacimiento) : f('')}</td>
+      <td>${edadDe(p.fecha_nacimiento)}</td>
+      <td>${f(p.estado_civil)}</td>
+      <td>${escA8(p.celular)}</td>
+      <td>${f(p.nivel_educativo)}</td>
+      <td>${escA8(p.puesto)}</td>
+      <td>${f(p.genero)}</td>
+      <td>${f(p.tipo_mano_obra)}</td></tr>`).join('');
+  }
+  const n = A8.filter(p => p.incluir).length;
+  $('a8cuenta').textContent = n === 1 ? '1 persona marcada' : `${n} personas marcadas`;
+  $('a8bajar').disabled = !n;
+  $('a8todos').checked = A8.length > 0 && n === A8.length;
+  // Los registrados antes de este cambio no tienen los datos nuevos: se avisa
+  const incompletos = A8.filter(p => p.incluir && (!p.nac_ubigeo || !p.fecha_nacimiento || !p.tipo_mano_obra)).length;
+  $('a8aviso').textContent = incompletos
+    ? `${incompletos} de los marcados tiene${incompletos === 1 ? '' : 'n'} datos en «falta»: saldrán vacíos en el Excel.` : '';
+}
+
+async function a8Cargar() {
+  const f = $('a8fecha').value || hoyLima();
+  try {
+    const r = await fetch(`/api/postulantes?desde=${f}&hasta=${f}`);
+    const d = await leerJson(r);
+    if (!r.ok) throw new Error(d.error || 'No se pudo cargar la lista');
+    A8 = d.slice().reverse().map(p => ({ ...p, incluir: true }));   // en orden de registro
+  } catch (e) {
+    A8 = [];
+    $('a8cuerpo').innerHTML = `<tr><td colspan="13" class="a8-vacio">${escA8(e.message)}</td></tr>`;
+    $('a8cuenta').textContent = ''; $('a8bajar').disabled = true; return;
+  }
+  a8Pintar();
+}
+
+$('a8fecha').value = hoyLima();
+$('a8fecha').max = hoyLima();
+$('a8fecha').addEventListener('change', a8Cargar);
+$('a8cuerpo').addEventListener('change', e => {
+  const i = e.target.dataset.a8; if (i === undefined) return;
+  A8[+i].incluir = e.target.checked; a8Pintar();
+});
+$('a8todos').addEventListener('change', e => { A8.forEach(p => p.incluir = e.target.checked); a8Pintar(); });
+
+$('a8bajar').addEventListener('click', async () => {
+  const ids = A8.filter(p => p.incluir).map(p => p.id);
+  if (!ids.length) return;
+  const b = $('a8bajar'); b.disabled = true; b.textContent = 'GENERANDO…';
+  try {
+    const r = await fetch('/api/exportar?formato=anexo8&ids=' + ids.join(','));
+    if (!r.ok) throw new Error((await leerJson(r)).error || 'No se pudo generar el Anexo 8');
+    const blob = await r.blob();
+    const m = /filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = m ? m[1] : 'Anexo 8.xlsx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  } catch (e) {
+    $('a8aviso').textContent = e.message;
+  } finally {
+    b.textContent = 'DESCARGAR ANEXO 8'; b.disabled = !A8.some(p => p.incluir);
+  }
+});
+
+a8Cargar();
 </script>
 </body>
 </html>
