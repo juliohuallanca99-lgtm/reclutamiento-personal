@@ -111,7 +111,9 @@ a.cv:hover{border-bottom-color:var(--rojo)}
 /* Fondo con foto: basta con subir img/fondo-ingreso.jpg (o .jpeg, .webp,
    .png) al repositorio. Si no está, queda el paisaje dibujado. Opcional:
    una versión vertical para celular en img/fondo-ingreso-movil.jpg. */
-.ing-foto{display:none;background-position:center;background-size:cover;background-repeat:no-repeat}
+/* Anclada abajo: en pantallas anchas el recorte se lleva cielo, no la
+   planta. En las fotos de obra lo importante casi siempre está abajo. */
+.ing-foto{display:none;background-position:center bottom;background-size:cover;background-repeat:no-repeat}
 .con-foto .ing-fondo{display:none}
 .con-foto .ing-foto{display:block;background-image:
   linear-gradient(90deg,rgba(0,31,98,.50) 0%,rgba(0,31,98,.12) 40%,rgba(0,31,98,0) 60%),
