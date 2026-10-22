@@ -108,19 +108,19 @@ a.cv:hover{border-bottom-color:var(--rojo)}
 .ingreso.visible{display:block}
 .ing-fondo,.ing-foto{position:fixed;inset:0;z-index:0}
 .ing-fondo svg{width:100%;height:100%;display:block}
-/* Fondo con foto: basta con subir img/fondo-ingreso.jpg al repositorio.
-   Si el archivo no está, queda el paisaje dibujado. Opcional: una versión
-   vertical para celular en img/fondo-ingreso-movil.jpg. */
+/* Fondo con foto: basta con subir img/fondo-ingreso.jpg (o .jpeg, .webp,
+   .png) al repositorio. Si no está, queda el paisaje dibujado. Opcional:
+   una versión vertical para celular en img/fondo-ingreso-movil.jpg. */
 .ing-foto{display:none;background-position:center;background-size:cover;background-repeat:no-repeat}
 .con-foto .ing-fondo{display:none}
 .con-foto .ing-foto{display:block;background-image:
   linear-gradient(90deg,rgba(0,31,98,.50) 0%,rgba(0,31,98,.12) 40%,rgba(0,31,98,0) 60%),
   linear-gradient(180deg,rgba(0,20,60,.25) 0%,rgba(0,20,60,0) 22%),
-  url('/img/fondo-ingreso.jpg')}
+  var(--foto)}
 @media(max-width:820px) and (orientation:portrait){
   .con-foto .ing-foto{background-image:
     linear-gradient(180deg,rgba(0,20,60,.45) 0%,rgba(0,20,60,.05) 30%,rgba(0,20,60,.25) 100%),
-    url('/img/fondo-ingreso-movil.jpg'), url('/img/fondo-ingreso.jpg')}
+    var(--foto-movil, var(--foto))}
 }
 .ing-marca{position:fixed;z-index:1;top:44px;left:72px;height:46px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
 .ing-lado{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;justify-content:center;
@@ -348,10 +348,26 @@ $('formIngreso').addEventListener('submit', async e => {
   }
 });
 
-/* ¿Hay foto de fondo subida? Si carga, reemplaza al paisaje dibujado. */
-{ const f = new Image();
-  f.onload = () => $('ingreso').classList.add('con-foto');
-  f.src = '/img/fondo-ingreso.jpg'; }
+/* ¿Hay foto de fondo subida? Se prueba con las extensiones de siempre
+   (los celulares guardan .jpeg o .JPG), y la primera que cargue
+   reemplaza al paisaje dibujado. */
+(async () => {
+  const probar = src => new Promise(ok => {
+    const i = new Image(); i.onload = () => ok(src); i.onerror = () => ok(null); i.src = src; });
+  const buscar = async base => {
+    for (const ext of ['jpg', 'jpeg', 'JPG', 'JPEG', 'webp', 'png']) {
+      const s = await probar(`/img/${base}.${ext}`); if (s) return s; }
+    return null; };
+  const foto = await buscar('fondo-ingreso');
+  if (!foto) return;
+  const ing = $('ingreso');
+  ing.style.setProperty('--foto', `url("${foto}")`);
+  if (matchMedia('(max-width:820px) and (orientation:portrait)').matches) {
+    const m = await buscar('fondo-ingreso-movil');
+    if (m) ing.style.setProperty('--foto-movil', `url("${m}")`);
+  }
+  ing.classList.add('con-foto');
+})();
 
 /* mostrar u ocultar la contraseña */
 $('verClave').addEventListener('click', () => {
