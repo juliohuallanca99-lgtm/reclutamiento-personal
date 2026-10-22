@@ -160,6 +160,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 }
 
 /* subtítulos dentro de un bloque y fila de cuatro */
+.intro-bloque{margin:-16px 0 20px;font-size:14px;color:var(--steel)}
 .subtitulo{font:600 13px/1 'Barlow',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);
   margin:26px 0 14px;padding-top:18px;border-top:1px solid var(--rule)}
 @media(min-width:620px){.fila.cuatro{grid-template-columns:1fr 1fr 1fr .8fr}}
@@ -231,10 +232,11 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
     <p>Completa los datos del postulante. Al registrarlo queda en el panel de Postulantes, pasa a Seguimiento y entra en la lista del Anexo 8.</p>
     <nav class="indice">
       <ol>
-        <li data-paso="personal"><b>1</b> Información personal</li>
-        <li data-paso="academica"><b>2</b> Información académica</li>
-        <li data-paso="postulacion"><b>3</b> Postulación</li>
-        <li data-paso="anexo8"><b>4</b> Anexo 8</li>
+        <li data-paso="personal"><b>1</b> Datos personales</li>
+        <li data-paso="nacimiento"><b>2</b> Lugar de nacimiento</li>
+        <li data-paso="contacto"><b>3</b> Contacto y residencia</li>
+        <li data-paso="formacion"><b>4</b> Formación y especialidad</li>
+        <li data-paso="anexo8"><b>5</b> Anexo 8</li>
       </ol>
     </nav>
   </aside>
@@ -242,56 +244,42 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
   <main>
     <form class="formulario" id="formulario" novalidate>
 
-      <!-- ============ 1. PERSONAL ============ -->
+      <!-- ============ 1. DATOS PERSONALES ============ -->
       <fieldset id="personal">
-        <legend>Información personal</legend>
+        <legend>1. Datos personales</legend>
+        <p class="intro-bloque">Información de identificación de la persona.</p>
 
-        <div class="fila">
+        <div class="fila dos">
           <div class="campo">
             <label for="nombres">Nombres <span class="req">*</span></label>
-            <input type="text" id="nombres" autocomplete="given-name">
+            <input type="text" id="nombres" autocomplete="off">
             <span class="aviso">Escribe los nombres.</span>
+          </div>
+          <div class="campo">
+            <label for="ap_paterno">Apellido paterno <span class="req">*</span></label>
+            <input type="text" id="ap_paterno" autocomplete="off">
+            <span class="aviso">Escribe el apellido paterno.</span>
           </div>
         </div>
 
         <div class="fila dos">
           <div class="campo">
-            <label for="ap_paterno">Apellido paterno <span class="req">*</span></label>
-            <input type="text" id="ap_paterno">
-            <span class="aviso">Escribe el apellido paterno.</span>
-          </div>
-          <div class="campo">
             <label for="ap_materno">Apellido materno <span class="req">*</span></label>
-            <input type="text" id="ap_materno">
+            <input type="text" id="ap_materno" autocomplete="off">
             <span class="aviso">Escribe el apellido materno.</span>
           </div>
-        </div>
-
-        <div class="fila doc">
           <div class="campo">
-            <label for="tipo_doc">Tipo de documento</label>
-            <select id="tipo_doc">
-              <option value="DNI">DNI</option>
-              <option value="CE">Carné de extranjería</option>
-              <option value="PAS">Pasaporte</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label for="num_doc">Número de documento <span class="req">*</span></label>
+            <label for="num_doc">DNI <span class="req">*</span></label>
             <div class="busca">
-              <input type="text" id="num_doc" inputmode="numeric" maxlength="12">
-              <button type="button" class="consultar" id="btnDni">TRAER DATOS</button>
+              <input type="text" id="num_doc" inputmode="numeric" maxlength="8" placeholder="8 dígitos">
+              <button type="button" class="consultar" id="btnDni" title="Completa nombres y apellidos desde RENIEC">TRAER DATOS</button>
             </div>
             <span class="aviso" id="aviso_doc">El DNI tiene 8 dígitos.</span>
-            <p class="estado-dni" id="estadoDni">Escribe el DNI y toca el botón para completar los nombres automáticamente.</p>
+            <p class="estado-dni" id="estadoDni">Opcional: toca «Traer datos» para completar los nombres.</p>
           </div>
         </div>
 
-        <div class="fila tres">
-          <div class="campo">
-            <label for="nacionalidad">Nacionalidad</label>
-            <input type="text" id="nacionalidad" value="Peruana">
-          </div>
+        <div class="fila dos">
           <div class="campo">
             <label for="fecha_nac">Fecha de nacimiento <span class="req">*</span></label>
             <input type="date" id="fecha_nac">
@@ -319,47 +307,58 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
           </div>
           <div class="campo">
             <label for="brevete">Brevete</label>
-            <input type="text" id="brevete" placeholder="Ej. A-IIb · N.º de licencia" autocomplete="off">
-            <p class="ayuda">Solo si tiene licencia de conducir.</p>
+            <input type="text" id="brevete" placeholder="Opcional / No aplica" autocomplete="off">
           </div>
         </div>
+      </fieldset>
 
-        <!-- Lugar de nacimiento: el ubigeo se completa solo -->
-        <h3 class="subtitulo">Lugar de nacimiento</h3>
-        <div class="fila cuatro">
+      <!-- ============ 2. LUGAR DE NACIMIENTO ============ -->
+      <fieldset id="nacimiento">
+        <legend>2. Lugar de nacimiento</legend>
+        <p class="intro-bloque">Selecciona departamento, provincia y distrito. El ubigeo se completa automáticamente.</p>
+
+        <div class="fila">
           <div class="campo">
-            <label for="nac_dep">Departamento <span class="req">*</span></label>
-            <select id="nac_dep"><option value="">Seleccionar</option></select>
+            <label for="nac_dep">Departamento de nacimiento <span class="req">*</span></label>
+            <select id="nac_dep"><option value="">Seleccionar departamento</option></select>
             <span class="aviso">Elige el departamento.</span>
           </div>
+        </div>
+        <div class="fila dos">
           <div class="campo">
             <label for="nac_prov">Provincia <span class="req">*</span></label>
-            <select id="nac_prov" disabled><option value="">Elige departamento</option></select>
+            <select id="nac_prov" disabled><option value="">Seleccionar provincia</option></select>
             <span class="aviso">Elige la provincia.</span>
           </div>
           <div class="campo">
             <label for="nac_dist">Distrito <span class="req">*</span></label>
-            <select id="nac_dist" disabled><option value="">Elige provincia</option></select>
+            <select id="nac_dist" disabled><option value="">Seleccionar distrito</option></select>
             <span class="aviso">Elige el distrito.</span>
           </div>
+        </div>
+        <div class="fila">
           <div class="campo">
-            <label for="nac_ubigeo">N.º de ubigeo</label>
-            <input type="text" id="nac_ubigeo" inputmode="numeric" maxlength="6" readonly placeholder="Automático">
-            <p class="ayuda" id="ayudaUbigeo">Se completa al elegir el distrito.</p>
+            <label for="nac_ubigeo">N.º de Ubigeo</label>
+            <input type="text" id="nac_ubigeo" inputmode="numeric" maxlength="6" readonly placeholder="Se completará automáticamente">
+            <p class="ayuda" id="ayudaUbigeo"></p>
           </div>
         </div>
+      </fieldset>
 
-        <!-- Contacto y residencia actual -->
-        <h3 class="subtitulo">Contacto y residencia actual</h3>
+      <!-- ============ 3. CONTACTO Y RESIDENCIA ============ -->
+      <fieldset id="contacto">
+        <legend>3. Contacto y residencia actual</legend>
+        <p class="intro-bloque">Datos para comunicación y ubicación actual.</p>
+
         <div class="fila dos">
           <div class="campo">
-            <label for="celular">Teléfono celular <span class="req">*</span></label>
-            <input type="tel" id="celular" inputmode="numeric" maxlength="9" placeholder="9########">
+            <label for="celular">Teléfono <span class="req">*</span></label>
+            <input type="tel" id="celular" inputmode="numeric" maxlength="9" placeholder="Ej. 987654321">
             <span class="aviso">Ingresa 9 dígitos, empezando con 9.</span>
           </div>
           <div class="campo">
             <label for="correo">Correo electrónico <span class="req">*</span></label>
-            <input type="email" id="correo" autocomplete="email">
+            <input type="email" id="correo" placeholder="nombre@correo.com" autocomplete="off">
             <span class="aviso">Revisa el correo, parece incompleto.</span>
           </div>
         </div>
@@ -367,136 +366,58 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
         <div class="fila">
           <div class="campo">
             <label for="direccion">Dirección actual <span class="req">*</span></label>
-            <input type="text" id="direccion" placeholder="Av. / Jr. / Calle, número">
+            <input type="text" id="direccion" placeholder="Calle / Av. / Urb. / N.º">
             <span class="aviso">Escribe la dirección de residencia.</span>
           </div>
         </div>
 
-        <div class="fila tres">
+        <div class="fila">
           <div class="campo">
             <label for="departamento">Departamento de residencia <span class="req">*</span></label>
-            <select id="departamento"><option value="">Seleccionar</option></select>
+            <select id="departamento"><option value="">Seleccionar departamento</option></select>
             <span class="aviso">Elige el departamento.</span>
           </div>
+        </div>
+        <div class="fila dos">
           <div class="campo">
             <label for="provincia">Provincia de residencia <span class="req">*</span></label>
-            <select id="provincia" disabled><option value="">Elige departamento</option></select>
+            <select id="provincia" disabled><option value="">Seleccionar provincia</option></select>
             <span class="aviso">Elige la provincia.</span>
           </div>
           <div class="campo">
             <label for="distrito">Distrito de residencia <span class="req">*</span></label>
-            <select id="distrito" disabled><option value="">Elige provincia</option></select>
+            <select id="distrito" disabled><option value="">Seleccionar distrito</option></select>
             <span class="aviso">Elige el distrito.</span>
           </div>
         </div>
-
-        <div class="fila">
-          <div class="check">
-            <input type="checkbox" id="discapacidad">
-            <label for="discapacidad">Persona con discapacidad inscrita en el CONADIS</label>
-          </div>
-        </div>
       </fieldset>
 
-      <!-- ============ 2. ACADÉMICA ============ -->
-      <fieldset id="academica">
-        <legend>Información académica</legend>
+      <!-- ============ 4. FORMACIÓN Y ESPECIALIDAD ============ -->
+      <fieldset id="formacion">
+        <legend>4. Formación y especialidad</legend>
+        <p class="intro-bloque">Información académica y laboral que irá al formato oficial.</p>
 
-        <div class="fila dos">
+        <div class="fila">
           <div class="campo">
             <label for="nivel">Último grado de instrucción <span class="req">*</span></label>
-            <select id="nivel">
-              <option value="">Seleccionar</option>
-              <option>Primaria</option><option>Secundaria</option><option>Técnico</option>
-              <option>Universitario</option><option>Maestría</option><option>Doctorado</option>
-            </select>
-            <span class="aviso">Elige el grado de instrucción.</span>
-          </div>
-          <div class="campo">
-            <label for="estado_est">Estado</label>
-            <select id="estado_est">
-              <option value="">Seleccionar</option>
-              <option>En curso</option><option>Egresado</option>
-              <option>Bachiller</option><option>Titulado</option>
-            </select>
+            <input type="text" id="nivel" list="grados" placeholder="Ej. Secundaria completa, Técnico, Titulado" autocomplete="off">
+            <datalist id="grados">
+              <option>Primaria completa</option><option>Secundaria incompleta</option><option>Secundaria completa</option>
+              <option>Técnico</option><option>Universitario</option><option>Bachiller</option><option>Titulado</option>
+            </datalist>
+            <span class="aviso">Indica el último grado de instrucción.</span>
           </div>
         </div>
-
-        <div class="fila dos">
-          <div class="campo">
-            <label for="centro">Centro de estudios</label>
-            <input type="text" id="centro">
-          </div>
-          <div class="campo">
-            <label for="especialidad">Especialidad</label>
-            <input type="text" id="especialidad">
-          </div>
-        </div>
-
         <div class="fila">
           <div class="campo">
-            <label for="colegiatura">Número de colegiatura</label>
-            <input type="text" id="colegiatura">
-            <p class="ayuda">Solo si la profesión exige colegiatura. Déjalo vacío si no aplica.</p>
+            <label for="puesto">Especialidad laboral / Cargo <span class="req">*</span></label>
+            <input type="text" id="puesto" list="cargos" placeholder="Ej. Operario - Movimiento de Tierras" autocomplete="off">
+            <datalist id="cargos"></datalist>
+            <span class="aviso">Indica la especialidad o cargo.</span>
+            <p class="ayuda">La edad se calcula automáticamente a partir de la fecha de nacimiento.</p>
           </div>
         </div>
       </fieldset>
-
-      <!-- ============ 3. POSTULACIÓN ============ -->
-      <fieldset id="postulacion">
-        <legend>Información de postulación</legend>
-
-        <div class="fila dos">
-          <div class="campo">
-            <label for="puesto">Especialidad laboral / cargo <span class="req">*</span></label>
-            <select id="puesto"><option value="">Cargando puestos…</option></select>
-            <span class="aviso">Elige un puesto.</span>
-          </div>
-          <div class="campo">
-            <label for="tipo_mo">Tipo de mano de obra <span class="req">*</span></label>
-            <select id="tipo_mo">
-              <option value="">Seleccionar</option>
-              <option value="MOC">MOC · calificada</option>
-              <option value="MOSC">MOSC · semicalificada</option>
-              <option value="MONC">MONC · no calificada</option>
-            </select>
-            <span class="aviso">Elige el tipo de mano de obra.</span>
-          </div>
-        </div>
-
-        <div class="fila dos">
-          <div class="campo">
-            <label for="experiencia">Años de experiencia</label>
-            <input type="number" id="experiencia" min="0" max="60" step="0.5">
-          </div>
-          <div class="campo"></div>
-        </div>
-
-        <div class="fila dos">
-          <div class="campo">
-            <label for="fuente">¿Cómo se enteró de la vacante?</label>
-            <select id="fuente">
-              <option value="">Seleccionar</option>
-              <option>Facebook</option><option>LinkedIn</option><option>Instagram</option>
-              <option>WhatsApp</option><option>Referido</option>
-              <option>Bolsa laboral</option><option>Otros</option>
-            </select>
-          </div>
-          <div class="campo">
-            <label for="expectativa">Expectativa salarial (S/) <span class="req">*</span></label>
-            <input type="number" id="expectativa" min="0" step="50">
-            <span class="aviso">Indica un monto mensual.</span>
-          </div>
-        </div>
-
-        <div class="fila">
-          <div class="check">
-            <input type="checkbox" id="disponibilidad" checked>
-            <label for="disponibilidad">Con disponibilidad inmediata para trabajar en obra</label>
-          </div>
-        </div>
-
-</fieldset>
 
       <div class="pie">
         <div class="check" style="margin-bottom:18px">
@@ -531,9 +452,9 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
             <th><input type="checkbox" id="a8todos" checked aria-label="Marcar todos"></th>
             <th>Fecha</th><th>Apellidos y nombres</th><th>DNI</th><th>Ubigeo</th>
             <th>Nacimiento</th><th>Edad</th><th>Estado civil</th><th>Teléfono</th>
-            <th>Grado</th><th>Especialidad laboral</th><th>Sexo</th><th>MO</th>
+            <th>Grado</th><th>Especialidad laboral</th><th>Sexo</th>
           </tr></thead>
-          <tbody id="a8cuerpo"><tr><td colspan="13" class="a8-vacio">Cargando…</td></tr></tbody>
+          <tbody id="a8cuerpo"><tr><td colspan="12" class="a8-vacio">Cargando…</td></tr></tbody>
         </table>
       </div>
       <div class="a8-pie">
@@ -595,15 +516,15 @@ const vaciar = (sel, texto) => {
 function montarCascada(idDep, idProv, idDist, alElegir = () => {}) {
   const selDep = $(idDep);
   selDep.innerHTML = '';
-  selDep.add(new Option('Seleccionar', ''));
+  selDep.add(new Option('Seleccionar departamento', ''));
   Object.entries(UBIGEO)
     .sort((a, b) => a[1].n.localeCompare(b[1].n, 'es'))
     .forEach(([cod, dep]) => selDep.add(new Option(dep.n, cod)));
 
   selDep.addEventListener('change', () => {
     const dep = UBIGEO[selDep.value];
-    vaciar($(idDist), 'Elige provincia'); alElegir(null);
-    if (!dep) { vaciar($(idProv), 'Elige departamento'); return; }
+    vaciar($(idDist), 'Seleccionar distrito'); alElegir(null);
+    if (!dep) { vaciar($(idProv), 'Seleccionar provincia'); return; }
     const selProv = $(idProv);
     selProv.innerHTML = '';
     selProv.add(new Option('Seleccionar', ''));
@@ -617,7 +538,7 @@ function montarCascada(idDep, idProv, idDist, alElegir = () => {}) {
     const dep = UBIGEO[$(idDep).value];
     const prov = dep && dep.p[$(idProv).value];
     alElegir(null);
-    if (!prov) { vaciar($(idDist), 'Elige provincia'); return; }
+    if (!prov) { vaciar($(idDist), 'Seleccionar distrito'); return; }
     const selDist = $(idDist);
     selDist.innerHTML = '';
     selDist.add(new Option('Seleccionar', ''));
@@ -635,10 +556,10 @@ function montarCascada(idDep, idProv, idDist, alElegir = () => {}) {
    para escribirlo a mano. */
 function ponerUbigeoNacimiento(u) {
   const c = $('nac_ubigeo'), ayuda = $('ayudaUbigeo');
-  if (!u) { c.value = ''; c.readOnly = true; ayuda.textContent = 'Se completa al elegir el distrito.'; return; }
+  if (!u) { c.value = ''; c.readOnly = true; ayuda.textContent = ''; return; }
   c.value = u.ubigeo_reniec || '';
   c.readOnly = !!u.ubigeo_reniec;
-  ayuda.textContent = u.ubigeo_reniec ? 'Completado según el catastro.'
+  ayuda.textContent = u.ubigeo_reniec ? ''
                                       : 'Este distrito no tiene código en el catastro: escríbelo si lo conoces.';
 }
 
@@ -680,18 +601,13 @@ function ubigeoDe(idDep, idProv, idDist) {
 }
 const ubigeoElegido = () => ubigeoDe('departamento', 'provincia', 'distrito');
 
-/* ---- puestos ---- */
+/* ---- cargos sugeridos: el campo es libre, la lista solo ayuda a escribir ---- */
 (async () => {
-  const sel = $('puesto');
-  let data = null;
-  try { const r = await fetch('/api/puestos'); if (r.ok) data = await r.json(); } catch (e) {}
-  sel.innerHTML = '<option value="">Seleccionar puesto</option>';
-  if (!data?.length) { sel.innerHTML = '<option value="">No se pudieron cargar los puestos</option>'; return; }
-  let areaActual = null, grupo = null;
-  data.forEach(p => {
-    if (p.area !== areaActual) { areaActual = p.area; grupo = document.createElement('optgroup'); grupo.label = p.area || 'Otros'; sel.appendChild(grupo); }
-    grupo.appendChild(new Option(p.nombre, p.nombre));
-  });
+  try {
+    const r = await fetch('/api/puestos'); if (!r.ok) return;
+    const lista = $('cargos');
+    (await r.json()).forEach(p => lista.appendChild(new Option(p.nombre)));
+  } catch (e) {}
 })();
 
 /* ---- consulta de DNI ---- */
@@ -703,15 +619,6 @@ function limpiarVerificacion() {
   camposNombre.forEach(id => $(id).classList.remove('verificado'));
   $('estadoDni').classList.remove('ok');
 }
-
-$('tipo_doc').addEventListener('change', () => {
-  const esDni = $('tipo_doc').value === 'DNI';
-  $('btnDni').style.display = esDni ? '' : 'none';
-  $('estadoDni').textContent = esDni
-    ? 'Escribe el DNI y toca el botón para completar los nombres automáticamente.'
-    : 'Escribe nombres y apellidos tal como figuran en el documento.';
-  limpiarVerificacion();
-});
 
 $('num_doc').addEventListener('input', limpiarVerificacion);
 
@@ -758,7 +665,7 @@ const obs = new IntersectionObserver(entradas => {
     }
   });
 }, { rootMargin: '-30% 0px -60% 0px' });
-['personal','academica','postulacion','anexo8'].forEach(id => obs.observe($(id)));
+['personal','nacimiento','contacto','formacion','anexo8'].forEach(id => obs.observe($(id)));
 
 /* ---- validación ---- */
 const marcar = (id, mal) => $(id).closest('.campo').classList.toggle('error', mal);
@@ -768,9 +675,8 @@ function validar() {
   const req = ['nombres','ap_paterno','ap_materno'];
   req.forEach(id => { const mal = !$(id).value.trim(); marcar(id, mal); if (mal) ok = false; });
 
-  const tipo = $('tipo_doc').value, doc = $('num_doc').value.trim();
-  const docMal = tipo === 'DNI' ? !/^\d{8}$/.test(doc) : doc.length < 6;
-  $('aviso_doc').textContent = tipo === 'DNI' ? 'El DNI tiene 8 dígitos.' : 'Ingresa el número de documento.';
+  const doc = $('num_doc').value.trim();
+  const docMal = !/^\d{8}$/.test(doc);
   marcar('num_doc', docMal); if (docMal) ok = false;
 
   const celMal = !/^9\d{8}$/.test($('celular').value.trim());
@@ -781,7 +687,7 @@ function validar() {
 
   // Lo que el formato Anexo 8 no puede llevar vacío
   ['fecha_nac','estado_civil','genero','nac_dep','nac_prov','nac_dist',
-   'direccion','departamento','provincia','distrito','nivel','tipo_mo']
+   'direccion','departamento','provincia','distrito','nivel']
     .forEach(id => { const mal = !String($(id).value).trim(); marcar(id, mal); if (mal) ok = false; });
 
   const fn = $('fecha_nac').value;
@@ -793,9 +699,7 @@ function validar() {
     marcar('fecha_nac', malEdad); if (malEdad) ok = false;
   }
 
-  const puestoMal = !$('puesto').value; marcar('puesto', puestoMal); if (puestoMal) ok = false;
-  const expMal = !$('expectativa').value || Number($('expectativa').value) <= 0;
-  marcar('expectativa', expMal); if (expMal) ok = false;
+  const puestoMal = !$('puesto').value.trim(); marcar('puesto', puestoMal); if (puestoMal) ok = false;
 
 
   return ok;
@@ -824,10 +728,9 @@ $('formulario').addEventListener('submit', async e => {
       nombres: $('nombres').value.trim(),
       apellido_paterno: $('ap_paterno').value.trim(),
       apellido_materno: $('ap_materno').value.trim(),
-      tipo_documento: $('tipo_doc').value,
+      tipo_documento: 'DNI',
       numero_documento: doc,
       datos_verificados: dniVerificado,
-      nacionalidad: $('nacionalidad').value.trim() || 'Peruana',
       fecha_nacimiento: $('fecha_nac').value || null,
       estado_civil: $('estado_civil').value || null,
       genero: $('genero').value || null,
@@ -840,18 +743,8 @@ $('formulario').addEventListener('submit', async e => {
       correo: $('correo').value.trim().toLowerCase(),
       direccion: $('direccion').value.trim() || null,
       ...ubigeoElegido(),
-      discapacidad: $('discapacidad').checked,
-      nivel_educativo: $('nivel').value || null,
-      centro_estudios: $('centro').value.trim() || null,
-      especialidad: $('especialidad').value.trim() || null,
-      estado_estudios: $('estado_est').value || null,
-      numero_colegiatura: $('colegiatura').value.trim() || null,
-      puesto: $('puesto').value,
-      tipo_mano_obra: $('tipo_mo').value,
-      experiencia_anios: $('experiencia').value ? Number($('experiencia').value) : null,
-      fuente_reclutamiento: $('fuente').value || null,
-      expectativa_salarial: Number($('expectativa').value),
-      disponibilidad_inmediata: $('disponibilidad').checked
+      nivel_educativo: $('nivel').value.trim() || null,
+      puesto: $('puesto').value.trim()
     };
 
     const r = await fetch('/api/postular', {
@@ -894,7 +787,7 @@ let A8 = [];
 function a8Pintar() {
   const cuerpo = $('a8cuerpo');
   if (!A8.length) {
-    cuerpo.innerHTML = `<tr><td colspan="13" class="a8-vacio">No hay postulantes registrados el ${fmtFecha($('a8fecha').value)}.</td></tr>`;
+    cuerpo.innerHTML = `<tr><td colspan="12" class="a8-vacio">No hay postulantes registrados el ${fmtFecha($('a8fecha').value)}.</td></tr>`;
   } else {
     const f = v => v ? escA8(v) : '<span class="falta">falta</span>';
     cuerpo.innerHTML = A8.map((p, i) => `<tr class="${p.incluir ? '' : 'fuera'}">
@@ -909,15 +802,14 @@ function a8Pintar() {
       <td>${escA8(p.celular)}</td>
       <td>${f(p.nivel_educativo)}</td>
       <td>${escA8(p.puesto)}</td>
-      <td>${f(p.genero)}</td>
-      <td>${f(p.tipo_mano_obra)}</td></tr>`).join('');
+      <td>${f(p.genero)}</td></tr>`).join('');
   }
   const n = A8.filter(p => p.incluir).length;
   $('a8cuenta').textContent = n === 1 ? '1 persona marcada' : `${n} personas marcadas`;
   $('a8bajar').disabled = !n;
   $('a8todos').checked = A8.length > 0 && n === A8.length;
   // Los registrados antes de este cambio no tienen los datos nuevos: se avisa
-  const incompletos = A8.filter(p => p.incluir && (!p.nac_ubigeo || !p.fecha_nacimiento || !p.tipo_mano_obra)).length;
+  const incompletos = A8.filter(p => p.incluir && (!p.nac_distrito || !p.fecha_nacimiento || !p.estado_civil)).length;
   $('a8aviso').textContent = incompletos
     ? `${incompletos} de los marcados tiene${incompletos === 1 ? '' : 'n'} datos en «falta»: saldrán vacíos en el Excel.` : '';
 }
@@ -931,7 +823,7 @@ async function a8Cargar() {
     A8 = d.slice().reverse().map(p => ({ ...p, incluir: true }));   // en orden de registro
   } catch (e) {
     A8 = [];
-    $('a8cuerpo').innerHTML = `<tr><td colspan="13" class="a8-vacio">${escA8(e.message)}</td></tr>`;
+    $('a8cuerpo').innerHTML = `<tr><td colspan="12" class="a8-vacio">${escA8(e.message)}</td></tr>`;
     $('a8cuenta').textContent = ''; $('a8bajar').disabled = true; return;
   }
   a8Pintar();
