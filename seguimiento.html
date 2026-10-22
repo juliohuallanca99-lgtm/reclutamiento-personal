@@ -579,7 +579,7 @@ async function leerJson(r){
   catch { console.error('respuesta no-JSON:', r.status, t.slice(0,200));
           return { error:'El servicio no está disponible en este momento.' }; }
 }
-const alLogin = r => { if(r.status===401){ location.href='/panel.html'; return true; } return false; };
+const alLogin = r => { if(r.status===401){ location.href='/panel.html?volver=/seguimiento.html'; return true; } return false; };
 
 /* ---- guardado: se agenda solo, sin botón que recordar ---- */
 let reloj=null, guardando=false, pendiente=false;

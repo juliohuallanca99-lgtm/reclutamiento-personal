@@ -101,23 +101,134 @@ a.cv:hover{border-bottom-color:var(--rojo)}
 .nota{width:100%;min-width:175px;padding:5px 8px;font:400 13.5px 'Barlow',sans-serif;
   border:1px solid transparent;background:var(--field);border-radius:3px;resize:vertical;height:32px}
 .nota:focus{outline:none;border-color:var(--ink);background:var(--paper);height:66px}
+.aviso-privado{margin:-4px 0 18px;padding:10px 12px;background:var(--field);border-left:3px solid var(--rojo);font-size:13.5px;color:var(--steel)}
+
+/* ===================== ingreso ===================== */
+.ingreso{display:none;position:fixed;inset:0;overflow:auto;font-family:'Barlow',system-ui,sans-serif}
+.ingreso.visible{display:block}
+.ing-fondo,.ing-foto{position:fixed;inset:0;z-index:0}
+.ing-fondo svg{width:100%;height:100%;display:block}
+/* Fondo con foto: basta con subir img/fondo-ingreso.jpg al repositorio.
+   Si el archivo no está, queda el paisaje dibujado. Opcional: una versión
+   vertical para celular en img/fondo-ingreso-movil.jpg. */
+.ing-foto{display:none;background-position:center;background-size:cover;background-repeat:no-repeat}
+.con-foto .ing-fondo{display:none}
+.con-foto .ing-foto{display:block;background-image:
+  linear-gradient(90deg,rgba(0,31,98,.50) 0%,rgba(0,31,98,.12) 40%,rgba(0,31,98,0) 60%),
+  linear-gradient(180deg,rgba(0,20,60,.25) 0%,rgba(0,20,60,0) 22%),
+  url('/img/fondo-ingreso.jpg')}
+@media(max-width:820px) and (orientation:portrait){
+  .con-foto .ing-foto{background-image:
+    linear-gradient(180deg,rgba(0,20,60,.45) 0%,rgba(0,20,60,.05) 30%,rgba(0,20,60,.25) 100%),
+    url('/img/fondo-ingreso-movil.jpg'), url('/img/fondo-ingreso.jpg')}
+}
+.ing-marca{position:fixed;z-index:1;top:44px;left:72px;height:46px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
+.ing-lado{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;justify-content:center;
+  gap:14px;width:min(470px,calc(100% - 32px));margin-left:auto;margin-right:max(16px,13vw);padding:40px 0}
+.ing-logo,.ing-form{background:#fff;border-radius:22px;box-shadow:0 18px 50px -20px rgba(0,20,60,.55)}
+.ing-logo{display:grid;place-items:center;padding:26px 20px}
+.ing-logo img{height:68px;width:auto}
+.ing-form{padding:30px 30px 24px;color:#16222c}
+.ing-form h1{font:600 29px/1.15 'Barlow',sans-serif;color:#001f62;text-align:center;margin:0 0 8px;letter-spacing:-.2px}
+.ing-sub{text-align:center;color:#3b4a5a;margin:0 0 22px;font-size:16px}
+.ing-form label{display:block;font-weight:600;font-size:15px;color:#16222c;margin:14px 0 6px}
+.ing-form input{width:100%;box-sizing:border-box;padding:12px 14px;font:400 16px 'Barlow',sans-serif;color:#16222c;
+  background:#fff;border:1px solid #b9c6d4;border-radius:10px;transition:border-color .15s,box-shadow .15s}
+.ing-form input:focus{outline:none;border-color:#2f5bd0;box-shadow:0 0 0 3px rgba(47,91,208,.18)}
+.ing-clave{position:relative}
+.ing-clave input{padding-right:48px}
+.ing-clave button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;
+  background:none;border-radius:8px;color:#001f62;cursor:pointer;display:grid;place-items:center}
+.ing-clave button:hover{background:#eef2f8}
+.ing-clave button .tachado{display:none}
+.ing-clave button[aria-pressed="true"] .tachado{display:inline}
+.ing-olvido{display:block;margin:12px 0 0;padding:0;border:0;background:none;font:400 15px 'Barlow',sans-serif;
+  color:#3b4a5a;cursor:pointer;text-align:left}
+.ing-olvido:hover{color:#001f62;text-decoration:underline}
+.ing-ayuda{margin:8px 0 0;padding:9px 12px;background:#f2f5f9;border-radius:8px;font-size:13.5px;color:#3b4a5a}
+.ing-entrar{display:block;width:min(240px,100%);margin:18px auto 0;padding:13px 18px;border:0;border-radius:10px;
+  background:#001f62;color:#fff;font:600 17px 'Barlow',sans-serif;cursor:pointer;transition:background .15s}
+.ing-entrar:hover{background:#0a2f86}
+.ing-entrar:focus-visible,.ing-olvido:focus-visible,.ing-clave button:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
+.ing-entrar:disabled{background:#5d6b78;cursor:progress}
+.ing-form .fallo{color:#c8372d;font-size:14px;text-align:center;min-height:20px;margin-top:10px}
+.ing-pie{text-align:center;color:#5d6b78;font-size:13.5px;margin:14px 0 0;line-height:1.7}
+.ing-pie a{color:#5d6b78;font-size:12.5px;text-decoration:none;border-bottom:1px solid #d6dbde}
+.ing-pie a:hover{color:#001f62;border-bottom-color:#001f62}
+.ing-form .aviso-privado{margin:-8px 0 8px;text-align:center}
+@media(max-width:820px){
+  .ing-marca{top:22px;left:20px;height:34px}
+  .ing-lado{margin:0 auto;padding:84px 0 28px}
+  .ing-logo{display:none}
+}
 </style>
 </head>
 <body>
 
 <!-- ===================== INGRESO ===================== -->
 <div class="ingreso" id="ingreso">
-  <form class="tarjeta" id="formIngreso">
-    <div class="marca">JJC CONTRATISTAS · CC0174</div>
-    <h1>Postulantes</h1>
-    <label for="usuario">Usuario</label>
-    <input type="text" id="usuario" autocomplete="username" autocapitalize="off">
-    <label for="clave">Contraseña</label>
-    <input type="password" id="clave" autocomplete="current-password">
-    <button type="submit" id="btnIngresar">INGRESAR</button>
-    <div class="fallo" id="fallo"></div>
-    <p class="enlace-cuentas"><a href="/cuentas.html">Crear la primera cuenta</a></p>
-  </form>
+  <!-- Fondo: paisaje dibujado. Para usar una foto de obra, ver .ing-foto -->
+  <div class="ing-fondo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b5a93"/><stop offset=".45" stop-color="#7fa7cf"/><stop offset=".75" stop-color="#c9dbec"/>
+    </linearGradient>
+    <linearGradient id="lejos" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ea3bb"/><stop offset="1" stop-color="#b7c6d6"/></linearGradient>
+    <linearGradient id="medio" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f5d6e"/><stop offset="1" stop-color="#6d7988"/></linearGradient>
+    <linearGradient id="cerca" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3d42"/><stop offset="1" stop-color="#55524e"/></linearGradient>
+    <linearGradient id="nieve" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e3ecf4"/></linearGradient>
+    <filter id="nube" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+    <linearGradient id="velo" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#001f62" stop-opacity=".55"/><stop offset=".45" stop-color="#001f62" stop-opacity=".12"/><stop offset="1" stop-color="#001f62" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#cielo)"/>
+  <g filter="url(#nube)" fill="#fff">
+    <ellipse cx="260" cy="170" rx="260" ry="46" opacity=".55"/><ellipse cx="760" cy="110" rx="320" ry="40" opacity=".45"/>
+    <ellipse cx="1280" cy="200" rx="300" ry="52" opacity=".5"/><ellipse cx="1050" cy="300" rx="220" ry="30" opacity=".35"/>
+  </g>
+  <!-- cordillera lejana -->
+  <path fill="url(#lejos)" d="M0 520 L140 430 L250 470 L380 360 L470 410 L560 330 L700 420 L820 300 L930 390 L1040 280 L1160 380 L1290 300 L1420 400 L1600 330 L1600 900 L0 900Z"/>
+  <path fill="url(#nieve)" opacity=".9" d="M380 360 L420 382 L404 386 L440 404 L470 410 L430 400 L395 392 L360 372Z M820 300 L865 334 L842 336 L885 362 L930 390 L878 372 L845 352 L796 316Z M1040 280 L1092 322 L1066 324 L1120 356 L1160 380 L1100 362 L1060 340 L1012 300Z M1290 300 L1340 336 L1318 340 L1370 368 L1420 400 L1360 380 L1320 356 L1262 318Z"/>
+  <!-- macizo central nevado -->
+  <path fill="url(#medio)" d="M0 640 L180 520 L300 560 L470 420 L560 470 L700 330 L790 400 L900 300 L1000 380 L1110 330 L1230 430 L1360 380 L1480 470 L1600 430 L1600 900 L0 900Z"/>
+  <path fill="url(#nieve)" d="M700 330 L748 372 L726 374 L770 404 L790 400 L760 418 L724 398 L700 404 L676 382 L652 376Z M900 300 L948 344 L924 346 L968 372 L1000 380 L962 390 L930 370 L902 378 L878 350 L856 344Z M470 420 L506 448 L488 452 L520 470 L496 474 L470 460 L446 466 L436 446Z M1110 330 L1150 366 L1130 368 L1170 396 L1140 398 L1112 380 L1088 386 L1080 360Z"/>
+  <!-- primer plano rocoso -->
+  <path fill="url(#cerca)" d="M0 760 L120 690 L260 720 L420 640 L560 700 L700 650 L860 720 L1000 670 L1150 740 L1300 690 L1460 750 L1600 710 L1600 900 L0 900Z"/>
+  <path fill="#2c2f33" opacity=".55" d="M0 820 L200 780 L380 810 L560 770 L760 820 L960 790 L1160 830 L1380 800 L1600 830 L1600 900 L0 900Z"/>
+  <rect width="1600" height="900" fill="url(#velo)"/>
+</svg></div>
+  <div class="ing-foto" aria-hidden="true"></div>
+  <img class="ing-marca" src="data:image/png;base64,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" alt="" aria-hidden="true">
+
+  <div class="ing-lado">
+    <div class="ing-logo"><img src="data:image/png;base64,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" alt="JJC Grupo"></div>
+
+    <form class="ing-form" id="formIngreso" novalidate>
+      <h1>Iniciar sesión</h1>
+      <p class="ing-sub">Ingresa tus datos para acceder a la plataforma</p>
+      <p class="aviso-privado" id="avisoPrivado" hidden>Esta sección es solo para el personal autorizado.</p>
+
+      <label for="usuario">Usuario</label>
+      <input type="text" id="usuario" autocomplete="username" autocapitalize="off" spellcheck="false">
+
+      <label for="clave">Contraseña</label>
+      <div class="ing-clave">
+        <input type="password" id="clave" autocomplete="current-password">
+        <button type="button" id="verClave" aria-label="Mostrar contraseña" aria-pressed="false" title="Mostrar contraseña">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>
+            <path class="tachado" d="M3 3l18 18"/></svg>
+        </button>
+      </div>
+
+      <button type="button" class="ing-olvido" id="olvido" aria-expanded="false" aria-controls="ayudaOlvido">¿Olvidaste tu contraseña?</button>
+      <p class="ing-ayuda" id="ayudaOlvido" hidden>Pide a quien administra las cuentas que te cree un acceso nuevo desde la sección «Cuentas».</p>
+
+      <button type="submit" class="ing-entrar" id="btnIngresar">Iniciar sesión</button>
+      <div class="fallo" id="fallo" role="alert"></div>
+
+      <p class="ing-pie">Proyecto CC0174 · Marcobre Bateas<br><a href="/cuentas.html">Crear la primera cuenta</a></p>
+    </form>
+  </div>
 </div>
 
 <!-- ===================== PANEL ===================== -->
@@ -129,6 +240,7 @@ a.cv:hover{border-bottom-color:var(--rojo)}
     </div>
     <div class="espacio" style="flex:1"></div>
     <span class="quien" id="quien"></span>
+    <a class="boton-cabecera" href="/">REGISTRAR POSTULANTE</a>
     <a class="boton-cabecera" href="/seguimiento.html">SEGUIMIENTO</a>
     <a class="boton-cabecera" href="/cuentas.html">CUENTAS</a>
     <button id="btnSalir">SALIR</button>
@@ -189,6 +301,13 @@ a.cv:hover{border-bottom-color:var(--rojo)}
 const $ = id => document.getElementById(id);
 const ESTADOS = ['Nuevo','En revisión','Entrevista','Seleccionado','Descartado'];
 
+/* Si se llegó aquí desde una página privada, después de ingresar se
+   vuelve a ella. Solo rutas de este mismo sitio: nada de enlaces externos. */
+const volver = (() => {
+  const v = new URLSearchParams(location.search).get('volver') || '';
+  return /^\/(?!\/)[\w\-./]*$/.test(v) && !v.startsWith('/panel') ? v : '';
+})();
+
 /* ---------------- sesión ---------------- */
 async function comprobarSesion() {
   try {
@@ -211,7 +330,7 @@ $('formIngreso').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('btnIngresar'), fallo = $('fallo');
   fallo.textContent = '';
-  btn.disabled = true; btn.textContent = 'VERIFICANDO…';
+  btn.disabled = true; btn.textContent = 'Verificando…';
   try {
     const r = await fetch('/api/sesion', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -219,13 +338,33 @@ $('formIngreso').addEventListener('submit', async e => {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'No se pudo ingresar');
+    if (volver) { location.replace(volver); return; }
     abrirPanel(d);
   } catch (err) {
     fallo.textContent = err.message;
     $('clave').value = ''; $('clave').focus();
   } finally {
-    btn.disabled = false; btn.textContent = 'INGRESAR';
+    btn.disabled = false; btn.textContent = 'Iniciar sesión';
   }
+});
+
+/* ¿Hay foto de fondo subida? Si carga, reemplaza al paisaje dibujado. */
+{ const f = new Image();
+  f.onload = () => $('ingreso').classList.add('con-foto');
+  f.src = '/img/fondo-ingreso.jpg'; }
+
+/* mostrar u ocultar la contraseña */
+$('verClave').addEventListener('click', () => {
+  const ver = $('clave').type === 'password';
+  $('clave').type = ver ? 'text' : 'password';
+  $('verClave').setAttribute('aria-pressed', String(ver));
+  $('verClave').setAttribute('aria-label', ver ? 'Ocultar contraseña' : 'Mostrar contraseña');
+  $('verClave').title = ver ? 'Ocultar contraseña' : 'Mostrar contraseña';
+  $('clave').focus();
+});
+$('olvido').addEventListener('click', () => {
+  const a = $('ayudaOlvido'); a.hidden = !a.hidden;
+  $('olvido').setAttribute('aria-expanded', String(!a.hidden));
 });
 
 $('btnSalir').addEventListener('click', async () => {
@@ -394,8 +533,10 @@ $('btnExcel').addEventListener('click', async () => {
 });
 
 /* ---------------- arranque ---------------- */
+if (volver) $('avisoPrivado').hidden = false;
 const sesion = await comprobarSesion();
-if (sesion) abrirPanel(sesion);
+if (sesion && volver) location.replace(volver);
+else if (sesion) abrirPanel(sesion);
 else { $('ingreso').classList.add('visible'); $('usuario').focus(); }
 </script>
 </body>

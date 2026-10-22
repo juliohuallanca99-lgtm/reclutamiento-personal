@@ -158,20 +158,45 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
   .listo.visible{animation:entra .4s ease-out}
   @keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 }
+.verificando body{visibility:hidden}
+.cinta{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
+.cinta .quien{margin-right:auto;font-size:13px;color:var(--steel)}
+.cinta .quien b{color:var(--ink);font-weight:600}
+.cinta button.acceso{font:inherit;cursor:pointer;background:none}
+.listo .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.listo .acciones a,.listo .acciones button{display:inline-block;padding:12px 20px;border-radius:3px;cursor:pointer;
+  font:600 14px/1 'Barlow Condensed',sans-serif;letter-spacing:.12em;text-decoration:none}
+.listo .acciones .prim{background:var(--ink);color:#fff;border:1px solid var(--ink)}
+.listo .acciones .sec{background:none;color:var(--ink);border:1px solid var(--ink)}
 </style>
+<script>
+/* Página privada: hasta comprobar la sesión no se muestra nada, y sin
+   sesión se va al ingreso. Corre antes de pintar, sin parpadeo. */
+document.documentElement.classList.add('verificando');
+fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(u=>{
+  if(!u){ location.replace('/panel.html?volver=' + encodeURIComponent(location.pathname)); return; }
+  window.__usuario=u;
+  const pintar=()=>{ const q=document.getElementById('quien'); if(q) q.innerHTML='Sesión: <b></b>', q.querySelector('b').textContent=u.nombre;
+    document.documentElement.classList.remove('verificando'); };
+  document.readyState==='loading' ? document.addEventListener('DOMContentLoaded',pintar) : pintar();
+});
+</script>
 </head>
 <body>
 
 <header class="cinta">
-  <a class="acceso" href="/panel.html">Acceso Recursos Humanos</a>
+  <span class="quien" id="quien"></span>
+  <a class="acceso" href="/panel.html">Postulantes</a>
+  <a class="acceso" href="/seguimiento.html">Seguimiento</a>
+  <button class="acceso" id="btnSalir" type="button">Salir</button>
 </header>
 
 <div class="envoltura">
 
   <aside class="rail">
     <div class="marca">JJC CONTRATISTAS GENERALES · CC0174</div>
-    <h1>Trabaja con nosotros en obra</h1>
-    <p>Completa tus datos y adjunta tu currículum. Recursos Humanos revisa cada postulación y te contacta si tu perfil encaja con el puesto.</p>
+    <h1>Registrar postulante</h1>
+    <p>Completa los datos del postulante y adjunta su currículum. La postulación queda en el panel de Recursos Humanos para su revisión.</p>
     <nav class="indice">
       <ol>
         <li data-paso="personal"><b>1</b> Información personal</li>
@@ -192,7 +217,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
           <div class="campo">
             <label for="nombres">Nombres <span class="req">*</span></label>
             <input type="text" id="nombres" autocomplete="given-name">
-            <span class="aviso">Escribe tus nombres.</span>
+            <span class="aviso">Escribe los nombres.</span>
           </div>
         </div>
 
@@ -200,12 +225,12 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
           <div class="campo">
             <label for="ap_paterno">Apellido paterno <span class="req">*</span></label>
             <input type="text" id="ap_paterno">
-            <span class="aviso">Escribe tu apellido paterno.</span>
+            <span class="aviso">Escribe el apellido paterno.</span>
           </div>
           <div class="campo">
             <label for="ap_materno">Apellido materno <span class="req">*</span></label>
             <input type="text" id="ap_materno">
-            <span class="aviso">Escribe tu apellido materno.</span>
+            <span class="aviso">Escribe el apellido materno.</span>
           </div>
         </div>
 
@@ -222,10 +247,10 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
             <label for="num_doc">Número de documento <span class="req">*</span></label>
             <div class="busca">
               <input type="text" id="num_doc" inputmode="numeric" maxlength="12">
-              <button type="button" class="consultar" id="btnDni">TRAER MIS DATOS</button>
+              <button type="button" class="consultar" id="btnDni">TRAER DATOS</button>
             </div>
             <span class="aviso" id="aviso_doc">El DNI tiene 8 dígitos.</span>
-            <p class="estado-dni" id="estadoDni">Escribe tu DNI y toca el botón para completar tus nombres automáticamente.</p>
+            <p class="estado-dni" id="estadoDni">Escribe el DNI y toca el botón para completar los nombres automáticamente.</p>
           </div>
         </div>
 
@@ -336,7 +361,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
           <div class="campo">
             <label for="colegiatura">Número de colegiatura</label>
             <input type="text" id="colegiatura">
-            <p class="ayuda">Solo si tu profesión exige colegiatura. Déjalo vacío si no aplica.</p>
+            <p class="ayuda">Solo si la profesión exige colegiatura. Déjalo vacío si no aplica.</p>
           </div>
         </div>
       </fieldset>
@@ -359,7 +384,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 
         <div class="fila dos">
           <div class="campo">
-            <label for="fuente">¿Cómo te enteraste de la vacante?</label>
+            <label for="fuente">¿Cómo se enteró de la vacante?</label>
             <select id="fuente">
               <option value="">Seleccionar</option>
               <option>Facebook</option><option>LinkedIn</option><option>Instagram</option>
@@ -389,7 +414,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
               <input type="file" id="cv" accept="application/pdf">
               <p id="cvTexto">Formato PDF, hasta 5 MB.</p>
             </div>
-            <span class="aviso">Adjunta tu CV en PDF para poder enviar la postulación.</span>
+            <span class="aviso">Adjunta el CV en PDF para poder enviar la postulación.</span>
           </div>
         </div>
       </fieldset>
@@ -397,7 +422,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
       <div class="pie">
         <div class="check" style="margin-bottom:18px">
           <input type="checkbox" id="consentimiento">
-          <label for="consentimiento">Autorizo a JJC Contratistas Generales S.A. a tratar mis datos personales con fines de selección, conforme a la Ley 29733.</label>
+          <label for="consentimiento">El postulante autorizó a JJC Contratistas Generales S.A. a tratar sus datos personales con fines de selección, conforme a la Ley 29733.</label>
         </div>
         <button type="submit" class="enviar" id="btnEnviar">ENVIAR POSTULACIÓN</button>
         <div class="mensaje" id="mensaje"></div>
@@ -406,9 +431,12 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 
     <section class="listo" id="listo">
       <h2>Postulación registrada</h2>
-      <p>Guarda este código: con él Recursos Humanos puede ubicar tu expediente.</p>
+      <p>Código del expediente. Ya aparece en el panel de postulantes.</p>
       <div class="codigo" id="codigoListo">POST-00000</div>
-      <p>Revisaremos tu perfil frente al puesto elegido. Si avanzas en el proceso, te escribiremos al correo o celular que registraste.</p>
+      <div class="acciones">
+        <button class="prim" type="button" onclick="location.reload()">REGISTRAR OTRO POSTULANTE</button>
+        <a class="sec" href="/panel.html">IR AL PANEL</a>
+      </div>
     </section>
   </main>
 </div>
@@ -422,6 +450,23 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 // formulario quedaría inservible.
 const cargarSubida = () => import('https://esm.sh/@vercel/blob@2.8.1/client');
 
+/* Si la sesión vence mientras se llena el formulario, no se recarga la
+   página (se perdería lo escrito): se avisa y se deja todo como está. */
+const fetchOriginal = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const r = await fetchOriginal(...args);
+  const url = String(args[0]?.url || args[0] || '');
+  if (r.status === 401 && url.includes('/api/') && !url.includes('/api/sesion')) {
+    throw new Error('Tu sesión venció. Ingresa de nuevo en otra pestaña (Postulantes) y vuelve a enviar: lo que escribiste sigue aquí.');
+  }
+  return r;
+};
+
+document.getElementById('btnSalir').addEventListener('click', async () => {
+  await fetchOriginal('/api/sesion', { method: 'DELETE' }).catch(() => {});
+  location.replace('/panel.html');
+});
+
 const $ = id => document.getElementById(id);
 
 // Si una función falla al arrancar, Vercel responde una página de error
@@ -433,7 +478,7 @@ async function leerJson(r) {
     return JSON.parse(texto);
   } catch {
     console.error('respuesta no-JSON del servidor:', r.status, texto.slice(0, 200));
-    return { error: 'El servicio no está disponible en este momento. Escribe tus datos a mano.' };
+    return { error: 'El servicio no está disponible en este momento. Escribe los datos a mano.' };
   }
 }
 
@@ -541,8 +586,8 @@ $('tipo_doc').addEventListener('change', () => {
   const esDni = $('tipo_doc').value === 'DNI';
   $('btnDni').style.display = esDni ? '' : 'none';
   $('estadoDni').textContent = esDni
-    ? 'Escribe tu DNI y toca el botón para completar tus nombres automáticamente.'
-    : 'Escribe tus nombres y apellidos tal como figuran en tu documento.';
+    ? 'Escribe el DNI y toca el botón para completar los nombres automáticamente.'
+    : 'Escribe nombres y apellidos tal como figuran en el documento.';
   limpiarVerificacion();
 });
 
@@ -570,7 +615,7 @@ $('btnDni').addEventListener('click', async () => {
     camposNombre.forEach(id => { $(id).classList.add('verificado'); marcar(id, false); });
 
     dniVerificado = true;
-    est.textContent = 'Datos verificados. Si algo no coincide con tu DNI, corrígelo.';
+    est.textContent = 'Datos verificados. Si algo no coincide con el DNI, corrígelo.';
     est.classList.add('ok');
     marcar('num_doc', false);
 
@@ -578,7 +623,7 @@ $('btnDni').addEventListener('click', async () => {
     est.textContent = err.message;
     limpiarVerificacion();
   } finally {
-    btn.disabled = false; btn.textContent = 'TRAER MIS DATOS';
+    btn.disabled = false; btn.textContent = 'TRAER DATOS';
   }
 });
 
@@ -616,7 +661,7 @@ function validar() {
 
   const tipo = $('tipo_doc').value, doc = $('num_doc').value.trim();
   const docMal = tipo === 'DNI' ? !/^\d{8}$/.test(doc) : doc.length < 6;
-  $('aviso_doc').textContent = tipo === 'DNI' ? 'El DNI tiene 8 dígitos.' : 'Ingresa el número de tu documento.';
+  $('aviso_doc').textContent = tipo === 'DNI' ? 'El DNI tiene 8 dígitos.' : 'Ingresa el número de documento.';
   marcar('num_doc', docMal); if (docMal) ok = false;
 
   const celMal = !/^9\d{8}$/.test($('celular').value.trim());
