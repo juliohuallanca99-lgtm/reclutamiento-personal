@@ -35,7 +35,8 @@ async function handler(req, res) {
   if (!texto(d.direccion))        faltan.push('dirección');
   if (!texto(d.distrito))         faltan.push('residencia');
   if (!texto(d.nivel_educativo))  faltan.push('grado de instrucción');
-  if (!TIPOS_MO.includes(d.tipo_mano_obra)) faltan.push('tipo de mano de obra');
+  // El tipo de mano de obra ya no se pregunta; si llega, debe ser válido.
+  if (d.tipo_mano_obra && !TIPOS_MO.includes(d.tipo_mano_obra)) faltan.push('tipo de mano de obra válido');
 
   if (faltan.length) {
     return res.status(400).json({ error: 'Faltan datos: ' + faltan.join(', ') + '.' });
@@ -112,7 +113,7 @@ async function handler(req, res) {
         ${texto(d.brevete, 40)}, ${texto(d.nac_departamento, 60)},
         ${texto(d.nac_provincia, 60)}, ${texto(d.nac_distrito, 60)},
         ${/^\d{6}$/.test(String(d.nac_ubigeo ?? '')) ? d.nac_ubigeo : null},
-        ${d.tipo_mano_obra}
+        ${TIPOS_MO.includes(d.tipo_mano_obra) ? d.tipo_mano_obra : null}
       )
       returning codigo
     `;
