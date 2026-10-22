@@ -22,12 +22,18 @@ async function handler(req, res) {
                puesto, experiencia_anios, fuente_reclutamiento,
                expectativa_salarial, disponibilidad_inmediata,
                cv_pathname, cv_url, cv_nombre, estado, observaciones,
-               revisado_por, revisado_en, creado_en
+               revisado_por, revisado_en, creado_en,
+               -- datos del formato Anexo 8
+               to_char(fecha_nacimiento, 'YYYY-MM-DD') as fecha_nacimiento,
+               estado_civil, genero, direccion, brevete,
+               nac_departamento, nac_provincia, nac_distrito, nac_ubigeo,
+               tipo_mano_obra,
+               to_char(creado_en at time zone 'America/Lima', 'YYYY-MM-DD') as registro
           from postulantes
          where (${String(puesto)} = '' or puesto = ${String(puesto)})
            and (${String(estado)} = '' or estado = ${String(estado)})
-           and (${String(desde)}  = '' or creado_en >= ${desde || null}::date)
-           and (${String(hasta)}  = '' or creado_en <  ${hasta || null}::date + 1)
+           and (${String(desde)}  = '' or (creado_en at time zone 'America/Lima')::date >= ${desde || null}::date)
+           and (${String(hasta)}  = '' or (creado_en at time zone 'America/Lima')::date <= ${hasta || null}::date)
            and (${texto} = '' or
                 numero_documento ilike ${'%' + texto + '%'} or
                 codigo ilike ${'%' + texto + '%'} or

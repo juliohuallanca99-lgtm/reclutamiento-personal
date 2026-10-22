@@ -8,6 +8,9 @@ const texto = (v, max = 200) => {
   return s ? s.slice(0, max) : null;
 };
 const numero = v => (v === '' || v == null || isNaN(Number(v))) ? null : Number(v);
+const TIPOS_MO = ['MOC', 'MOSC', 'MONC'];
+const N_ETAPAS = 7, N_CAPACITACIONES = 11;
+const pendientes = n => JSON.stringify(Array.from({ length: n }, () => ({ k: 'pend', l: 'Pendiente' })));
 
 // Desde que el formulario es privado, solo Recursos Humanos registra.
 async function handler(req, res) {
@@ -24,7 +27,15 @@ async function handler(req, res) {
   if (!texto(d.apellido_materno)) faltan.push('apellido materno');
   if (!texto(d.numero_documento)) faltan.push('documento');
   if (!texto(d.puesto))           faltan.push('puesto');
-  if (!texto(d.cv_pathname, 600)) faltan.push('CV');
+  // Lo que el formato Anexo 8 no puede llevar vacío
+  if (!d.fecha_nacimiento)        faltan.push('fecha de nacimiento');
+  if (!texto(d.estado_civil))     faltan.push('estado civil');
+  if (!texto(d.genero))           faltan.push('sexo');
+  if (!texto(d.nac_distrito))     faltan.push('lugar de nacimiento');
+  if (!texto(d.direccion))        faltan.push('dirección');
+  if (!texto(d.distrito))         faltan.push('residencia');
+  if (!texto(d.nivel_educativo))  faltan.push('grado de instrucción');
+  if (!TIPOS_MO.includes(d.tipo_mano_obra)) faltan.push('tipo de mano de obra');
 
   if (faltan.length) {
     return res.status(400).json({ error: 'Faltan datos: ' + faltan.join(', ') + '.' });
@@ -36,12 +47,18 @@ async function handler(req, res) {
   if (!/^9\d{8}$/.test(String(d.celular || ''))) {
     return res.status(400).json({ error: 'El celular debe tener 9 dígitos y empezar con 9.' });
   }
+  if (d.nac_ubigeo && !/^\d{6}$/.test(String(d.nac_ubigeo))) {
+    return res.status(400).json({ error: 'El N.º de ubigeo de nacimiento debe tener 6 dígitos.' });
+  }
+  if (d.fecha_nacimiento && !/^\d{4}-\d{2}-\d{2}$/.test(String(d.fecha_nacimiento))) {
+    return res.status(400).json({ error: 'La fecha de nacimiento no es válida.' });
+  }
   if (d.tipo_documento === 'DNI' && !/^\d{8}$/.test(String(d.numero_documento))) {
     return res.status(400).json({ error: 'El DNI debe tener 8 dígitos.' });
   }
   // La ruta la define el almacén al subir: año/documento con sufijo.
   // Así nadie puede registrar una ruta arbitraria.
-  if (!/^\d{4}\/[\w-]+\.pdf$/i.test(String(d.cv_pathname))) {
+  if (d.cv_pathname && !/^\d{4}\/[\w-]+\.pdf$/i.test(String(d.cv_pathname))) {
     return res.status(400).json({ error: 'El archivo del CV no es válido.' });
   }
 
@@ -70,7 +87,9 @@ async function handler(req, res) {
         numero_colegiatura,
         puesto, experiencia_anios, fuente_reclutamiento,
         expectativa_salarial, disponibilidad_inmediata,
-        cv_pathname, cv_nombre
+        cv_pathname, cv_nombre,
+        brevete, nac_departamento, nac_provincia, nac_distrito, nac_ubigeo,
+        tipo_mano_obra
       ) values (
         ${texto(d.nombres)}, ${texto(d.apellido_paterno)}, ${texto(d.apellido_materno)},
         ${texto(d.tipo_documento, 10) || 'DNI'}, ${texto(d.numero_documento, 15)},
@@ -89,12 +108,43 @@ async function handler(req, res) {
         ${texto(d.puesto, 120)}, ${numero(d.experiencia_anios)},
         ${texto(d.fuente_reclutamiento, 40)}, ${numero(d.expectativa_salarial)},
         ${d.disponibilidad_inmediata !== false},
-        ${texto(d.cv_pathname, 600)}, ${texto(d.cv_nombre, 200)}
+        ${texto(d.cv_pathname, 600)}, ${texto(d.cv_nombre, 200)},
+        ${texto(d.brevete, 40)}, ${texto(d.nac_departamento, 60)},
+        ${texto(d.nac_provincia, 60)}, ${texto(d.nac_distrito, 60)},
+        ${/^\d{6}$/.test(String(d.nac_ubigeo ?? '')) ? d.nac_ubigeo : null},
+        ${d.tipo_mano_obra}
       )
       returning codigo
     `;
 
-    return res.status(201).json({ codigo: fila.codigo });
+    // Pasa a Seguimiento con sus etapas en «Pendiente» y sin servicio. Si
+    // ya tenía ficha (mismo documento), no se toca: ahí puede haber avance.
+    // Un fallo aquí no anula el registro, que ya quedó guardado.
+    let seguimiento = 'error';
+    try {
+      const doc = String(d.numero_documento).trim();
+      const dni = /^\d{6,12}$/.test(doc) ? doc : null;
+      const nombre = [d.apellido_paterno, d.apellido_materno, d.nombres]
+        .map(x => String(x || '').trim()).join(' ').toUpperCase().slice(0, 150);
+      const alta = await sql`
+        insert into seguimiento_personal
+          (item, dni, nombre, funcion, telefono, servicio, estado_proceso,
+           etapas, capacitaciones, actualizado_por, actualizado_en)
+        values (
+          (select coalesce(max(item), 0) + 1 from seguimiento_personal),
+          ${dni}, ${nombre}, ${String(d.puesto).trim().toUpperCase().slice(0, 150)},
+          ${texto(d.celular, 12)}, null, 'EXAMEN MEDICO',
+          ${pendientes(N_ETAPAS)}::jsonb, ${pendientes(N_CAPACITACIONES)}::jsonb,
+          ${req.sesion.n}, now())
+        on conflict (dni) where dni is not null and dni <> '' do nothing
+        returning id
+      `;
+      seguimiento = alta.length ? 'creado' : 'existente';
+    } catch (e) {
+      console.error('postular → seguimiento:', e);
+    }
+
+    return res.status(201).json({ codigo: fila.codigo, seguimiento });
 
   } catch (e) {
     console.error('postular:', e);

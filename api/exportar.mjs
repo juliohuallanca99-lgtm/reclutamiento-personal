@@ -1,9 +1,14 @@
 // GET /api/exportar — descarga el listado filtrado como archivo Excel.
 // Acepta los mismos filtros que /api/postulantes.
+//
+// GET /api/exportar?formato=anexo8&ids=1,2,3 — el formato oficial Anexo 8
+// (Lista de seleccionados de Marcobre) con los postulantes indicados.
+// Vive aquí y no en su propio archivo por el tope de 12 funciones del plan.
 
 import ExcelJS from 'exceljs';
 import { sql } from '../lib/db.mjs';
 import { protegido } from '../lib/sesion.mjs';
+import { construirAnexo8 } from '../lib/anexo8.mjs';
 
 const COLUMNAS = [
   { header: 'Código',              key: 'codigo',               width: 12 },
@@ -27,6 +32,12 @@ const COLUMNAS = [
   { header: 'Departamento',        key: 'departamento',         width: 16 },
   { header: 'Provincia',           key: 'provincia',            width: 16 },
   { header: 'Distrito',            key: 'distrito',             width: 16 },
+  { header: 'Brevete',             key: 'brevete',              width: 14 },
+  { header: 'Dep. nacimiento',     key: 'nac_departamento',     width: 16 },
+  { header: 'Prov. nacimiento',    key: 'nac_provincia',        width: 16 },
+  { header: 'Dist. nacimiento',    key: 'nac_distrito',         width: 18 },
+  { header: 'Ubigeo nacimiento',   key: 'nac_ubigeo',           width: 12 },
+  { header: 'Tipo mano de obra',   key: 'tipo_mano_obra',       width: 12 },
   { header: 'Discapacidad',        key: 'discapacidad',         width: 13 },
   { header: 'Nivel educativo',     key: 'nivel_educativo',      width: 16 },
   { header: 'Centro de estudios',  key: 'centro_estudios',      width: 28 },
@@ -57,6 +68,32 @@ async function handler(req, res) {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
+  /* ---------------- Anexo 8 ---------------- */
+  if (req.query.formato === 'anexo8') {
+    const ids = String(req.query.ids || '').split(',')
+      .map(x => Number(x)).filter(x => Number.isInteger(x) && x > 0).slice(0, 500);
+    if (!ids.length) return res.status(400).json({ error: 'Marca al menos una persona.' });
+    try {
+      const personas = await sql`
+        select *, to_char(creado_en at time zone 'America/Lima', 'YYYY-MM-DD') as registro,
+               to_char(fecha_nacimiento, 'YYYY-MM-DD') as nacimiento_txt
+          from postulantes
+         where id = any(${ids}::bigint[])
+         order by creado_en, id
+      `;
+      if (!personas.length) return res.status(404).json({ error: 'No se encontraron esas personas.' });
+      const archivo = await construirAnexo8(personas);
+      const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="Anexo 8 - Lista de seleccionados ${hoy}.xlsx"`);
+      return res.status(200).send(Buffer.from(archivo));
+    } catch (e) {
+      console.error('exportar anexo8:', e);
+      return res.status(500).json({ error: 'No se pudo generar el Anexo 8.' });
+    }
+  }
+
+  /* ---------------- listado general ---------------- */
   const { puesto = '', estado = '', desde = '', hasta = '', buscar = '' } = req.query;
   const texto = String(buscar).trim();
 
@@ -65,8 +102,8 @@ async function handler(req, res) {
       select * from postulantes
        where (${String(puesto)} = '' or puesto = ${String(puesto)})
          and (${String(estado)} = '' or estado = ${String(estado)})
-         and (${String(desde)}  = '' or creado_en >= ${desde || null}::date)
-         and (${String(hasta)}  = '' or creado_en <  ${hasta || null}::date + 1)
+         and (${String(desde)}  = '' or (creado_en at time zone 'America/Lima')::date >= ${desde || null}::date)
+         and (${String(hasta)}  = '' or (creado_en at time zone 'America/Lima')::date <= ${hasta || null}::date)
          and (${texto} = '' or
               numero_documento ilike ${'%' + texto + '%'} or
               codigo ilike ${'%' + texto + '%'} or
