@@ -5,6 +5,7 @@
 // almacén y luego nos devuelve la URL.
 
 import { handleUpload } from '@vercel/blob/client';
+import { leerSesion } from '../lib/sesion.mjs';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,18 +19,26 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'El almacenamiento de archivos no está configurado.' });
   }
 
+  // No se envuelve todo con protegido(): cuando la subida termina, Vercel
+  // llama a esta misma ruta desde sus servidores, sin nuestra cookie.
+  // La sesión se exige solo al pedir permiso para subir.
+  const sesion = leerSesion(req);
+
   try {
     const respuesta = await handleUpload({
       request: req,
       body: req.body,
 
       // Se ejecuta antes de entregar el permiso de subida.
-      onBeforeGenerateToken: async () => ({
+      onBeforeGenerateToken: async () => {
+        if (!sesion) { const e = new Error('sin sesión'); e.sinSesion = true; throw e; }
+        return {
         allowedContentTypes: ['application/pdf'],
         maximumSizeInBytes: 5 * 1024 * 1024,
         addRandomSuffix: true,
         tokenPayload: null
-      }),
+        };
+      },
 
       // Vercel avisa aquí cuando la subida terminó. No hacemos nada:
       // la postulación se guarda recién cuando el formulario se envía.
@@ -39,6 +48,7 @@ export default async function handler(req, res) {
     return res.status(200).json(respuesta);
 
   } catch (e) {
+    if (e.sinSesion) return res.status(401).json({ error: 'Sesión expirada. Vuelve a ingresar.' });
     console.error('subir-cv:', e);
     return res.status(400).json({ error: 'No se pudo subir el archivo.' });
   }

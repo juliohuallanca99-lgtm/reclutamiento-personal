@@ -1,6 +1,7 @@
 // POST /api/postular — guarda la postulación en Neon.
 
 import { sql } from '../lib/db.mjs';
+import { protegido } from '../lib/sesion.mjs';
 
 const texto = (v, max = 200) => {
   const s = String(v ?? '').trim();
@@ -8,7 +9,8 @@ const texto = (v, max = 200) => {
 };
 const numero = v => (v === '' || v == null || isNaN(Number(v))) ? null : Number(v);
 
-export default async function handler(req, res) {
+// Desde que el formulario es privado, solo Recursos Humanos registra.
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
@@ -99,3 +101,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'No se pudo registrar la postulación.' });
   }
 }
+
+export default protegido(handler);

@@ -10,6 +10,7 @@
 // =====================================================================
 
 import { sql } from '../lib/db.mjs';
+import { protegido } from '../lib/sesion.mjs';
 
 const TOKEN = process.env.DNI_API_TOKEN;
 const URL_PROVEEDOR = 'https://api.decolecta.com/v1/reniec/dni?numero=';
@@ -31,7 +32,8 @@ const APAGADO = process.env.DNI_CONSULTA_ACTIVA === 'false';
 
 const responder = (res, estado, cuerpo) => res.status(estado).json(cuerpo);
 
-export default async function handler(req, res) {
+// Con el formulario privado, nadie de afuera puede gastar la cuota.
+async function handler(req, res) {
   if (req.method !== 'GET') {
     return responder(res, 405, { error: 'Método no permitido' });
   }
@@ -162,3 +164,5 @@ export default async function handler(req, res) {
     return responder(res, 502, { error: 'No se pudo consultar. Escribe tus datos a mano.' });
   }
 }
+
+export default protegido(handler);
