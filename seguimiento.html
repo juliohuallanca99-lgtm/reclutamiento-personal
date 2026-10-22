@@ -125,8 +125,159 @@ nav button[aria-selected=true]{color:var(--jjc);border-color:var(--jjc)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .k b,
   :root:not([data-theme="light"]) .card h2{color:var(--ink)}
   :root:not([data-theme="light"]) nav button[aria-selected=true]{color:#fff;border-color:var(--ac)}
+  :root:not([data-theme="light"]) .xk b,
+  :root:not([data-theme="light"]) .xtit{color:var(--ink)}
+  :root:not([data-theme="light"]) .xlk{color:#8fb4ff}
+  :root:not([data-theme="light"]) .xb i{background:#2f5bd0}
+  :root:not([data-theme="light"]) .xf.mal .xb i,
+  :root:not([data-theme="light"]) .xb i.mal{background:var(--ac)}
   :root:not([data-theme="light"]) .f[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:var(--jjc)}
   :root:not([data-theme="light"]) .bar i{background:linear-gradient(90deg,#2f5bd0,#4cc58a)}}
+
+/* ---- tablero ejecutivo ---- */
+.xcab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin:2px 0 14px}
+.xtit{font:700 20px/1.1 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px;margin:0;color:var(--jjc)}
+:root[data-theme="dark"] .xtit{color:var(--ink)}
+.xcab .mu{margin:3px 0 0;font-size:12.5px}
+.xkpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:18px}
+.xk{background:var(--kpi);border:1px solid var(--ln);border-top:3px solid var(--jjc);
+  border-radius:8px;padding:14px 16px;box-shadow:0 1px 3px rgba(16,26,43,.10)}
+.xk.ok{border-top-color:var(--ok)}.xk.ob{border-top-color:var(--ob)}
+.xk.pr{border-top-color:var(--pr)}.xk.ac{border-top-color:var(--ac)}
+.xt{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mu)}
+.xk b{display:block;font:700 30px/1.1 'Barlow Condensed',sans-serif;margin:6px 0 2px;color:var(--jjc);letter-spacing:-.3px}
+:root[data-theme="dark"] .xk b{color:var(--ink)}
+.xk small{font-size:12.5px;color:var(--mu)}
+.xg2{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-bottom:16px;align-items:start}
+.xcol{display:flex;flex-direction:column;gap:16px}
+@media(max-width:900px){.xg2{grid-template-columns:1fr}}
+.xins{margin:-4px 0 14px;font-size:13.5px;color:var(--mu);padding:9px 12px;
+  background:var(--bg);border-left:3px solid var(--ac);border-radius:0 4px 4px 0}
+.xins b{color:var(--ink)}
+.xf{display:grid;grid-template-columns:minmax(120px,1.1fr) 2fr auto;gap:12px;align-items:center;padding:6px 0}
+.xf.xs{padding:4px 0;font-size:13px}
+.xe{font-size:13.5px;color:var(--ink);line-height:1.25}
+.xe small{display:block;font-size:11.5px;color:var(--mu)}
+.xb{background:var(--peb);border-radius:3px;height:9px;overflow:hidden}
+.xb i{display:block;height:100%;background:var(--jjc);border-radius:3px}
+:root[data-theme="dark"] .xb i{background:#2f5bd0}
+.xf.mal .xb i,.xb i.mal{background:var(--ac)}
+.xn{font:700 14px 'Barlow Condensed',sans-serif;color:var(--ink);min-width:44px;text-align:right}
+.xn small{font-weight:400;color:var(--mu)}
+.xtb{width:100%;border-collapse:collapse;font-size:13.5px}
+.xtb th{text-align:left;padding:8px 6px;border-bottom:1px solid var(--ln);
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mu);font-weight:600}
+.xtb td{padding:9px 6px;border-bottom:1px solid var(--ln);vertical-align:top}
+.xtb tr:last-child td{border-bottom:0}
+.xtb .mu{font-size:12px}
+.xlk{background:none;border:0;padding:0;font:600 13.5px 'Barlow',sans-serif;color:var(--jjc);
+  text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+:root[data-theme="dark"] .xlk{color:#8fb4ff}
+@media print{header .hb,nav{display:none}.card,.xk{break-inside:avoid}}
+
+/* ---- estadísticas interactivas ---- */
+.xf{width:100%;border:0;background:none;font:inherit;text-align:left;border-radius:5px;
+  padding:6px 8px;margin:0 -8px;cursor:pointer;transition:background .15s}
+.xf:hover{background:var(--bg)}
+.xf:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.xb i{transition:width .7s cubic-bezier(.22,.9,.3,1)}
+.xk.cl{cursor:pointer;text-align:left;font:inherit;width:100%;transition:transform .15s,box-shadow .15s}
+.xk.cl:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(16,26,43,.14)}
+.xk.cl:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.xpista{margin:10px 0 0;font-size:12px;color:var(--mu);font-style:italic}
+@media(prefers-reduced-motion:reduce){.xb i{transition:none}}
+
+/* =================================================================
+   Aire y tipografía. Tomado del lenguaje editorial: jerarquía por
+   peso fino en vez de negrita, esquinas suaves, sombras casi
+   invisibles y etiquetas sin fondo. El azul JJC y el color
+   funcional (verde/ámbar/rojo) se quedan: ahí el color es el dato.
+   ================================================================= */
+.card{border-radius:16px;padding:22px 24px;margin-bottom:24px;
+  border-color:color-mix(in srgb, var(--ln) 70%, transparent);
+  box-shadow:0 1px 2px rgba(16,26,43,.04), 0 10px 24px -14px rgba(16,26,43,.22)}
+h2,.card h2{font:500 17px/1.3 'Barlow',sans-serif;letter-spacing:-.2px;margin:0 0 16px}
+.xtit{font-weight:600;letter-spacing:.2px}
+.xcab{margin:4px 0 20px}
+
+/* tarjetas de cifras: más aire, número algo más liviano */
+.xk,.k{border-radius:16px}
+.xk{padding:18px 20px;box-shadow:0 1px 2px rgba(16,26,43,.04), 0 10px 24px -14px rgba(16,26,43,.22)}
+.xk b{font-weight:600;font-size:32px;margin:8px 0 4px}
+.xt{font-size:10.5px;letter-spacing:.09em}
+.xk small{font-size:12px}
+.xkpis{gap:18px;margin-bottom:24px}
+.xg2{gap:24px;margin-bottom:24px}
+.xcol{gap:24px}
+
+/* controles en forma de píldora, como los filtros que ya existían */
+.tb,.btn,.xlk{border-radius:999px}
+.tb{padding:7px 14px}
+.btn{padding:7px 14px}
+.xlk{border-radius:0}
+
+/* bloques anidados y fichas */
+.col{border-radius:14px;padding:12px}
+.chip{border-radius:11px;padding:9px 12px}
+.pipe{gap:14px}
+.fc{border-radius:16px}
+
+/* etiquetas tipográficas: sin fondo, sin peso, solo jerarquía */
+.xtb th,th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;background:none}
+.xtb td,td{padding:11px 6px}
+.mu{font-size:12.5px}
+.xe{font-size:14px}
+.xpista{margin-top:14px}
+
+/* las barras, un punto más finas y redondeadas */
+.xb{height:8px;border-radius:999px}
+.xb i{border-radius:999px}
+
+/* ===== plantilla Panorama ===== */
+:root{--jjc-c:#2f5bd0}
+.anillo{width:190px;height:190px;flex:none}
+.an-n{font:700 34px 'Barlow Condensed',sans-serif;fill:var(--ink)}
+.an-s{font:500 12px 'Barlow',sans-serif;fill:var(--mu);letter-spacing:.06em;text-transform:uppercase}
+.p1-top{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;margin-bottom:20px}
+.p1-hero{margin:0}.p1-hrow{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.p1-ley{flex:1;display:flex;flex-direction:column;gap:4px;min-width:220px}
+.p1-li{display:grid;grid-template-columns:14px 1fr auto 44px;align-items:center;gap:10px;border:0;background:none;
+  font:inherit;text-align:left;padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--ink)}
+.p1-li:hover{background:var(--bg)}.p1-li i{width:12px;height:12px;border-radius:3px}
+.p1-li b{font:700 22px 'Barlow Condensed',sans-serif}.p1-li small{color:var(--mu);text-align:right}
+.p1-kp{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.p1-kp .xk{margin:0}
+.p1-cols{position:relative;display:flex;align-items:flex-end;gap:10px;height:calc(var(--h) + 54px);padding-top:6px}
+.p1-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;border:0;background:none;
+  font:inherit;cursor:pointer;padding:0;height:100%}
+.p1-b{width:100%;max-width:54px;background:var(--jjc);border-radius:8px 8px 3px 3px;transition:height .7s cubic-bezier(.22,.9,.3,1)}
+:root[data-theme="dark"] .p1-b{background:#2f5bd0}
+.p1-col.mal .p1-b{background:var(--ac)}
+.p1-col:hover .p1-b{filter:brightness(1.15)}
+.p1-v{font:700 16px 'Barlow Condensed',sans-serif;color:var(--ink)}
+.p1-l{font-size:11.5px;color:var(--mu);text-align:center;line-height:1.15;min-height:28px}
+.p1-meta{position:absolute;left:0;right:0;bottom:calc(var(--h) + 34px);border-top:2px dashed var(--ok);pointer-events:none}
+.p1-meta em{position:absolute;right:0;top:-20px;font:600 11px 'Barlow',sans-serif;color:var(--ok);font-style:normal}
+.p1-ley2{display:flex;flex-wrap:wrap;gap:6px 14px;margin:-6px 0 14px;font-size:12px;color:var(--mu)}
+.p1-ley2 i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.p1-srv{display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center;width:100%;border:0;background:none;
+  font:inherit;text-align:left;padding:10px 8px;margin:0 -8px;border-radius:10px;cursor:pointer;color:var(--ink)}
+.p1-srv:hover{background:var(--bg)}
+.p1-sn{font-weight:600;font-size:14px}.p1-sn small{display:block;font-weight:400;color:var(--mu);font-size:12px}
+.p1-stk{display:flex;height:28px;border-radius:8px;overflow:hidden;background:var(--peb)}
+.p1-stk span{display:flex;align-items:center;justify-content:center;color:#fff;font:700 13px 'Barlow Condensed',sans-serif;min-width:18px}
+@media(max-width:900px){.p1-top{grid-template-columns:1fr}}
+
+/* tema oscuro del sistema (sin haber pulsado el botón) */
+:root[data-theme="dark"] .xk{border-top-color:#2f5bd0}
+:root[data-theme="dark"] .xk.ok{border-top-color:var(--ok)}:root[data-theme="dark"] .xk.ac{border-top-color:var(--ac)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .xk{border-top-color:#2f5bd0}
+  :root:not([data-theme="light"]) .xk.ok{border-top-color:var(--ok)}
+  :root:not([data-theme="light"]) .xk.ac{border-top-color:var(--ac)}
+  :root:not([data-theme="light"]) .xk.pr{border-top-color:var(--pr)}
+  :root:not([data-theme="light"]) .xk.ob{border-top-color:var(--ob)}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .p1-b{background:#2f5bd0}
+  :root:not([data-theme="light"]) .p1-col.mal .p1-b{background:var(--ac)}}
 </style>
 </head>
 <body>
@@ -157,13 +308,93 @@ const ini=n=>n.split(/[\s,]+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('');
 const vis=()=>V().filter(w=>(flt==='all'||w.g===flt)&&(w.n+w.f+w.dni).toLowerCase().includes(q.toLowerCase()));
 function nav(){const sv0=[...new Set(W.map(w=>w.s))].filter(Boolean);if(sv!=='all'&&!sv0.includes(sv))sv='all';
 $('#nav').innerHTML=[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')+(sv0.length>1?`<span class="sp"></span><div class="hb" role="group" aria-label="Filtrar por servicio" style="align-items:center;padding:4px 0">${[['all','Todos los servicios'],...sv0.map(s=>[s,sl(s)])].map(([k,l])=>`<button class="f" aria-pressed="${sv===k}" data-sv="${esc(k)}" type="button">${esc(l)}</button>`).join('')}</div>`:'')}
-function res(){const n=g=>V().filter(w=>w.g===g).length,av=Math.round(V().reduce((a,w)=>a+w.pct,0)/(V().length||1));
-const ord=['PENDIENTE','EXAMEN MEDICO','FIRMA DE ANEXO A','EN MOVILIZACION','LABORANDO','CON LICENCIA'],es=[...new Set([...ord,...V().map(w=>w.e)])].filter(e=>V().some(w=>w.e===e));
-const sb=(l,v,t)=>`<div class="sb"><span>${l}</span><div class="bar"><i style="width:${v/t*100}%"></i></div><b>${v}/${t}</b></div>`;
-return `<div class="kpis"><div class="k"><b>${V().length}</b><span>Personal total</span></div><div class="k g"><b>${n('L')}</b><span>Laborando</span></div>${n('C')?`<div class="k"><b>${n('C')}</b><span>Con licencia</span></div>`:''}<div class="k"><b>${n('T')}</b><span>En trámite</span></div><div class="k o"><b>${n('O')}</b><span>Con observación médica</span></div><div class="k"><b>${av}%</b><span>Avance promedio</span></div></div>
-<div class="card"><h2>Dónde está cada persona hoy</h2><div class="pipe">${es.map(e=>`<div class="col"><h3>${cap(e)}<span>${V().filter(w=>w.e===e).length}</span></h3>${V().filter(w=>w.e===e).map(w=>`<button class="chip" data-f="${W.indexOf(w)}" type="button">${cap(w.n)}<small>${cap(w.f)} · ${w.pct}%</small></button>`).join('')}</div>`).join('')}</div></div>
-<div class="card"><h2>Personas que completaron cada etapa</h2>${SN.map((s,i)=>sb(s,V().filter(w=>w.st[i].k==='ok').length,V().length)).join('')}</div>
-<div class="card"><h2>Personas con cada capacitación aprobada</h2>${TN.map((s,i)=>sb(s,V().filter(w=>w.tr[i].k==='ok').length,V().length)).join('')}</div>`}
+/* ===== base común de las plantillas de estadísticas ===================== */
+const SNC=['EMO','Val. JJC','Val. UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'];
+const TNC=['Ind. Anexo 4','Lesiones manos','IPERC','Ác. sulfúrico','Sust. químicas','Riesgos eléc.','Izaje','Herramientas','Altura','Caliente','Bloqueo'];
+/* Cuatro grupos que no se pisan: cada persona cae en uno solo. */
+const GRUPOS=[
+  {k:'L', l:'Laborando',            c:'var(--ok)'},
+  {k:'M', l:'Listos para movilizar',c:'var(--jjc-c)'},
+  {k:'T', l:'En trámite',           c:'var(--ac)'},
+  {k:'O', l:'Observación médica',   c:'var(--ob)'}];
+const grupoDe=w=> w.e==='LABORANDO'?'L' : w.ps===7?'M' : w.st.some(c=>c.k==='obs')?'O' : 'T';
+const fechaHoy=()=>new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'long',year:'numeric'});
+const pctDe=(a,b)=>b?Math.round(a/b*100):0;
+function cabeceraTablero(v){
+  const servicios=[...new Set(v.map(w=>w.s).filter(Boolean))];
+  return `<div class="xcab"><div><h2 class="xtit">Estado del ingreso de personal</h2>
+    <p class="mu">${sv==='all'?(servicios.length>1?servicios.length+' servicios':'Todos los servicios'):sl(sv)} · actualizado al ${fechaHoy()}</p></div></div>`;
+}
+/* Anillo SVG: segmentos con stroke-dasharray, sin librerías. */
+function anillo(partes,total,r,grosor,centro,sub){
+  const C=2*Math.PI*r; let off=0;
+  const segs=partes.filter(p=>p.n>0).map(p=>{
+    const len=C*p.n/total, s=`<circle r="${r}" cx="0" cy="0" fill="none" stroke="${p.c}" stroke-width="${grosor}"
+      stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"><title>${p.l}: ${p.n}</title></circle>`;
+    off+=len; return s;}).join('');
+  const L=r+grosor/2+2;
+  return `<svg class="anillo" viewBox="${-L} ${-L} ${2*L} ${2*L}" role="img" aria-label="${centro} ${sub}">
+    <circle r="${r}" fill="none" stroke="var(--peb)" stroke-width="${grosor}"/>
+    <g transform="rotate(-90)">${segs}</g>
+    <text y="-2" text-anchor="middle" class="an-n">${centro}</text>
+    <text y="${r*0.32}" text-anchor="middle" class="an-s">${sub}</text></svg>`;
+}
+
+/* ===== PLANTILLA 1 · PANORAMA =========================================
+   Anillo con la situación del personal, columnas por etapa contra la
+   meta (todo el personal) y estado por servicio en barras al 100%.     */
+function res(){
+  const v=V(), T=v.length||1;
+  const n=k=>v.filter(w=>grupoDe(w)===k).length;
+  const partes=GRUPOS.map(g=>({...g,n:n(g.k)}));
+  const av=Math.round(v.reduce((a,w)=>a+w.pct,0)/T);
+  const servicios=[...new Set(v.map(w=>w.s).filter(Boolean))];
+
+  /* columnas por etapa */
+  const et=SN.map((s,i)=>({i,s,c:SNC[i],ok:v.filter(w=>w.st[i].k==='ok').length}));
+  const peor=et.reduce((a,b)=>b.ok<a.ok?b:a,et[0]);
+  const H=180;
+  const columnas=et.map(e=>{const h=Math.round(e.ok/T*H);
+    return `<button class="p1-col${e.i===peor.i&&peor.ok<T?' mal':''}" data-dt="st,${e.i}" type="button" title="${esc(e.s)}: ${e.ok} de ${T}">
+      <span class="p1-v">${e.ok}</span><span class="p1-b" style="height:${h}px"></span><span class="p1-l">${esc(e.c)}</span></button>`}).join('');
+
+  /* estado por servicio, 100% apilado */
+  const apilada=servicios.map(s=>{const g=v.filter(w=>w.s===s), t=g.length;
+    const seg=GRUPOS.map(G=>{const k=g.filter(w=>grupoDe(w)===G.k).length;
+      return k?`<span style="width:${k/t*100}%;background:${G.c}" title="${G.l}: ${k}">${k}</span>`:''}).join('');
+    return `<button class="p1-srv" data-dt="srv,${esc(s)}" type="button"><span class="p1-sn">${esc(sl(s))}<small>${t} pers. · ${Math.round(g.reduce((a,w)=>a+w.pct,0)/t)}% avance</small></span>
+      <span class="p1-stk">${seg}</span></button>`}).join('');
+
+  return cabeceraTablero(v)+`
+<div class="p1-top">
+  <div class="card p1-hero">
+    <h2>Situación del personal</h2>
+    <div class="p1-hrow">
+      ${anillo(partes,T,62,20,v.length,'personas')}
+      <div class="p1-ley">${partes.map(p=>`<button class="p1-li" ${p.k==='M'?'data-kpi="listos"':p.k==='T'?'':'data-kpi="'+p.k+'"'} type="button">
+        <i style="background:${p.c}"></i><span>${p.l}</span><b>${p.n}</b><small>${pctDe(p.n,T)}%</small></button>`).join('')}</div>
+    </div>
+  </div>
+  <div class="p1-kp">
+    <div class="xk ac"><span class="xt">Avance promedio</span><b>${av}%</b><small>de 18 requisitos por persona</small></div>
+    <div class="xk ok"><span class="xt">En obra</span><b data-num="${n('L')}">${n('L')}</b><small>${pctDe(n('L'),T)}% del personal</small></div>
+    <div class="xk pr"><span class="xt">Etapa crítica</span><b style="font-size:24px">${esc(peor.s)}</b><small>faltan ${T-peor.ok} personas</small></div>
+    <div class="xk"><span class="xt">Servicios activos</span><b data-num="${servicios.length}">${servicios.length}</b><small>${servicios.map(sl).join(' · ')}</small></div>
+  </div>
+</div>
+
+<div class="xg2">
+  <div class="card"><h2>Etapas aprobadas frente a la meta</h2>
+    <p class="mu" style="margin:-8px 0 14px">La línea punteada es la meta: las ${T} personas con la etapa aprobada.</p>
+    <div class="p1-cols" style="--h:${H}px">${columnas}<span class="p1-meta"><em>Meta ${T}</em></span></div>
+  </div>
+  <div class="card"><h2>Estado por servicio</h2>
+    <div class="p1-ley2">${GRUPOS.map(G=>`<span><i style="background:${G.c}"></i>${G.l}</span>`).join('')}</div>
+    ${apilada||'<p class="mu">Sin servicios asignados.</p>'}
+  </div>
+</div>`;
+}
+
 function ficha(w){const i=W.indexOf(w);return `<div class="fc ${w.g}"><div class="row"><div class="av">${ini(w.n)}</div><div><b>${cap(w.n)}</b><div class="mu">${cap(w.f)} · ${sl(w.s)}</div></div></div>
 <div class="row" style="margin:10px 0">${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}<span class="mu">DNI ${w.dni}</span></div>
 <div class="mu">Etapas ${w.ps}/7 · Capacitaciones ${w.pt}/11</div><div class="mu">🚚 Movilización: ${hm(w)?w.mov.l:'sin fecha'}</div><div class="bar" style="margin:6px 0 12px"><i style="width:${w.pct}%"></i></div>
@@ -187,7 +418,7 @@ function req(){const v=R.filter(r=>rf==='all'||(rf==='c'?r.cs:!r.cs));
 return `<div class="tools">${[['all','Todos'],['c','Con candidato'],['b','En búsqueda']].map(([k,l])=>`<button class="f" aria-pressed="${rf===k}" data-r="${k}" type="button">${l}</button>`).join('')}<span class="mu">${v.length} requerimientos</span></div>
 <div class="tw"><table><thead><tr><th>#</th><th>Puesto</th><th>Cat.</th><th>Tipo</th><th>Dueño</th><th>Inicio</th><th>Candidato</th><th>Comentarios</th></tr></thead><tbody>${v.map(r=>`<tr class="r"><td>${r.id}</td><td><b>${r.p}</b><div class="mu">${r.cc} · ${r.o}</div></td><td>${r.c}</td><td>${r.nr}</td><td>${r.d}</td><td>${r.fi}</td><td>${r.cs?cap(r.cs)+`<div class="mu">${cap(r.pl)}</div>`:'<span class="bd prog">En búsqueda</span>'}</td><td>${r.cm}</td></tr>`).join('')}</tbody></table></div>
 <p class="mu">Datos de la hoja «Hoja1». Las fechas de inicio y los comentarios corresponden a abril–junio de 2026.</p>`}
-function render(){nav();$('#main').innerHTML={res,per,eta}[tab]();const s=$('#q');if(s){s.focus();s.setSelectionRange(q.length,q.length)}}
+function render(){nav();$('#main').innerHTML={res,per,eta}[tab]();animar();const s=$('#q');if(s){s.focus();s.setSelectionRange(q.length,q.length)}}
 const key=n=>n.toUpperCase().replace(/[,.]/g,'').split(/\s+/).sort().join(' ');
 function open(i){cur=i;arm=false;const w=W[i],r=R.find(r=>r.cs&&key(r.cs)===key(w.n));
 const OP=[['ok','Aprobado'],['pend','Pendiente'],['obs','Observado'],['prog','Programado'],['na','Sin dato']];
@@ -201,9 +432,74 @@ $('#dlg').innerHTML=head+`<div class="db"><div class="row" style="margin-bottom:
 <div class="df"><button class="btn" data-n="-1" type="button">‹ Anterior</button><button class="btn" data-n="1" type="button">Siguiente ›</button><span class="sp"></span>
 ${ed?'<button class="btn" id="dl" type="button">Eliminar trabajador</button>':(w.t?`<a class="btn" href="tel:${w.t}" style="text-decoration:none;color:inherit">Llamar</a>`:'')}<button class="btn" id="cp" type="button">Copiar resumen</button><button class="btn p" id="cl" type="button">Cerrar</button></div>`;
 const d=$('#dlg');if(!d.open)d.showModal()}
+/* ===== estadísticas interactivas =====================================
+   Cada barra y cada cifra abre la lista de personas que hay detrás:
+   en una reunión, cuando preguntan «¿quiénes?», está a un clic.      */
+function detalle(ref){
+  const v=V(), [tipo,arg]=String(ref).split(',');
+  let titulo='', pie='', grupos=[];
+
+  if(tipo==='st'||tipo==='tr'){
+    const j=+arg, nom=(tipo==='st'?SN:TN)[j];
+    titulo=nom; pie=tipo==='st'?'Etapa del proceso':'Capacitación Tecsup';
+    const en=x=>v.filter(w=>{const c=w[tipo][j];
+      return x==='pend' ? (c.k==='pend'||c.k==='na') : c.k===x});
+    grupos=[['Aprobado','ok',en('ok')],['Programado','prog',en('prog')],
+            ['Observado','obs',en('obs')],['Pendiente','pend',en('pend')]];
+  } else if(tipo==='srv'){
+    titulo=sl(arg); pie='Personal del servicio';
+    const g=v.filter(w=>w.s===arg).sort((a,b)=>a.pct-b.pct);
+    grupos=[['Laborando','ok',g.filter(w=>w.g==='L')],
+            ['Observados','obs',g.filter(w=>w.g==='O')],
+            ['En trámite','prog',g.filter(w=>w.g!=='L'&&w.g!=='O')]];
+  } else if(tipo==='listos'){
+    titulo='Listos para movilizar'; pie='Tienen las 7 etapas aprobadas y aún no están en obra';
+    grupos=[['Listos','ok',v.filter(w=>w.ps===7&&w.e!=='LABORANDO')]];
+  }
+  grupos=grupos.filter(g=>g[2].length);
+
+  const chip=w=>`<button class="chip" data-f="${W.indexOf(w)}" type="button">${cap(w.n)}
+    <small>${cap(w.f)||'Sin función'} · ${w.pct}%${tipo!=='srv'&&w.s?' · '+esc(sl(w.s)):''}</small></button>`;
+
+  $('#dlg').innerHTML=
+    `<div class="dh"><div style="flex:1"><b style="font-size:19px">${esc(titulo)}</b>
+       <div class="mu">${esc(pie)}</div></div></div>
+     <div class="db">${grupos.length
+       ? `<div class="pipe">${grupos.map(([l,k,g])=>`<div class="col">
+           <h3><span class="bd ${k}">${l}</span><span>${g.length}</span></h3>
+           ${g.map(chip).join('')}</div>`).join('')}</div>`
+       : '<p class="mu">No hay personal en esta categoría.</p>'}</div>
+     <div class="df"><span class="sp"></span>
+       <button class="btn p" id="cl" type="button">Cerrar</button></div>`;
+  const d=$('#dlg'); if(!d.open) d.showModal();
+}
+
+/* Las barras crecen y las cifras suben al entrar; al volver de una ficha
+   se quedan quietas, que repetir la animación cansa. */
+let claveAnim='';
+function animar(){
+  const barras=[...document.querySelectorAll('#main .xb i[data-w]')];
+  const cifras=[...document.querySelectorAll('#main .xk b[data-num]')].filter(e=>e.dataset.num!=='');
+  const clave=tab+'|'+sv+'|'+flt+'|'+vw, quieto=clave===claveAnim;
+  claveAnim=clave;
+  barras.forEach(b=>{ if(quieto){b.style.width=b.dataset.w+'%';return}
+    b.style.width='0%'; requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=b.dataset.w+'%')); });
+  cifras.forEach(e=>{ const fin=+e.dataset.num;
+    if(quieto||!isFinite(fin)||fin<=0){e.textContent=e.dataset.num;return}
+    const t0=performance.now(), dur=650;
+    const paso=t=>{ const k=Math.min(1,(t-t0)/dur);
+      e.textContent=Math.round(fin*(1-Math.pow(1-k,3)));
+      if(k<1)requestAnimationFrame(paso); };
+    e.textContent='0'; requestAnimationFrame(paso); });
+}
+
 function toast(t){const e=$('#ts');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',1800)}
 document.addEventListener('click',e=>{const t=e.target.closest('button,a');if(!t)return;const d=t.dataset;
-if(d.sv!==undefined){sv=d.sv;ct=-1;render()}else if(d.t){tab=d.t;render()}else if(d.fl){flt=d.fl;render()}else if(d.v){vw=d.v;render()}else if(d.m){if(d.m==='tr'&&mx==='tr')dd=!dd;else{mx=d.m;dd=d.m==='tr'}render()}
+if(d.dt){detalle(d.dt)}
+else if(d.kpi){const k=d.kpi;
+  if(k==='listos')detalle('listos');
+  else{tab='per';flt=k==='todos'?'all':k;vw='tab';render()}}
+else if(d.sv!==undefined){sv=d.sv;ct=-1;render()}else if(d.t){tab=d.t;render()}else if(d.fl){flt=d.fl;render()}else if(d.v){vw=d.v;render()}else if(d.m){if(d.m==='tr'&&mx==='tr')dd=!dd;else{mx=d.m;dd=d.m==='tr'}render()}
 else if(d.ct!==undefined){ct=+d.ct;dd=false;render()}else if(d.r){rf=d.r;render()}
 else if(d.f!==undefined)open(+d.f);
 else if(d.n){open((cur+ +d.n+W.length)%W.length)}
