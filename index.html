@@ -162,7 +162,7 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 .cinta{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
 .cinta .quien{margin-right:auto;font-size:13px;color:var(--steel)}
 .cinta .quien b{color:var(--ink);font-weight:600}
-.cinta button.acceso{font:inherit;cursor:pointer;background:none}
+.cinta button.acceso{font:500 13px/1 'Barlow',sans-serif;cursor:pointer;background:none}
 .listo .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 .listo .acciones a,.listo .acciones button{display:inline-block;padding:12px 20px;border-radius:3px;cursor:pointer;
   font:600 14px/1 'Barlow Condensed',sans-serif;letter-spacing:.12em;text-decoration:none}
@@ -188,6 +188,7 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
   <span class="quien" id="quien"></span>
   <a class="acceso" href="/panel.html">Postulantes</a>
   <a class="acceso" href="/seguimiento.html">Seguimiento</a>
+  <a class="acceso" href="/cuentas.html">Cuentas</a>
   <button class="acceso" id="btnSalir" type="button">Salir</button>
 </header>
 

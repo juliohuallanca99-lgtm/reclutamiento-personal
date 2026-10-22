@@ -242,10 +242,8 @@ a.cv:hover{border-bottom-color:var(--rojo)}
     </div>
     <div class="espacio" style="flex:1"></div>
     <span class="quien" id="quien"></span>
-    <a class="boton-cabecera" href="/">REGISTRAR POSTULANTE</a>
-    <a class="boton-cabecera" href="/seguimiento.html">SEGUIMIENTO</a>
-    <a class="boton-cabecera" href="/cuentas.html">CUENTAS</a>
-    <button id="btnSalir">SALIR</button>
+    <!-- La navegación (Seguimiento, Cuentas, Salir) vive en el inicio. -->
+    <a class="boton-cabecera" href="/">← INICIO</a>
   </header>
 
   <div class="barra">
@@ -385,7 +383,7 @@ $('olvido').addEventListener('click', () => {
   $('olvido').setAttribute('aria-expanded', String(!a.hidden));
 });
 
-$('btnSalir').addEventListener('click', async () => {
+$('btnSalir')?.addEventListener('click', async () => {
   await fetch('/api/sesion', { method:'DELETE' });
   location.reload();
 });
