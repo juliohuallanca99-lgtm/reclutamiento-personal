@@ -6,8 +6,11 @@
 //
 //   Links de registro para el personal:
 //   GET  /api/sesion?invitacion=CODIGO     ¿el link sigue vigente? (público)
-//   GET  /api/sesion?accion=invitaciones   links vigentes (RR.HH.)
-//   POST /api/sesion?accion=invitacion     crear link   { dias, nota }
+//   GET  /api/sesion?accion=invitaciones&tipo=…   links vigentes (RR.HH.)
+//   POST /api/sesion?accion=invitacion     crear link   { dias, nota, tipo }
+//
+//   tipo: 'registro' (formulario para el personal, por defecto) o
+//         'consulta' (ver el Seguimiento sin editar, para gerencia).
 //   POST /api/sesion?accion=anular         anular link  { id }
 //
 // Van juntas porque el plan Hobby de Vercel admite como máximo 12
@@ -30,7 +33,8 @@ function demasiados(ip) {
   return previos.length > 6;
 }
 
-const DIAS_PERMITIDOS = [1, 3, 7, 15, 30];
+const DIAS_PERMITIDOS = { registro: [1, 3, 7, 15, 30], consulta: [7, 15, 30, 60, 90] };
+const tipoDe = v => (v === 'consulta' ? 'consulta' : 'registro');
 
 async function invitaciones(req, res) {
   const accion = req.query.accion;
@@ -50,7 +54,7 @@ async function invitaciones(req, res) {
     const filas = await sql`
       select id, codigo, nota, creado_nombre, creado_en, expira_en, usos
         from invitaciones
-       where activo = true and expira_en > now()
+       where activo = true and expira_en > now() and tipo = ${tipoDe(req.query.tipo)}
        order by creado_en desc
        limit 30
     `;
@@ -59,13 +63,14 @@ async function invitaciones(req, res) {
   }
 
   if (req.method === 'POST' && accion === 'invitacion') {
+    const tipo = tipoDe(req.body?.tipo);
     const dias = Number(req.body?.dias);
-    if (!DIAS_PERMITIDOS.includes(dias)) return res.status(400).json({ error: 'Vigencia no válida.' });
+    if (!DIAS_PERMITIDOS[tipo].includes(dias)) return res.status(400).json({ error: 'Vigencia no válida.' });
     const nota = String(req.body?.nota || '').trim().slice(0, 80) || null;
     const codigo = randomBytes(18).toString('base64url');
     const [f] = await sql`
-      insert into invitaciones (codigo, nota, creado_por, creado_nombre, expira_en)
-      values (${codigo}, ${nota}, ${s.u}, ${s.n}, now() + make_interval(days => ${dias}))
+      insert into invitaciones (codigo, nota, creado_por, creado_nombre, expira_en, tipo)
+      values (${codigo}, ${nota}, ${s.u}, ${s.n}, now() + make_interval(days => ${dias}), ${tipo})
       returning id, codigo, nota, creado_nombre, creado_en, expira_en, usos
     `;
     return res.status(201).json(f);

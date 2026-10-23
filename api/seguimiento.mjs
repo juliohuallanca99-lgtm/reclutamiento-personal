@@ -9,7 +9,7 @@
 // Todo exige sesión de RR.HH.
 
 import { sql } from '../lib/db.mjs';
-import { protegido } from '../lib/sesion.mjs';
+import { protegidoOConsulta } from '../lib/sesion.mjs';
 import { construirPresentacion } from '../lib/powerpoint.mjs';
 
 const ESTADOS_CELDA = ['ok', 'pend', 'obs', 'prog', 'na'];
@@ -332,6 +332,11 @@ async function handler(req, res) {
         return res.status(200).send(Buffer.from(archivo));
       }
 
+      // Por link de consulta no viajan los teléfonos del personal.
+      if (req.sesion.consulta) {
+        res.setHeader('Cache-Control', 'no-store');
+        return res.status(200).json(personal.map(p => ({ ...p, t: '' })));
+      }
       return res.status(200).json(personal);
     } catch (e) {
       console.error('seguimiento GET:', e);
@@ -447,4 +452,5 @@ async function handler(req, res) {
   return res.status(405).json({ error: 'Método no permitido' });
 }
 
-export default protegido(handler);
+// Con sesión: todo. Con link de consulta (gerencia): solo ver el listado.
+export default protegidoOConsulta(handler);
