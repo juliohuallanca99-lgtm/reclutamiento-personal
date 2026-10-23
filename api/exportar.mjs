@@ -83,9 +83,10 @@ async function handler(req, res) {
       `;
       if (!personas.length) return res.status(404).json({ error: 'No se encontraron esas personas.' });
       const archivo = await construirAnexo8(personas);
-      const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
+      // Mismo nombre que usa el formato oficial: … Lista de Seleccionado DD.MM.AAAA
+      const [a, m, d] = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' }).split('-');
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="Anexo 8 - Lista de seleccionados ${hoy}.xlsx"`);
+      res.setHeader('Content-Disposition', `attachment; filename="JU-RSO-PRO-002.F04 - Lista de Seleccionado ${d}.${m}.${a}.xlsx"`);
       return res.status(200).send(Buffer.from(archivo));
     } catch (e) {
       console.error('exportar anexo8:', e);
