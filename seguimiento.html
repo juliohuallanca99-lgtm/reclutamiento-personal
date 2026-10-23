@@ -59,6 +59,14 @@ tbody tr.r:hover{background:var(--bg)}
 th.v{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;height:130px;padding:8px 4px}
 dialog{border:0;border-radius:8px;padding:0;max-width:760px;width:calc(100% - 24px);background:var(--sf);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4)}
 dialog::backdrop{background:rgba(10,16,22,.6)}
+.tb.env{display:inline-flex;align-items:center;gap:6px}
+.lkc{padding:18px 20px}.lkc h2{margin:0 0 6px;font-size:20px}.lkc p{margin:0 0 12px}
+.lkc .it{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--ln);font-size:14px}
+.lkc .it small{display:block;color:var(--mu);font-size:12.5px}
+.lkc .bts{display:flex;gap:6px;flex:none}
+.lkc .bts button{border:1px solid var(--ln);background:none;border-radius:999px;padding:6px 12px;font-size:13px}
+.lkc .bts .pel{border-color:var(--ob);color:var(--ob)}
+.lkc .pie{display:flex;justify-content:flex-end;margin-top:12px}
 .dh{padding:18px;border-bottom:1px solid var(--ln);display:flex;gap:12px;align-items:center}
 .db{padding:18px;max-height:62vh;overflow:auto}.df{padding:12px 18px;border-top:1px solid var(--ln);display:flex;gap:8px;flex-wrap:wrap}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:8px 0 18px}
@@ -286,9 +294,10 @@ h2,.card h2{font:500 17px/1.3 'Barlow',sans-serif;letter-spacing:-.2px;margin:0 
 <body>
 <div class="wrap">
 <header><div class="in"><div class="marca"><img class="logo" src="data:image/png;base64,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" alt="JJC Grupo"><div class="rot"><h1>Seguimiento de ingreso de personal</h1><p>Marcobre Bateas · Proyecto CC0174</p></div></div>
-<div class="hb" style="align-items:center;justify-content:flex-end"><a class="tb" href="/" style="color:inherit;text-decoration:none">← Inicio</a><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bn" type="button" style="background:var(--ac);color:#16222c;border-color:var(--ac);font-weight:600">+ Agregar personal</button><button class="tb" id="bi" type="button">Importar Excel</button><input type="file" id="fx" accept=".xlsx,.xls,.csv" hidden><button class="tb" id="be" type="button" hidden="">Editar datos</button><button class="tb ico" id="th" type="button" aria-label="Cambiar entre claro y oscuro" title="Cambiar entre claro y oscuro"><span id="thi">☾</span></button><div class="hb" id="hb" hidden=""><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bt" type="button">Descargar PowerPoint</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
+<div class="hb" style="align-items:center;justify-content:flex-end"><a class="tb" href="/" style="color:inherit;text-decoration:none">← Inicio</a><button class="tb" id="bp" type="button" hidden="">Guardando…</button><button class="tb" id="bn" type="button" style="background:var(--ac);color:#16222c;border-color:var(--ac);font-weight:600">+ Agregar personal</button><button class="tb" id="be" type="button" hidden="">Editar datos</button><button class="tb env" id="bw" type="button" title="Enviar el estado por WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg> Enviar por WhatsApp</button><button class="tb env" id="bm" type="button" title="Enviar el estado por correo (Outlook)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg> Enviar por correo</button><button class="tb ico" id="th" type="button" aria-label="Cambiar entre claro y oscuro" title="Cambiar entre claro y oscuro"><span id="thi">☾</span></button><div class="hb" id="hb" hidden=""><button class="tb" id="bx" type="button">Descargar Excel</button><button class="tb" id="bh" type="button">Descargar página</button><button class="tb" id="bl" type="button">Links de consulta</button></div><button class="tb" id="bc" type="button" aria-expanded="false" aria-controls="hb" aria-label="Mostrar opciones" title="Opciones"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></button></div></div></header>
 <nav role="tablist" id="nav"></nav><main id="main"></main></div>
 <dialog id="dlg"></dialog><div class="toast" id="ts" role="status"></div>
+<script>/* window.open nativo: la página define su propia open() para las fichas */window.__abrir=window.open.bind(window);</script>
 <script id="ds">const W=[],R=[],COPIA=null;</script>
 <script id="app">
 const SN=['EMO','Validación JJC','Validación UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'],
@@ -522,7 +531,7 @@ else if(d.n){open((cur+ +d.n+W.length)%W.length)}
 else if(t.id==='cl')$('#dlg').close();
 else if(t.id==='bc'){const h=$('#hb'),o=h.hidden;h.hidden=!o;t.setAttribute('aria-expanded',o);t.setAttribute('aria-label',o?'Ocultar opciones':'Mostrar opciones')}
 else if(t.id==='be'){ed=!ed;t.textContent=ed?'Salir de edición':'Editar datos';render()}
-else if(t.id==='bn')formularioNuevo();else if(t.id==='bi')$('#fx').click();else if(t.id==='bp')guardarYa();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');else if(t.id==='bt')descargarPpt();
+else if(t.id==='bn')formularioNuevo();else if(t.id==='bp')guardarYa();else if(t.id==='bx')dl('x');else if(t.id==='bh')dl('h');
 else if(d.mvx!==undefined){W[cur].mov={k:'na',l:'—'};mark();open(cur)}
 else if(d.add!==undefined){crearFicha()}
 else if(t.id==='dl'){if(!arm){arm=true;t.textContent='Confirmar eliminación'}else{eliminarFicha()}}
@@ -580,7 +589,10 @@ async function leerJson(r){
   catch { console.error('respuesta no-JSON:', r.status, t.slice(0,200));
           return { error:'El servicio no está disponible en este momento.' }; }
 }
-const alLogin = r => { if(r.status===401){ location.href='/panel.html?volver=/seguimiento.html'; return true; } return false; };
+/* Link de consulta para gerencia: /seguimiento.html?ver=CÓDIGO.
+   Sin sesión, solo para ver; los datos se piden con ese código. */
+const CONSULTA=new URLSearchParams(location.search).get('ver');
+const alLogin = r => { if(r.status===401 && !CONSULTA){ location.href='/panel.html?volver=/seguimiento.html'; return true; } return false; };
 
 /* ---- guardado: se agenda solo, sin botón que recordar ---- */
 let reloj=null, guardando=false, pendiente=false;
@@ -796,7 +808,7 @@ function resumenCarga(d, nombre){
 
 /* ---- arranque ---- */
 async function cargar(){
-  const r=await fetch('/api/seguimiento');
+  const r=await fetch('/api/seguimiento', CONSULTA ? {headers:{'X-Consulta':CONSULTA}} : {});
   if(alLogin(r)) return false;
   const d=await leerJson(r);
   if(!r.ok) throw new Error(d.error||'No se pudo cargar');
@@ -807,7 +819,7 @@ async function cargar(){
 /* Copia descargada con «Descargar página»: trae los datos dentro del
    archivo, así que se abre sin internet ni sesión. Es solo de consulta. */
 function modoCopia(){
-  ['#bn','#bi','#be','#bp','#bt'].forEach(s=>{const b=$(s);if(b)b.remove()});
+  ['#bn','#be','#bp','#bw','#bm','#bl'].forEach(s=>{const b=$(s);if(b)b.remove()});
   const ini=document.querySelector('a.tb[href="/"]');if(ini)ini.remove();
   const av=document.createElement('div');av.className='card';av.id='aviso-copia';
   av.style.cssText='padding:10px 16px;margin-bottom:12px';
@@ -816,24 +828,110 @@ function modoCopia(){
   W.forEach(calc);render();
 }
 
+/* Vista de gerencia: el mismo tablero, sin botones para editar. Se
+   actualiza sola cada 5 minutos para mostrar siempre lo último. */
+function modoConsulta(){
+  ['#bn','#be','#bp','#bw','#bm','#bc','#hb'].forEach(s=>{const b=$(s);if(b)b.remove()});
+  const ini=document.querySelector('a.tb[href="/"]');if(ini)ini.remove();
+  const av=document.createElement('div');av.className='card';av.id='aviso-copia';
+  av.style.cssText='padding:10px 16px;margin-bottom:12px';
+  av.innerHTML='<b>Vista de consulta</b> <span class="mu">· estado en línea, se actualiza solo · <span id="hora"></span></span>';
+  $('#main').before(av);
+  const hora=()=>{const h=$('#hora');if(h)h.textContent='al '+new Date().toLocaleString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})};
+  hora();
+  setInterval(async()=>{ if($('#dlg').open) return; try{ if(await cargar()!==false){ render(); hora(); } }catch(e){} }, 300000);
+}
+
 async function arrancar(){
   if(COPIA){ modoCopia(); return; }
+  if(CONSULTA) modoConsulta();
   $('#main').innerHTML='<div class="card">Cargando el seguimiento…</div>';
   try{
     if(await cargar()===false) return;
     render();
     if(!W.length) $('#main').innerHTML =
       `<div class="card"><h2>Todavía no hay personal cargado</h2>
-       <p class="mu">Usa <b>Importar Excel</b> en la parte superior para traer el cuadro
-       de seguimiento, o <b>Editar datos</b> y «+ Agregar trabajador» para darlo de alta a mano.</p></div>`;
+       <p class="mu">Usa <b>+ Agregar personal</b> o registra postulantes desde el inicio:
+       pasan aquí automáticamente.</p></div>`;
   }catch(e){
     console.error(e);
-    $('#main').innerHTML=`<div class="card"><h2>No se pudo cargar</h2>
+    if(CONSULTA){ $('#aviso-copia')?.remove(); }
+    $('#main').innerHTML=`<div class="card"><h2>${CONSULTA?'Link no disponible':'No se pudo cargar'}</h2>
       <p class="mu">${esc(e.message||'Revisa tu conexión e inténtalo de nuevo.')}</p></div>`;
   }
 }
 
 arrancar();
+
+/* ===================================================================
+   Compartir el estado con gerencia
+   Se envía un LINK de consulta (no un archivo): se abre en cualquier
+   celular o PC, muestra el estado en vivo y no deja editar. Se reusa
+   el link vigente más reciente; si no hay, se crea uno de 30 días.
+   =================================================================== */
+const urlConsulta=c=>location.origin+'/seguimiento.html?ver='+c;
+async function pedirJ(url,op){const r=await fetch(url,op);const d=await leerJson(r);if(alLogin(r))throw new Error('Sesión vencida');if(!r.ok)throw new Error(d.error||'No se pudo completar.');return d}
+async function linkConsulta(){
+  const L=await pedirJ('/api/sesion?accion=invitaciones&tipo=consulta');
+  const dias7=Date.now()+7*864e5;
+  const ok=L.find(l=>new Date(l.expira_en).getTime()>dias7);
+  if(ok) return ok;
+  return pedirJ('/api/sesion?accion=invitacion',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({tipo:'consulta',dias:30,nota:'Gerencia'})});
+}
+function resumenEstado(){
+  const n=W.length, c={L:0,M:0,T:0,O:0};
+  W.forEach(w=>{c[grupoDe(w)]++});
+  const f=new Date().toLocaleDateString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'numeric'});
+  return `Estado del ingreso de personal – Marcobre Bateas (CC0174), al ${f}:\n`+
+    `• Total: ${n} personas\n• Laborando: ${c.L}\n• Listos para movilizar: ${c.M}\n• En trámite: ${c.T}\n• Observación médica: ${c.O}`;
+}
+async function enviar(medio){
+  const b=$(medio==='w'?'#bw':'#bm'), txt=b.innerHTML;
+  // La ventana de WhatsApp se abre antes de esperar al servidor: si no,
+  // el navegador la bloquea por no venir directo de un clic.
+  // (Ojo: esta página tiene su propia función «open» para las fichas,
+  // por eso se usa la nativa del navegador.)
+  const ven = medio==='w' && window.__abrir ? window.__abrir('about:blank','_blank') : null;
+  b.disabled=true; b.textContent='Preparando…';
+  try{
+    const l=await linkConsulta(), u=urlConsulta(l.codigo);
+    const cuerpo=resumenEstado()+'\n\nVer el detalle en línea (se actualiza solo):\n'+u;
+    if(medio==='w'){
+      const destino='https://wa.me/?text='+encodeURIComponent(cuerpo);
+      if(ven) ven.location.href=destino;
+      else { const a=document.createElement('a'); a.href=destino; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+    }else{
+      location.href='mailto:?subject='+encodeURIComponent('Estado del ingreso de personal – Marcobre Bateas')+
+        '&body='+encodeURIComponent('Buen día,\n\n'+cuerpo+'\n\nSaludos.');
+    }
+    toast('Link de consulta listo');
+  }catch(e){ if(ven) ven.close(); toast(e.message); }
+  finally{ b.disabled=false; b.innerHTML=txt; }
+}
+async function verLinks(){
+  const d=$('#dlg');
+  d.innerHTML='<div class="lkc"><h2>Links de consulta</h2><p class="mu">Quien tenga el link ve el estado del seguimiento sin poder editar (sin teléfonos). Anula el que ya no deba usarse.</p><div id="lkl">Cargando…</div><div class="pie"><button class="btn p" id="cl" type="button">Cerrar</button></div></div>';
+  if(!d.open) d.showModal();
+  try{
+    const L=await pedirJ('/api/sesion?accion=invitaciones&tipo=consulta');
+    const f=v=>new Date(v).toLocaleDateString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'numeric'});
+    $('#lkl').innerHTML=L.length?L.map(l=>`<div class="it"><div><b>${esc(l.nota||'Consulta')}</b><small>Vence ${f(l.expira_en)} · abierto ${l.usos} ${l.usos==1?'vez':'veces'} · creado por ${esc(l.creado_nombre||'')}</small></div>
+      <div class="bts"><button type="button" data-lkcop="${esc(l.codigo)}">Copiar</button><button type="button" class="pel" data-lkan="${l.id}">Anular</button></div></div>`).join('')
+      :'<p class="mu">No hay links de consulta vigentes. Se crea uno al usar «Enviar por WhatsApp» o «Enviar por correo».</p>';
+  }catch(e){ $('#lkl').textContent=e.message; }
+}
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('button'); if(!t) return;
+  if(t.id==='bw') enviar('w');
+  else if(t.id==='bm') enviar('m');
+  else if(t.id==='bl') verLinks();
+  else if(t.dataset.lkcop){ try{await navigator.clipboard.writeText(urlConsulta(t.dataset.lkcop));toast('Link copiado')}catch{toast('No se pudo copiar')} }
+  else if(t.dataset.lkan){
+    if(t.dataset.seguro!=='1'){t.dataset.seguro='1';t.textContent='¿Anular?';return}
+    try{await pedirJ('/api/sesion?accion=anular',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:Number(t.dataset.lkan)})});toast('Link anulado');verLinks()}catch(err){toast(err.message)}
+  }
+});
 
 </script>
 
