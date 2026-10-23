@@ -4,11 +4,18 @@
 //   POST   /api/sesion   iniciar sesión
 //   DELETE /api/sesion   cerrar sesión
 //
+//   Links de registro para el personal:
+//   GET  /api/sesion?invitacion=CODIGO     ¿el link sigue vigente? (público)
+//   GET  /api/sesion?accion=invitaciones   links vigentes (RR.HH.)
+//   POST /api/sesion?accion=invitacion     crear link   { dias, nota }
+//   POST /api/sesion?accion=anular         anular link  { id }
+//
 // Van juntas porque el plan Hobby de Vercel admite como máximo 12
 // funciones por despliegue, y son tres caras del mismo asunto.
 
 import { sql } from '../lib/db.mjs';
-import { verificarClave, crearSesion, ponerCookie, borrarCookie, leerSesion } from '../lib/sesion.mjs';
+import { randomBytes } from 'node:crypto';
+import { verificarClave, crearSesion, ponerCookie, borrarCookie, leerSesion, leerInvitacion } from '../lib/sesion.mjs';
 
 // Freno contra adivinar contraseñas: 6 intentos por IP cada 15 minutos.
 const intentos = new Map();
@@ -23,7 +30,63 @@ function demasiados(ip) {
   return previos.length > 6;
 }
 
+const DIAS_PERMITIDOS = [1, 3, 7, 15, 30];
+
+async function invitaciones(req, res) {
+  const accion = req.query.accion;
+
+  // Público: la página de registro pregunta si su link sigue vigente.
+  if (req.method === 'GET' && req.query.invitacion !== undefined) {
+    const inv = await leerInvitacion(String(req.query.invitacion));
+    return inv
+      ? res.status(200).json({ ok: true, expira: inv.expira_en })
+      : res.status(404).json({ error: 'Este link de registro venció o fue anulado. Pide uno nuevo a Recursos Humanos.' });
+  }
+
+  const s = leerSesion(req);
+  if (!s) return res.status(401).json({ error: 'Sesión expirada. Vuelve a ingresar.' });
+
+  if (req.method === 'GET' && accion === 'invitaciones') {
+    const filas = await sql`
+      select id, codigo, nota, creado_nombre, creado_en, expira_en, usos
+        from invitaciones
+       where activo = true and expira_en > now()
+       order by creado_en desc
+       limit 30
+    `;
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json(filas);
+  }
+
+  if (req.method === 'POST' && accion === 'invitacion') {
+    const dias = Number(req.body?.dias);
+    if (!DIAS_PERMITIDOS.includes(dias)) return res.status(400).json({ error: 'Vigencia no válida.' });
+    const nota = String(req.body?.nota || '').trim().slice(0, 80) || null;
+    const codigo = randomBytes(18).toString('base64url');
+    const [f] = await sql`
+      insert into invitaciones (codigo, nota, creado_por, creado_nombre, expira_en)
+      values (${codigo}, ${nota}, ${s.u}, ${s.n}, now() + make_interval(days => ${dias}))
+      returning id, codigo, nota, creado_nombre, creado_en, expira_en, usos
+    `;
+    return res.status(201).json(f);
+  }
+
+  if (req.method === 'POST' && accion === 'anular') {
+    const id = Number(req.body?.id);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: 'Link no válido.' });
+    await sql`update invitaciones set activo = false where id = ${id}`;
+    return res.status(200).json({ ok: true });
+  }
+
+  return res.status(400).json({ error: 'Acción no válida.' });
+}
+
 export default async function handler(req, res) {
+  if (req.query?.invitacion !== undefined || ['invitaciones', 'invitacion', 'anular'].includes(req.query?.accion)) {
+    try { return await invitaciones(req, res); }
+    catch (e) { console.error('invitaciones:', e); return res.status(500).json({ error: 'No se pudo procesar el link de registro.' }); }
+  }
+
   if (req.method === 'GET') {
     const s = leerSesion(req);
     return s ? res.status(200).json({ usuario: s.u, nombre: s.n })

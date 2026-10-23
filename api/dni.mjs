@@ -10,7 +10,7 @@
 // =====================================================================
 
 import { sql } from '../lib/db.mjs';
-import { protegido } from '../lib/sesion.mjs';
+import { protegidoOInvitado } from '../lib/sesion.mjs';
 
 const TOKEN = process.env.DNI_API_TOKEN;
 const URL_PROVEEDOR = 'https://api.decolecta.com/v1/reniec/dni?numero=';
@@ -165,4 +165,4 @@ async function handler(req, res) {
   }
 }
 
-export default protegido(handler);
+export default protegidoOInvitado(handler);

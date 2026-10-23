@@ -1,7 +1,7 @@
 // GET /api/puestos — lista de puestos abiertos para el formulario.
 
 import { sql } from '../lib/db.mjs';
-import { protegido } from '../lib/sesion.mjs';
+import { protegidoOInvitado } from '../lib/sesion.mjs';
 
 async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -24,4 +24,4 @@ async function handler(req, res) {
   }
 }
 
-export default protegido(handler);
+export default protegidoOInvitado(handler);

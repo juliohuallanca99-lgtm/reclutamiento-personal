@@ -1,7 +1,7 @@
 // POST /api/postular — guarda la postulación en Neon.
 
 import { sql } from '../lib/db.mjs';
-import { protegido } from '../lib/sesion.mjs';
+import { protegidoOInvitado } from '../lib/sesion.mjs';
 
 const texto = (v, max = 200) => {
   const s = String(v ?? '').trim();
@@ -12,13 +12,30 @@ const TIPOS_MO = ['MOC', 'MOSC', 'MONC'];
 const N_ETAPAS = 7, N_CAPACITACIONES = 11;
 const pendientes = n => JSON.stringify(Array.from({ length: n }, () => ({ k: 'pend', l: 'Pendiente' })));
 
-// Desde que el formulario es privado, solo Recursos Humanos registra.
+// Registra Recursos Humanos (con sesión) o el propio trabajador con un
+// link de registro vigente. Por link, un freno contra envíos en masa.
+const envios = new Map();
+function demasiadosEnvios(ip) {
+  const ahora = Date.now();
+  const previos = (envios.get(ip) || []).filter(t => ahora - t < 3600_000);
+  previos.push(ahora); envios.set(ip, previos);
+  if (envios.size > 2000) envios.clear();
+  return previos.length > 20;
+}
+
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   const d = req.body || {};
+  const porLink = !!req.sesion.invitacion;
+  if (porLink) {
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'desconocida';
+    if (demasiadosEnvios(ip)) return res.status(429).json({ error: 'Demasiados registros desde esta conexión. Inténtalo en una hora.' });
+  }
+  const tipoDoc = d.tipo_documento === 'CE' ? 'CE' : 'DNI';
+  if (tipoDoc === 'CE') d.numero_documento = String(d.numero_documento || '').trim().toUpperCase();
 
   // --- validación del lado del servidor -----------------------------
   const faltan = [];
@@ -31,7 +48,8 @@ async function handler(req, res) {
   if (!d.fecha_nacimiento)        faltan.push('fecha de nacimiento');
   if (!texto(d.estado_civil))     faltan.push('estado civil');
   if (!texto(d.genero))           faltan.push('sexo');
-  if (!texto(d.nac_distrito))     faltan.push('lugar de nacimiento');
+  // Con carnet de extranjería basta el país de nacimiento.
+  if (tipoDoc === 'CE' ? !texto(d.nac_departamento) : !texto(d.nac_distrito)) faltan.push('lugar de nacimiento');
   if (!texto(d.direccion))        faltan.push('dirección');
   if (!texto(d.distrito))         faltan.push('residencia');
   if (!texto(d.nivel_educativo))  faltan.push('grado de instrucción');
@@ -54,8 +72,11 @@ async function handler(req, res) {
   if (d.fecha_nacimiento && !/^\d{4}-\d{2}-\d{2}$/.test(String(d.fecha_nacimiento))) {
     return res.status(400).json({ error: 'La fecha de nacimiento no es válida.' });
   }
-  if (d.tipo_documento === 'DNI' && !/^\d{8}$/.test(String(d.numero_documento))) {
+  if (tipoDoc === 'DNI' && !/^\d{8}$/.test(String(d.numero_documento))) {
     return res.status(400).json({ error: 'El DNI debe tener 8 dígitos.' });
+  }
+  if (tipoDoc === 'CE' && !/^[A-Z0-9]{9,12}$/.test(String(d.numero_documento))) {
+    return res.status(400).json({ error: 'El carnet de extranjería debe tener entre 9 y 12 caracteres (letras o números).' });
   }
   // La ruta la define el almacén al subir: año/documento con sufijo.
   // Así nadie puede registrar una ruta arbitraria.
@@ -93,9 +114,9 @@ async function handler(req, res) {
         tipo_mano_obra
       ) values (
         ${texto(d.nombres)}, ${texto(d.apellido_paterno)}, ${texto(d.apellido_materno)},
-        ${texto(d.tipo_documento, 10) || 'DNI'}, ${texto(d.numero_documento, 15)},
-        ${d.datos_verificados === true},
-        ${texto(d.nacionalidad) || 'Peruana'}, ${d.fecha_nacimiento || null},
+        ${tipoDoc}, ${texto(d.numero_documento, 15)},
+        ${tipoDoc === 'DNI' && d.datos_verificados === true},
+        ${tipoDoc === 'CE' ? (texto(d.nac_departamento, 60) || 'Extranjera') : 'Peruana'}, ${d.fecha_nacimiento || null},
         ${texto(d.estado_civil, 30)}, ${texto(d.genero, 20)},
         ${texto(d.celular, 12)}, ${String(d.correo).trim().toLowerCase().slice(0, 150)},
         ${texto(d.direccion, 300)}, ${texto(d.departamento, 60)},
@@ -107,7 +128,7 @@ async function handler(req, res) {
         ${texto(d.especialidad, 150)}, ${texto(d.estado_estudios, 40)},
         ${texto(d.numero_colegiatura, 30)},
         ${texto(d.puesto, 120)}, ${numero(d.experiencia_anios)},
-        ${texto(d.fuente_reclutamiento, 40)}, ${numero(d.expectativa_salarial)},
+        ${porLink ? 'Link de registro' : 'Registro RR.HH.'}, ${numero(d.expectativa_salarial)},
         ${d.disponibilidad_inmediata !== false},
         ${texto(d.cv_pathname, 600)}, ${texto(d.cv_nombre, 200)},
         ${texto(d.brevete, 40)}, ${texto(d.nac_departamento, 60)},
@@ -124,7 +145,7 @@ async function handler(req, res) {
     let seguimiento = 'error';
     try {
       const doc = String(d.numero_documento).trim();
-      const dni = /^\d{6,12}$/.test(doc) ? doc : null;
+      const dni = /^[A-Z0-9]{6,12}$/i.test(doc) ? doc.toUpperCase() : null;
       const nombre = [d.apellido_paterno, d.apellido_materno, d.nombres]
         .map(x => String(x || '').trim()).join(' ').toUpperCase().slice(0, 150);
       const alta = await sql`
@@ -136,7 +157,7 @@ async function handler(req, res) {
           ${dni}, ${nombre}, ${String(d.puesto).trim().toUpperCase().slice(0, 150)},
           ${texto(d.celular, 12)}, null, 'EXAMEN MEDICO',
           ${pendientes(N_ETAPAS)}::jsonb, ${pendientes(N_CAPACITACIONES)}::jsonb,
-          ${req.sesion.n}, now())
+          ${porLink ? 'Link · ' + req.sesion.n : req.sesion.n}, now())
         on conflict (dni) where dni is not null and dni <> '' do nothing
         returning id
       `;
@@ -145,6 +166,12 @@ async function handler(req, res) {
       console.error('postular → seguimiento:', e);
     }
 
+    if (porLink) {
+      await sql`update invitaciones set usos = usos + 1 where id = ${req.sesion.invitacion}`
+        .catch(e => console.error('uso de link:', e));
+      // Quien se registra por link solo necesita su código.
+      return res.status(201).json({ codigo: fila.codigo });
+    }
     return res.status(201).json({ codigo: fila.codigo, seguimiento });
 
   } catch (e) {
@@ -153,4 +180,4 @@ async function handler(req, res) {
   }
 }
 
-export default protegido(handler);
+export default protegidoOInvitado(handler);
