@@ -83,6 +83,7 @@ legend{
   padding:0 0 10px;width:100%;border-bottom:2px solid var(--ink);
   margin-bottom:26px;
 }
+[hidden]{display:none!important}
 .fila{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:18px}
 @media(min-width:620px){
   .fila.dos{grid-template-columns:1fr 1fr}
@@ -200,11 +201,58 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
   font:600 14px/1 'Barlow Condensed',sans-serif;letter-spacing:.12em;text-decoration:none}
 .listo .acciones .prim{background:var(--ink);color:#fff;border:1px solid var(--ink)}
 .listo .acciones .sec{background:none;color:var(--ink);border:1px solid var(--ink)}
+/* tipo de documento al costado del número */
+.busca select.tipo-doc{flex:0 0 222px;width:222px}
+@media(max-width:560px){.busca{flex-wrap:wrap}.busca select.tipo-doc{flex:1 1 100%;width:100%}}
+.busca input{min-width:0}
+/* Link de registro: quien entra por link solo ve el formulario */
+.invitado .cinta,.invitado #anexo8,.invitado .indice li[data-paso="anexo8"],.invitado .solo-rrhh{display:none!important}
+.solo-link{display:none}
+.invitado .solo-link{display:revert}
+.link-caido{max-width:560px;margin:15vh auto;padding:0 20px;font-family:'Barlow',sans-serif}
+.link-caido h1{font:700 40px/1 'Barlow Condensed',sans-serif;margin:0 0 14px}
+.link-caido p{color:#5b6770;font-size:16px}
+/* ventana para generar links */
+#dlgLink{border:0;border-radius:6px;padding:0;width:min(620px,calc(100vw - 32px));color:var(--ink);background:var(--paper)}
+#dlgLink::backdrop{background:rgba(10,15,20,.55)}
+#dlgLink .cab{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid #e3e6e9}
+#dlgLink .cab h2{font:700 24px/1 'Barlow Condensed',sans-serif;margin:0}
+#dlgLink .cuerpo{padding:18px 22px 22px}
+#dlgLink .cuerpo>p{color:var(--steel);font-size:14px;margin:0 0 14px}
+#dlgLink .gen{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+#dlgLink .gen label{margin:0}
+#dlgLink .gen .campo{flex:1;min-width:150px}
+#dlgLink .x{background:none;border:0;font-size:22px;cursor:pointer;color:var(--steel)}
+.lk-nuevo{margin-top:14px;padding:12px;border:1px solid var(--ok);border-radius:4px;background:#f1f8f4;display:none}
+.lk-nuevo.visible{display:block}
+.lk-url{display:flex;gap:8px;margin-top:6px}
+.lk-url input{flex:1;font-size:13.5px}
+.lk-lista{margin-top:18px}
+.lk-lista h3{font:600 14px/1 'Barlow Condensed',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:0 0 8px}
+.lk-item{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid #e3e6e9;font-size:14px}
+.lk-item small{display:block;color:var(--steel);font-size:12.5px}
+.lk-btns{display:flex;gap:6px;flex:none}
+.lk-btn{display:inline-flex;align-items:center;justify-content:center;font:600 12.5px/1 'Barlow Condensed',sans-serif;letter-spacing:.08em;padding:8px 10px;border-radius:3px;cursor:pointer;background:none;border:1px solid var(--ink);color:var(--ink);text-decoration:none;white-space:nowrap}
+.lk-btn.prim{background:var(--ink);color:#fff}
+.lk-btn.peligro{border-color:var(--rojo);color:var(--rojo)}
 </style>
 <script>
 /* Página privada: hasta comprobar la sesión no se muestra nada, y sin
    sesión se va al ingreso. Corre antes de pintar, sin parpadeo. */
 document.documentElement.classList.add('verificando');
+/* Con ?registro=CÓDIGO es un link de registro para el personal: sin
+   sesión, solo el formulario. Si el link venció, se dice y nada más. */
+window.__invitacion=new URLSearchParams(location.search).get('registro');
+if(window.__invitacion){
+  document.documentElement.classList.add('invitado');
+  fetch('/api/sesion?invitacion='+encodeURIComponent(window.__invitacion)).then(r=>r.json().then(d=>({ok:r.ok,d}))).catch(()=>({ok:false,d:{error:'No hay conexión. Revisa tu internet y vuelve a abrir el link.'}})).then(({ok,d})=>{
+    const pintar=()=>{
+      if(!ok){ document.body.innerHTML='<div class="link-caido"><h1>Link no disponible</h1><p></p></div>';
+        document.querySelector('.link-caido p').textContent=d.error||'Este link venció o fue anulado.'; }
+      document.documentElement.classList.remove('verificando'); };
+    document.readyState==='loading' ? document.addEventListener('DOMContentLoaded',pintar) : pintar();
+  });
+}else
 fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).catch(()=>null).then(u=>{
   if(!u){ location.replace('/panel.html?volver=' + encodeURIComponent(location.pathname)); return; }
   window.__usuario=u;
@@ -218,6 +266,7 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
 <header class="cinta">
   <span class="quien" id="quien"></span>
+  <button class="acceso" id="btnLink" type="button">Link para el personal</button>
   <a class="acceso" href="/panel.html">Postulantes</a>
   <a class="acceso" href="/seguimiento.html">Seguimiento</a>
   <a class="acceso" href="/cuentas.html">Cuentas</a>
@@ -228,8 +277,10 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
   <aside class="rail">
     <div class="marca">JJC CONTRATISTAS GENERALES · CC0174</div>
-    <h1>Registrar postulante</h1>
-    <p>Completa los datos del postulante. Al registrarlo queda en el panel de Postulantes, pasa a Seguimiento y entra en la lista del Anexo 8.</p>
+    <h1 class="solo-rrhh">Registrar postulante</h1>
+    <p class="solo-rrhh">Completa los datos del postulante. Al registrarlo queda en el panel de Postulantes, pasa a Seguimiento y entra en la lista del Anexo 8.</p>
+    <h1 class="solo-link">Registro de personal</h1>
+    <p class="solo-link">Completa tus datos tal como figuran en tu documento de identidad. Al terminar, Recursos Humanos de JJC recibirá tu registro.</p>
     <nav class="indice">
       <ol>
         <li data-paso="personal"><b>1</b> Datos personales</li>
@@ -248,6 +299,22 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
       <fieldset id="personal">
         <legend>1. Datos personales</legend>
         <p class="intro-bloque">Información de identificación de la persona.</p>
+
+        <div class="fila">
+          <div class="campo">
+            <label for="num_doc">Documento de identidad <span class="req">*</span></label>
+            <div class="busca">
+              <select id="tipo_doc" class="tipo-doc" aria-label="Tipo de documento">
+                <option value="DNI">DNI</option>
+                <option value="CE">Carnet de extranjería</option>
+              </select>
+              <input type="text" id="num_doc" inputmode="numeric" maxlength="8" placeholder="8 dígitos" aria-label="Número de documento">
+              <button type="button" class="consultar" id="btnDni" title="Completa nombres y apellidos desde RENIEC">TRAER DATOS</button>
+            </div>
+            <span class="aviso" id="aviso_doc">El DNI tiene 8 dígitos.</span>
+            <p class="estado-dni" id="estadoDni">Opcional: toca «Traer datos» para completar los nombres.</p>
+          </div>
+        </div>
 
         <div class="fila dos">
           <div class="campo">
@@ -269,22 +336,13 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
             <span class="aviso">Escribe el apellido materno.</span>
           </div>
           <div class="campo">
-            <label for="num_doc">DNI <span class="req">*</span></label>
-            <div class="busca">
-              <input type="text" id="num_doc" inputmode="numeric" maxlength="8" placeholder="8 dígitos">
-              <button type="button" class="consultar" id="btnDni" title="Completa nombres y apellidos desde RENIEC">TRAER DATOS</button>
-            </div>
-            <span class="aviso" id="aviso_doc">El DNI tiene 8 dígitos.</span>
-            <p class="estado-dni" id="estadoDni">Opcional: toca «Traer datos» para completar los nombres.</p>
-          </div>
-        </div>
-
-        <div class="fila dos">
-          <div class="campo">
             <label for="fecha_nac">Fecha de nacimiento <span class="req">*</span></label>
             <input type="date" id="fecha_nac">
             <span class="aviso">Indica la fecha de nacimiento.</span>
           </div>
+        </div>
+
+        <div class="fila dos">
           <div class="campo">
             <label for="estado_civil">Estado civil <span class="req">*</span></label>
             <select id="estado_civil">
@@ -294,9 +352,6 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
             </select>
             <span class="aviso">Elige el estado civil.</span>
           </div>
-        </div>
-
-        <div class="fila dos">
           <div class="campo">
             <label for="genero">Sexo <span class="req">*</span></label>
             <select id="genero">
@@ -305,6 +360,9 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
             </select>
             <span class="aviso">Elige el sexo.</span>
           </div>
+        </div>
+
+        <div class="fila dos">
           <div class="campo">
             <label for="brevete">Brevete</label>
             <input type="text" id="brevete" placeholder="Opcional / No aplica" autocomplete="off">
@@ -315,8 +373,17 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
       <!-- ============ 2. LUGAR DE NACIMIENTO ============ -->
       <fieldset id="nacimiento">
         <legend>2. Lugar de nacimiento</legend>
-        <p class="intro-bloque">Selecciona departamento, provincia y distrito. El ubigeo se completa automáticamente.</p>
+        <p class="intro-bloque" id="introNac">Selecciona departamento, provincia y distrito. El ubigeo se completa automáticamente.</p>
 
+        <div class="fila" id="nacExtranjero" hidden>
+          <div class="campo">
+            <label for="nac_pais">País de nacimiento <span class="req">*</span></label>
+            <input type="text" id="nac_pais" autocomplete="off" placeholder="Ej.: Venezuela">
+            <span class="aviso">Escribe el país de nacimiento.</span>
+          </div>
+        </div>
+
+        <div id="nacPeru">
         <div class="fila">
           <div class="campo">
             <label for="nac_dep">Departamento de nacimiento <span class="req">*</span></label>
@@ -342,6 +409,7 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
             <input type="text" id="nac_ubigeo" inputmode="numeric" maxlength="6" readonly placeholder="Se completará automáticamente">
             <p class="ayuda" id="ayudaUbigeo"></p>
           </div>
+        </div>
         </div>
       </fieldset>
 
@@ -422,20 +490,22 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
       <div class="pie">
         <div class="check" style="margin-bottom:18px">
           <input type="checkbox" id="consentimiento">
-          <label for="consentimiento">El postulante autorizó a JJC Contratistas Generales S.A. a tratar sus datos personales con fines de selección, conforme a la Ley 29733.</label>
+          <label for="consentimiento"><span class="solo-rrhh">El postulante autorizó</span><span class="solo-link">Autorizo</span> a JJC Contratistas Generales S.A. a tratar <span class="solo-rrhh">sus</span><span class="solo-link">mis</span> datos personales con fines de selección, conforme a la Ley 29733.</label>
         </div>
-        <button type="submit" class="enviar" id="btnEnviar">REGISTRAR POSTULANTE</button>
+        <button type="submit" class="enviar" id="btnEnviar">REGISTRAR</button>
         <div class="mensaje" id="mensaje"></div>
       </div>
     </form>
 
     <section class="listo" id="listo">
-      <h2>Postulación registrada</h2>
-      <p>Código del expediente. Ya aparece en el panel de Postulantes<span id="enSeguimiento"></span> y en la lista del Anexo 8, aquí abajo.</p>
+      <h2 class="solo-rrhh">Postulación registrada</h2>
+      <p class="solo-rrhh">Código del expediente. Ya aparece en el panel de Postulantes<span id="enSeguimiento"></span> y en la lista del Anexo 8, aquí abajo.</p>
+      <h2 class="solo-link">¡Registro enviado!</h2>
+      <p class="solo-link">Gracias. Recursos Humanos de JJC ya tiene tus datos. Guarda este código por si te lo piden.</p>
       <div class="codigo" id="codigoListo">POST-00000</div>
       <div class="acciones">
-        <button class="prim" type="button" onclick="location.reload()">REGISTRAR OTRO POSTULANTE</button>
-        <a class="sec" href="/panel.html">IR AL PANEL</a>
+        <button class="prim" type="button" onclick="location.reload()"><span class="solo-rrhh">REGISTRAR OTRO POSTULANTE</span><span class="solo-link">REGISTRAR A OTRA PERSONA</span></button>
+        <a class="sec solo-rrhh" href="/panel.html">IR AL PANEL</a>
       </div>
     </section>
 
@@ -473,12 +543,19 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
 /* Si la sesión vence mientras se llena el formulario, no se recarga la
    página (se perdería lo escrito): se avisa y se deja todo como está. */
+const INVITADO = !!window.__invitacion;
 const fetchOriginal = window.fetch.bind(window);
-window.fetch = async (...args) => {
-  const r = await fetchOriginal(...args);
-  const url = String(args[0]?.url || args[0] || '');
+window.fetch = async (recurso, op = {}) => {
+  const url = String(recurso?.url || recurso || '');
+  // Por link de registro, cada consulta a /api lleva el código del link.
+  if (INVITADO && url.startsWith('/api/')) {
+    op = { ...op, headers: { ...(op.headers || {}), 'X-Invitacion': window.__invitacion } };
+  }
+  const r = await fetchOriginal(recurso, op);
   if (r.status === 401 && url.includes('/api/') && !url.includes('/api/sesion')) {
-    throw new Error('Tu sesión venció. Ingresa de nuevo en otra pestaña (Postulantes) y vuelve a enviar: lo que escribiste sigue aquí.');
+    throw new Error(INVITADO
+      ? 'Este link de registro venció o fue anulado. Pide uno nuevo a Recursos Humanos.'
+      : 'Tu sesión venció. Ingresa de nuevo en otra pestaña (Postulantes) y vuelve a enviar: lo que escribiste sigue aquí.');
   }
   return r;
 };
@@ -622,6 +699,29 @@ function limpiarVerificacion() {
 
 $('num_doc').addEventListener('input', limpiarVerificacion);
 
+/* DNI o carnet de extranjería. Con carnet no hay consulta a RENIEC y el
+   lugar de nacimiento es el país. */
+const esCE = () => $('tipo_doc').value === 'CE';
+function aplicarTipoDoc() {
+  const ce = esCE(), d = $('num_doc');
+  d.maxLength = ce ? 12 : 8;
+  d.inputMode = ce ? 'text' : 'numeric';
+  d.placeholder = ce ? '9 a 12 caracteres' : '8 dígitos';
+  d.value = ce ? d.value.toUpperCase().replace(/[^A-Z0-9]/g, '') : d.value.replace(/\D/g, '').slice(0, 8);
+  $('btnDni').hidden = ce;
+  $('aviso_doc').textContent = ce ? 'El carnet tiene de 9 a 12 caracteres (letras o números).' : 'El DNI tiene 8 dígitos.';
+  $('estadoDni').textContent = ce ? 'Escribe los nombres tal como figuran en el carnet de extranjería.'
+                                  : 'Opcional: toca «Traer datos» para completar los nombres.';
+  $('nacPeru').hidden = ce;
+  $('nacExtranjero').hidden = !ce;
+  $('introNac').textContent = ce ? 'Escribe el país donde naciste.'
+                                 : 'Selecciona departamento, provincia y distrito. El ubigeo se completa automáticamente.';
+  limpiarVerificacion();
+  marcar('num_doc', false);
+}
+$('tipo_doc').addEventListener('change', aplicarTipoDoc);
+$('num_doc').addEventListener('input', () => { if (esCE()) { const v = $('num_doc').value.toUpperCase().replace(/[^A-Z0-9]/g, ''); if (v !== $('num_doc').value) $('num_doc').value = v; } });
+
 $('btnDni').addEventListener('click', async () => {
   const dni = $('num_doc').value.trim();
   const est = $('estadoDni');
@@ -676,7 +776,7 @@ function validar() {
   req.forEach(id => { const mal = !$(id).value.trim(); marcar(id, mal); if (mal) ok = false; });
 
   const doc = $('num_doc').value.trim();
-  const docMal = !/^\d{8}$/.test(doc);
+  const docMal = esCE() ? !/^[A-Z0-9]{9,12}$/.test(doc) : !/^\d{8}$/.test(doc);
   marcar('num_doc', docMal); if (docMal) ok = false;
 
   const celMal = !/^9\d{8}$/.test($('celular').value.trim());
@@ -686,7 +786,8 @@ function validar() {
   marcar('correo', corMal); if (corMal) ok = false;
 
   // Lo que el formato Anexo 8 no puede llevar vacío
-  ['fecha_nac','estado_civil','genero','nac_dep','nac_prov','nac_dist',
+  ['fecha_nac','estado_civil','genero',
+   ...(esCE() ? ['nac_pais'] : ['nac_dep','nac_prov','nac_dist']),
    'direccion','departamento','provincia','distrito','nivel']
     .forEach(id => { const mal = !String($(id).value).trim(); marcar(id, mal); if (mal) ok = false; });
 
@@ -723,12 +824,14 @@ $('formulario').addEventListener('submit', async e => {
   try {
     const doc = $('num_doc').value.trim();
 
-    const nac = ubigeoDe('nac_dep', 'nac_prov', 'nac_dist');
+    const nac = esCE()
+      ? { departamento: $('nac_pais').value.trim().toUpperCase(), provincia: null, distrito: null }
+      : ubigeoDe('nac_dep', 'nac_prov', 'nac_dist');
     const fila = {
       nombres: $('nombres').value.trim(),
       apellido_paterno: $('ap_paterno').value.trim(),
       apellido_materno: $('ap_materno').value.trim(),
-      tipo_documento: 'DNI',
+      tipo_documento: esCE() ? 'CE' : 'DNI',
       numero_documento: doc,
       datos_verificados: dniVerificado,
       fecha_nacimiento: $('fecha_nac').value || null,
@@ -738,7 +841,7 @@ $('formulario').addEventListener('submit', async e => {
       nac_departamento: nac.departamento,
       nac_provincia: nac.provincia,
       nac_distrito: nac.distrito,
-      nac_ubigeo: $('nac_ubigeo').value.trim() || null,
+      nac_ubigeo: esCE() ? null : ($('nac_ubigeo').value.trim() || null),
       celular: $('celular').value.trim(),
       correo: $('correo').value.trim().toLowerCase(),
       direccion: $('direccion').value.trim() || null,
@@ -761,7 +864,7 @@ $('formulario').addEventListener('submit', async e => {
     $('formulario').style.display = 'none';
     $('listo').classList.add('visible');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    a8Cargar();
+    if (!INVITADO) a8Cargar();
 
   } catch (err) {
     console.error(err);
@@ -858,7 +961,88 @@ $('a8bajar').addEventListener('click', async () => {
   }
 });
 
-a8Cargar();
+if (!INVITADO) a8Cargar();
+</script>
+
+<dialog id="dlgLink" aria-labelledby="dlgLinkTit">
+  <div class="cab"><h2 id="dlgLinkTit">Link para el personal</h2><button class="x" type="button" id="lkCerrar" aria-label="Cerrar">×</button></div>
+  <div class="cuerpo">
+    <p>Quien abra el link solo verá este formulario de registro: no puede entrar a Postulantes, Seguimiento ni Cuentas. Puedes anularlo cuando quieras.</p>
+    <div class="gen">
+      <div class="campo"><label for="lkNota">Para qué es (opcional)</label><input type="text" id="lkNota" maxlength="80" placeholder="Ej.: Convocatoria Bateas – noviembre"></div>
+      <div class="campo" style="flex:none;min-width:130px"><label for="lkDias">Vigencia</label>
+        <select id="lkDias"><option value="1">1 día</option><option value="3">3 días</option><option value="7" selected>7 días</option><option value="15">15 días</option><option value="30">30 días</option></select></div>
+      <button class="lk-btn prim" type="button" id="lkCrear" style="padding:13px 14px">GENERAR LINK</button>
+    </div>
+    <div class="lk-nuevo" id="lkNuevo">
+      <b>Link listo.</b> Cópialo y envíalo al personal.
+      <div class="lk-url"><input type="text" id="lkUrl" readonly><button class="lk-btn prim" type="button" id="lkCopiar">COPIAR</button><a class="lk-btn" id="lkWsp" target="_blank" rel="noopener">WHATSAPP</a></div>
+    </div>
+    <p class="mensaje" id="lkMsj" style="min-height:0"></p>
+    <div class="lk-lista"><h3>Links vigentes</h3><div id="lkLista"><p class="ayuda">Cargando…</p></div></div>
+  </div>
+</dialog>
+
+<script type="module">
+/* Links de registro: los genera y anula Recursos Humanos. */
+if (!window.__invitacion) {
+  const $ = id => document.getElementById(id);
+  const dlg = $('dlgLink');
+  const urlDe = c => location.origin + '/?registro=' + c;
+  const fecha = v => new Date(v).toLocaleString('es-PE', { timeZone: 'America/Lima', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
+  const pedir = async (url, op) => { const r = await fetch(url, op); let d = {}; try { d = await r.json(); } catch {} if (!r.ok) throw new Error(d.error || 'No se pudo completar.'); return d; };
+  const copiar = async t => { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } };
+
+  async function listar() {
+    const caja = $('lkLista');
+    try {
+      const L = await pedir('/api/sesion?accion=invitaciones');
+      if (!L.length) { caja.innerHTML = '<p class="ayuda">No hay links vigentes.</p>'; return; }
+      caja.innerHTML = L.map(l => `<div class="lk-item"><div><b>${esc(l.nota || 'Link de registro')}</b>
+        <small>Vence ${esc(fecha(l.expira_en))} · ${l.usos} registro${l.usos == 1 ? '' : 's'} · creado por ${esc(l.creado_nombre || '')}</small></div>
+        <div class="lk-btns"><button class="lk-btn" type="button" data-copiar="${esc(l.codigo)}">COPIAR</button>
+        <button class="lk-btn peligro" type="button" data-anular="${l.id}">ANULAR</button></div></div>`).join('');
+    } catch (e) { caja.innerHTML = '<p class="ayuda"></p>'; caja.firstChild.textContent = e.message; }
+  }
+
+  $('btnLink').addEventListener('click', () => { $('lkNuevo').classList.remove('visible'); $('lkMsj').textContent = ''; dlg.showModal(); listar(); });
+  $('lkCerrar').addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  $('lkCrear').addEventListener('click', async () => {
+    const b = $('lkCrear'); b.disabled = true; $('lkMsj').textContent = '';
+    try {
+      const l = await pedir('/api/sesion?accion=invitacion', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dias: Number($('lkDias').value), nota: $('lkNota').value.trim() }) });
+      const u = urlDe(l.codigo);
+      $('lkUrl').value = u;
+      $('lkWsp').href = 'https://wa.me/?text=' + encodeURIComponent('Hola, completa tu registro de personal para JJC Contratistas Generales en este link: ' + u);
+      $('lkNuevo').classList.add('visible');
+      $('lkNota').value = '';
+      listar();
+    } catch (e) { $('lkMsj').textContent = e.message; }
+    finally { b.disabled = false; }
+  });
+
+  $('lkCopiar').addEventListener('click', async () => {
+    const ok = await copiar($('lkUrl').value);
+    if (!ok) $('lkUrl').select();
+    $('lkCopiar').textContent = ok ? 'COPIADO' : 'SELECCIONADO';
+    setTimeout(() => $('lkCopiar').textContent = 'COPIAR', 1800);
+  });
+
+  $('lkLista').addEventListener('click', async e => {
+    const c = e.target.closest('[data-copiar]'), a = e.target.closest('[data-anular]');
+    if (c) { const ok = await copiar(urlDe(c.dataset.copiar)); c.textContent = ok ? 'COPIADO' : 'NO SE PUDO'; setTimeout(() => c.textContent = 'COPIAR', 1800); }
+    if (a) {
+      if (a.dataset.seguro !== '1') { a.dataset.seguro = '1'; a.textContent = '¿ANULAR?'; return; }
+      a.disabled = true;
+      try { await pedir('/api/sesion?accion=anular', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: Number(a.dataset.anular) }) }); listar(); }
+      catch (err) { $('lkMsj').textContent = err.message; a.disabled = false; }
+    }
+  });
+}
 </script>
 </body>
 </html>
