@@ -174,7 +174,11 @@ button.enviar:disabled{background:var(--steel);cursor:progress}
 .a8-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:16px 0 14px}
 .a8-intro p{margin:0;color:var(--steel);font-size:14px;max-width:46ch}
 .a8-intro label{margin:0}
-.a8-intro input{width:auto;min-width:170px}
+.a8-intro input{width:auto;min-width:160px}
+.a8-rango{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.a8-rapido{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px;justify-content:flex-end}
+.a8-rapido button{font:500 12.5px/1 'Barlow',sans-serif;padding:7px 11px;border:1px solid #cfd5da;background:none;border-radius:999px;cursor:pointer;color:var(--steel)}
+.a8-rapido button:hover{color:var(--ink);border-color:var(--ink)}
 .a8-tabla{overflow-x:auto;border:1px solid var(--rule);border-radius:3px}
 .a8-tabla table{border-collapse:collapse;width:100%;min-width:860px;font-size:13px}
 .a8-tabla th{background:#16191c;color:#fff;font-weight:600;font-size:11.5px;text-align:left;padding:9px 8px;white-space:nowrap}
@@ -514,7 +518,15 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
       <h2>Anexo 8 · Lista de seleccionados</h2>
       <div class="a8-intro">
         <p>Formato JU-RSO-PRO-002.F04 de Marcobre. Marca a quiénes incluir y descarga el Excel con el formato oficial.</p>
-        <label>Registrados el<br><input type="date" id="a8fecha"></label>
+        <div class="a8-rango">
+          <label>Desde<br><input type="date" id="a8desde"></label>
+          <label>Hasta<br><input type="date" id="a8hasta"></label>
+        </div>
+      </div>
+      <div class="a8-rapido" aria-label="Rangos rápidos">
+        <button type="button" data-a8r="hoy">Hoy</button>
+        <button type="button" data-a8r="7">Últimos 7 días</button>
+        <button type="button" data-a8r="mes">Este mes</button>
       </div>
       <div class="a8-tabla">
         <table>
@@ -720,6 +732,22 @@ function aplicarTipoDoc() {
   marcar('num_doc', false);
 }
 $('tipo_doc').addEventListener('change', aplicarTipoDoc);
+
+/* Todo lo que se escribe queda en MAYÚSCULAS al instante (menos el
+   correo). Se respeta la posición del cursor para no estorbar al tipear. */
+const EN_MAYUSCULA = ['nombres','ap_paterno','ap_materno','brevete','nac_pais','direccion','nivel','puesto'];
+const aMayuscula = el => {
+  const v = el.value.toLocaleUpperCase('es-PE');
+  if (v === el.value) return;
+  const i = el.selectionStart, f = el.selectionEnd;
+  el.value = v;
+  try { el.setSelectionRange(i, f); } catch {}
+};
+EN_MAYUSCULA.forEach(id => {
+  const el = $(id); if (!el) return;
+  el.addEventListener('input', () => aMayuscula(el));
+  el.addEventListener('change', () => aMayuscula(el));
+});
 $('num_doc').addEventListener('input', () => { if (esCE()) { const v = $('num_doc').value.toUpperCase().replace(/[^A-Z0-9]/g, ''); if (v !== $('num_doc').value) $('num_doc').value = v; } });
 
 $('btnDni').addEventListener('click', async () => {
@@ -741,6 +769,7 @@ $('btnDni').addEventListener('click', async () => {
     $('nombres').value    = d.nombres;
     $('ap_paterno').value = d.apellido_paterno;
     $('ap_materno').value = d.apellido_materno;
+    camposNombre.forEach(id => aMayuscula($(id)));
     camposNombre.forEach(id => { $(id).classList.add('verificado'); marcar(id, false); });
 
     dniVerificado = true;
@@ -890,7 +919,8 @@ let A8 = [];
 function a8Pintar() {
   const cuerpo = $('a8cuerpo');
   if (!A8.length) {
-    cuerpo.innerHTML = `<tr><td colspan="12" class="a8-vacio">No hay postulantes registrados el ${fmtFecha($('a8fecha').value)}.</td></tr>`;
+    const [de, ha] = a8Rango();
+    cuerpo.innerHTML = `<tr><td colspan="12" class="a8-vacio">No hay postulantes registrados ${de === ha ? 'el ' + fmtFecha(de) : 'del ' + fmtFecha(de) + ' al ' + fmtFecha(ha)}.</td></tr>`;
   } else {
     const f = v => v ? escA8(v) : '<span class="falta">falta</span>';
     cuerpo.innerHTML = A8.map((p, i) => `<tr class="${p.incluir ? '' : 'fuera'}">
@@ -898,7 +928,7 @@ function a8Pintar() {
       <td>${fmtFecha(p.registro)}</td>
       <td class="nom">${escA8([p.apellido_paterno, p.apellido_materno, p.nombres].join(' '))}</td>
       <td>${escA8(p.numero_documento)}</td>
-      <td>${f(p.nac_ubigeo)}</td>
+      <td>${p.tipo_documento === 'CE' ? '<span title="Carnet de extranjería: sin ubigeo">—</span>' : f(p.nac_ubigeo)}</td>
       <td>${p.fecha_nacimiento ? fmtFecha(p.fecha_nacimiento) : f('')}</td>
       <td>${edadDe(p.fecha_nacimiento)}</td>
       <td>${f(p.estado_civil)}</td>
@@ -912,15 +942,22 @@ function a8Pintar() {
   $('a8bajar').disabled = !n;
   $('a8todos').checked = A8.length > 0 && n === A8.length;
   // Los registrados antes de este cambio no tienen los datos nuevos: se avisa
-  const incompletos = A8.filter(p => p.incluir && (!p.nac_distrito || !p.fecha_nacimiento || !p.estado_civil)).length;
+  const incompletos = A8.filter(p => p.incluir && ((p.tipo_documento === 'CE' ? !p.nac_departamento : !p.nac_distrito) || !p.fecha_nacimiento || !p.estado_civil)).length;
   $('a8aviso').textContent = incompletos
     ? `${incompletos} de los marcados tiene${incompletos === 1 ? '' : 'n'} datos en «falta»: saldrán vacíos en el Excel.` : '';
 }
 
+/* Rango de fechas de registro. Si «desde» queda después de «hasta», se
+   invierten: así nunca sale vacío por un descuido. */
+function a8Rango() {
+  let de = $('a8desde').value || hoyLima(), ha = $('a8hasta').value || hoyLima();
+  if (de > ha) { [de, ha] = [ha, de]; $('a8desde').value = de; $('a8hasta').value = ha; }
+  return [de, ha];
+}
 async function a8Cargar() {
-  const f = $('a8fecha').value || hoyLima();
+  const [de, ha] = a8Rango();
   try {
-    const r = await fetch(`/api/postulantes?desde=${f}&hasta=${f}`);
+    const r = await fetch(`/api/postulantes?desde=${de}&hasta=${ha}`);
     const d = await leerJson(r);
     if (!r.ok) throw new Error(d.error || 'No se pudo cargar la lista');
     A8 = d.slice().reverse().map(p => ({ ...p, incluir: true }));   // en orden de registro
@@ -932,9 +969,18 @@ async function a8Cargar() {
   a8Pintar();
 }
 
-$('a8fecha').value = hoyLima();
-$('a8fecha').max = hoyLima();
-$('a8fecha').addEventListener('change', a8Cargar);
+['a8desde', 'a8hasta'].forEach(id => {
+  $(id).value = hoyLima(); $(id).max = hoyLima();
+  $(id).addEventListener('change', a8Cargar);
+});
+document.querySelector('.a8-rapido').addEventListener('click', e => {
+  const b = e.target.closest('[data-a8r]'); if (!b) return;
+  const hoy = hoyLima(), [a, m] = hoy.split('-');
+  const restar = n => { const d = new Date(hoy + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() - n); return d.toISOString().slice(0, 10); };
+  $('a8hasta').value = hoy;
+  $('a8desde').value = b.dataset.a8r === 'hoy' ? hoy : b.dataset.a8r === '7' ? restar(6) : `${a}-${m}-01`;
+  a8Cargar();
+});
 $('a8cuerpo').addEventListener('change', e => {
   const i = e.target.dataset.a8; if (i === undefined) return;
   A8[+i].incluir = e.target.checked; a8Pintar();
@@ -944,6 +990,7 @@ $('a8todos').addEventListener('change', e => { A8.forEach(p => p.incluir = e.tar
 $('a8bajar').addEventListener('click', async () => {
   const ids = A8.filter(p => p.incluir).map(p => p.id);
   if (!ids.length) return;
+  if (ids.length > 500) { $('a8aviso').textContent = 'Son más de 500 personas: acorta el rango de fechas o desmarca algunas.'; return; }
   const b = $('a8bajar'); b.disabled = true; b.textContent = 'GENERANDO…';
   try {
     const r = await fetch('/api/exportar?formato=anexo8&ids=' + ids.join(','));
