@@ -96,6 +96,12 @@ tr[data-estado="Descartado"]  select.estado{color:var(--steel)}
 tr[data-estado="Descartado"]  td{opacity:.6}
 tr[data-estado="Entrevista"]  select.estado{border-color:var(--rojo);color:var(--rojo);font-weight:600}
 
+button.borrar{background:none;border:1px solid var(--rule);color:var(--steel);border-radius:3px;cursor:pointer;
+  padding:6px 9px;display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 'Barlow Condensed';letter-spacing:.08em}
+button.borrar:hover{border-color:var(--rojo);color:var(--rojo)}
+button.borrar.seguro{background:var(--rojo);border-color:var(--rojo);color:#fff}
+button.borrar:disabled{opacity:.6;cursor:progress}
+tr.saliendo td{opacity:.35;transition:opacity .3s}
 a.cv{color:var(--rojo);font-weight:500;text-decoration:none;border-bottom:1px solid transparent}
 a.cv:hover{border-bottom-color:var(--rojo)}
 .nota{width:100%;min-width:175px;padding:5px 8px;font:400 13.5px 'Barlow',sans-serif;
@@ -285,7 +291,7 @@ a.cv:hover{border-bottom-color:var(--rojo)}
         <tr>
           <th>Código</th><th>Fecha</th><th>Postulante</th><th>Documento</th>
           <th>Puesto</th><th>Exp.</th><th>Celular</th><th>Correo</th>
-          <th>Expectativa</th><th>CV</th><th>Estado</th><th>Observaciones</th>
+          <th>Expectativa</th><th>CV</th><th>Estado</th><th>Observaciones</th><th></th>
         </tr>
       </thead>
       <tbody id="cuerpo"></tbody>
@@ -483,6 +489,7 @@ function pintar(filas) {
       <td>${soles(f.expectativa_salarial)}</td>
       <td>${(f.cv_pathname || f.cv_url) ? `<a class="cv" href="/api/cv?id=${f.id}" target="_blank" rel="noopener">Abrir</a>` : ''}</td>
       <td></td>
+      <td></td>
       <td></td>`;
 
     // Estado
@@ -505,6 +512,24 @@ function pintar(filas) {
     });
     tr.children[11].appendChild(nota);
 
+    // Eliminar: primer clic pide confirmar, el segundo elimina
+    const bor = document.createElement('button');
+    bor.type = 'button'; bor.className = 'borrar';
+    bor.title = 'Eliminar postulación'; bor.setAttribute('aria-label', 'Eliminar ' + f.codigo);
+    const icono = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg>';
+    bor.innerHTML = icono;
+    let espera;
+    bor.addEventListener('click', () => {
+      if (!bor.classList.contains('seguro')) {
+        bor.classList.add('seguro'); bor.innerHTML = icono + '¿ELIMINAR?';
+        espera = setTimeout(() => { bor.classList.remove('seguro'); bor.innerHTML = icono; }, 4000);
+        return;
+      }
+      clearTimeout(espera);
+      eliminar(f, tr, bor);
+    });
+    tr.children[12].appendChild(bor);
+
     cuerpo.appendChild(tr);
   });
 }
@@ -523,6 +548,23 @@ async function guardar(id, estado, observaciones, tr, sel) {
     $('resumen').textContent = 'No se pudo guardar el cambio. Revisa tu conexión.';
   } finally {
     sel.disabled = false;
+  }
+}
+
+async function eliminar(f, tr, bor) {
+  bor.disabled = true; tr.classList.add('saliendo');
+  try {
+    const r = await fetch('/api/postulantes?id=' + f.id, { method: 'DELETE' });
+    if (r.status === 401) { location.reload(); return; }
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok && r.status !== 404) throw new Error(d.error || 'No se pudo eliminar.');
+    await cargar();
+    $('resumen').insertAdjacentHTML('beforeend',
+      ` — <span style="color:var(--ok)">${limpio(f.codigo)} eliminado</span>`);
+  } catch (e) {
+    tr.classList.remove('saliendo'); bor.disabled = false;
+    bor.classList.remove('seguro'); bor.innerHTML = bor.innerHTML.replace('¿ELIMINAR?', '');
+    $('resumen').textContent = e.message;
   }
 }
 
