@@ -1,8 +1,10 @@
 // GET   /api/postulantes — listado con filtros (solo con sesión)
 // PATCH /api/postulantes — cambia estado y observaciones
+// DELETE /api/postulantes?id=N — elimina una postulación (y su CV, si tenía)
 
 import { sql } from '../lib/db.mjs';
 import { protegido } from '../lib/sesion.mjs';
+import { del } from '@vercel/blob';
 
 export const ESTADOS = ['Nuevo', 'En revisión', 'Entrevista', 'Seleccionado', 'Descartado'];
 
@@ -76,6 +78,29 @@ async function handler(req, res) {
     } catch (e) {
       console.error('postulantes PATCH:', e);
       return res.status(500).json({ error: 'No se pudo guardar el cambio.' });
+    }
+  }
+
+  /* ---------------- eliminar ----------------
+     Solo la postulación. La ficha de Seguimiento, si la tiene, se queda:
+     ahí puede haber avance (exámenes, capacitaciones) que no se debe perder. */
+  if (req.method === 'DELETE') {
+    const id = Number(req.query?.id);
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Postulación no válida.' });
+    try {
+      const [fila] = await sql`
+        delete from postulantes where id = ${id}
+        returning codigo, numero_documento, cv_pathname
+      `;
+      if (!fila) return res.status(404).json({ error: 'Esa postulación ya no existe.' });
+      console.log(`postulación eliminada: ${fila.codigo} (doc ${fila.numero_documento}) por ${req.sesion.n}`);
+      if (fila.cv_pathname) {
+        await del(fila.cv_pathname).catch(e => console.error('borrar CV:', e.message));
+      }
+      return res.status(200).json({ ok: true, codigo: fila.codigo });
+    } catch (e) {
+      console.error('postulantes DELETE:', e);
+      return res.status(500).json({ error: 'No se pudo eliminar.' });
     }
   }
 
