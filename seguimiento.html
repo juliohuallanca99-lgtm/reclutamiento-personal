@@ -21,7 +21,19 @@ header{background:var(--acd);color:var(--oa);border-bottom:4px solid var(--ac);m
 header .in{max-width:1240px;margin:0 auto;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 h1{font:700 30px/1.05 'Barlow Condensed',sans-serif;margin:0;letter-spacing:.3px}header p{margin:4px 0 0;opacity:.8;font-size:14px}
 .tb{background:transparent;border:1px solid currentColor;border-radius:6px;padding:6px 12px;opacity:.9}
-nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--ln)}
+nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--ln)}
+/* Filtro de servicio: un solo selector con el número de personas de cada
+   servicio. Crece en la lista, no en la pantalla, por más servicios que se agreguen. */
+.svsel{position:relative;display:flex;align-items:center;gap:10px;margin:4px 0 6px auto}
+.svsel>span{font:600 11.5px/1 Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
+.svsel select{appearance:none;-webkit-appearance:none;width:auto;min-width:230px;max-width:360px;margin:0;
+  padding:8px 38px 8px 15px;border:1px solid var(--ln);border-radius:999px;background:var(--sf);color:var(--ink);
+  font:600 14px/1.2 Barlow,sans-serif;cursor:pointer;text-overflow:ellipsis}
+.svsel select:hover{border-color:var(--mu)}
+.svsel::after{content:'';position:absolute;right:16px;top:50%;width:7px;height:7px;border-right:2px solid var(--mu);
+  border-bottom:2px solid var(--mu);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.svsel.act select{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+@media(max-width:700px){.svsel{flex:1 1 100%;margin:2px 0 8px}.svsel select{flex:1;max-width:none;min-width:0}}
 nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font-weight:600;color:var(--mu)}
 nav button[aria-selected=true]{color:var(--ink);border-color:var(--ac)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
@@ -320,7 +332,7 @@ const bd=c=>`<span class="bd ${c.k}">${c.l}</span>`;
 const ini=n=>n.split(/[\s,]+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('');
 const vis=()=>V().filter(w=>(flt==='all'||w.g===flt)&&(w.n+w.f+w.dni).toLowerCase().includes(q.toLowerCase()));
 function nav(){const sv0=[...new Set(W.map(w=>w.s))].filter(Boolean);if(sv!=='all'&&!sv0.includes(sv))sv='all';
-$('#nav').innerHTML=[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')+(sv0.length>1?`<span class="sp"></span><div class="hb" role="group" aria-label="Filtrar por servicio" style="align-items:center;padding:4px 0">${[['all','Todos los servicios'],...sv0.map(s=>[s,sl(s)])].map(([k,l])=>`<button class="f" aria-pressed="${sv===k}" data-sv="${esc(k)}" type="button">${esc(l)}</button>`).join('')}</div>`:'')}
+$('#nav').innerHTML=[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')+(sv0.length>1?`<span class="sp"></span><label class="svsel${sv!=='all'?' act':''}"><span>Servicio</span><select id="svSel" aria-label="Filtrar por servicio">${[['all','Todos los servicios',W.length],...sv0.sort((a,b)=>sl(a).localeCompare(sl(b),'es')).map(s=>[s,sl(s),W.filter(w=>w.s===s).length])].map(([k,l,n])=>`<option value="${esc(k)}"${sv===k?' selected':''}>${esc(l)} (${n})</option>`).join('')}</select></label>`:'')}
 /* ===== base común de las plantillas de estadísticas ===================== */
 const SNC=['EMO','Val. JJC','Val. UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'];
 const TNC=['Ind. Anexo 4','Lesiones manos','IPERC','Ác. sulfúrico','Sust. químicas','Riesgos eléc.','Izaje','Herramientas','Altura','Caliente','Bloqueo'];
@@ -867,6 +879,9 @@ async function arrancar(){
 }
 
 arrancar();
+
+/* Cambio de servicio desde el selector */
+document.addEventListener('change',e=>{if(e.target.id==='svSel'){sv=e.target.value;ct=-1;render()}});
 
 /* ===================================================================
    Compartir el estado con gerencia
