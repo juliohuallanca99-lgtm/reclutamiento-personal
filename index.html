@@ -271,7 +271,6 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 <header class="cinta">
   <span class="quien" id="quien"></span>
   <button class="acceso" id="btnLink" type="button">Link para el personal</button>
-  <a class="acceso" href="/panel.html">Postulantes</a>
   <a class="acceso" href="/seguimiento.html">Seguimiento</a>
   <a class="acceso" href="/cuentas.html">Cuentas</a>
   <button class="acceso" id="btnSalir" type="button">Salir</button>
@@ -282,7 +281,7 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
   <aside class="rail">
     <div class="marca">JJC CONTRATISTAS GENERALES · CC0174</div>
     <h1 class="solo-rrhh">Registrar postulante</h1>
-    <p class="solo-rrhh">Completa los datos del postulante. Al registrarlo queda en el panel de Postulantes, pasa a Seguimiento y entra en la lista del Anexo 8.</p>
+    <p class="solo-rrhh">Completa los datos del postulante. Al registrarlo pasa a Seguimiento y entra en la lista del Anexo 8.</p>
     <h1 class="solo-link">Registro de personal</h1>
     <p class="solo-link">Completa tus datos tal como figuran en tu documento de identidad. Al terminar, Recursos Humanos de JJC recibirá tu registro.</p>
     <nav class="indice">
@@ -503,13 +502,13 @@ fetch('/api/sesion',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).cat
 
     <section class="listo" id="listo">
       <h2 class="solo-rrhh">Postulación registrada</h2>
-      <p class="solo-rrhh">Código del expediente. Ya aparece en el panel de Postulantes<span id="enSeguimiento"></span> y en la lista del Anexo 8, aquí abajo.</p>
+      <p class="solo-rrhh">Código del expediente. <span id="enSeguimiento">Ya aparece en Seguimiento</span> y en la lista del Anexo 8, aquí abajo.</p>
       <h2 class="solo-link">¡Registro enviado!</h2>
       <p class="solo-link">Gracias. Recursos Humanos de JJC ya tiene tus datos. Guarda este código por si te lo piden.</p>
       <div class="codigo" id="codigoListo">POST-00000</div>
       <div class="acciones">
         <button class="prim" type="button" onclick="location.reload()"><span class="solo-rrhh">REGISTRAR OTRO POSTULANTE</span><span class="solo-link">REGISTRAR A OTRA PERSONA</span></button>
-        <a class="sec solo-rrhh" href="/panel.html">IR AL PANEL</a>
+        <a class="sec solo-rrhh" href="/seguimiento.html">IR A SEGUIMIENTO</a>
       </div>
     </section>
 
@@ -567,7 +566,7 @@ window.fetch = async (recurso, op = {}) => {
   if (r.status === 401 && url.includes('/api/') && !url.includes('/api/sesion')) {
     throw new Error(INVITADO
       ? 'Este link de registro venció o fue anulado. Pide uno nuevo a Recursos Humanos.'
-      : 'Tu sesión venció. Ingresa de nuevo en otra pestaña (Postulantes) y vuelve a enviar: lo que escribiste sigue aquí.');
+      : 'Tu sesión venció. Ingresa de nuevo en otra pestaña y vuelve a enviar: lo que escribiste sigue aquí.');
   }
   return r;
 };
@@ -888,8 +887,8 @@ $('formulario').addEventListener('submit', async e => {
     if (!r.ok) throw new Error(data.error || 'Sin respuesta');
 
     $('codigoListo').textContent = data.codigo;
-    $('enSeguimiento').textContent = data.seguimiento === 'creado' ? ', en Seguimiento'
-      : data.seguimiento === 'existente' ? ' (en Seguimiento ya tenía ficha)' : '';
+    $('enSeguimiento').textContent = data.seguimiento === 'creado' ? 'Ya aparece en Seguimiento'
+      : data.seguimiento === 'existente' ? 'Ya tenía ficha en Seguimiento (no se cambió)' : 'Ya aparece';
     $('formulario').style.display = 'none';
     $('listo').classList.add('visible');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1014,7 +1013,7 @@ if (!INVITADO) a8Cargar();
 <dialog id="dlgLink" aria-labelledby="dlgLinkTit">
   <div class="cab"><h2 id="dlgLinkTit">Link para el personal</h2><button class="x" type="button" id="lkCerrar" aria-label="Cerrar">×</button></div>
   <div class="cuerpo">
-    <p>Quien abra el link solo verá este formulario de registro: no puede entrar a Postulantes, Seguimiento ni Cuentas. Puedes anularlo cuando quieras.</p>
+    <p>Quien abra el link solo verá este formulario de registro: no puede entrar a Seguimiento ni Cuentas. Puedes anularlo cuando quieras.</p>
     <div class="gen">
       <div class="campo"><label for="lkNota">Para qué es (opcional)</label><input type="text" id="lkNota" maxlength="80" placeholder="Ej.: Convocatoria Bateas – noviembre"></div>
       <div class="campo" style="flex:none;min-width:130px"><label for="lkDias">Vigencia</label>
