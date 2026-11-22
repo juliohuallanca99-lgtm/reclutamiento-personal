@@ -55,8 +55,68 @@ const aPagina = f => ({
   mov: f.movilizacion || { k: 'na', l: 'Sin dato' },
   obs: f.observaciones || '',
   por: f.actualizado_por,
-  en: f.actualizado_en
+  en: f.actualizado_en,
+  h: Array.isArray(f.historial) ? f.historial : []
 });
+
+/* ---------------------------------------------------------------
+   Historial del proceso
+   Al guardar una ficha se compara cómo estaba con cómo queda, y cada
+   cambio de una etapa, capacitación o movilización se anota con fecha,
+   hora y quién lo hizo. Se guarda en el servidor: no depende de que la
+   página lo mande bien.
+   --------------------------------------------------------------- */
+const MAX_HISTORIAL = 400;
+function cambios(ant, nuevo, quien) {
+  const ahora = new Date().toISOString();
+  const salida = [];
+  const comparar = (g, viejas, nuevas) => {
+    nuevas.forEach((n, i) => {
+      const v = (viejas || [])[i] || { k: 'na' };
+      const cambio = v.k !== n.k ||
+        (n.k === 'prog' && (v.l || '') !== (n.l || '')) ||
+        (n.k === 'obs' && (v.c || '') !== (n.c || ''));
+      if (!cambio) return;
+      const e = { f: ahora, g, i, de: v.k, a: n.k, u: quien };
+      if (n.k === 'prog' && n.l) e.l = n.l;
+      if (n.k === 'obs' && n.c) e.c = n.c;
+      if (v.k === 'obs' && v.c) e.cv = v.c;     // qué observación se levantó
+      salida.push(e);
+    });
+  };
+  comparar('st', ant.etapas, nuevo.st);
+  comparar('tr', ant.capacitaciones, nuevo.tr);
+  const mv = ant.movilizacion || { k: 'na' };
+  const mn = nuevo.mov || { k: 'na' };
+  if (mv.k !== mn.k || (mn.k === 'prog' && (mv.l || '') !== (mn.l || ''))) {
+    const e = { f: ahora, g: 'mov', i: 0, de: mv.k, a: mn.k, u: quien };
+    if (mn.k === 'prog' && mn.l) e.l = mn.l;
+    salida.push(e);
+  }
+  return salida;
+}
+/* La página guarda sola mientras se edita. Para no llenar el historial
+   de pasos a medias, se corrige la última anotación en vez de sumar una
+   nueva cuando la misma persona vuelve a tocar la misma etapa y:
+   - deja el mismo estado (cambió la fecha o escribe el comentario), en
+     menos de 10 minutos; o
+   - la corrige en menos de 1 minuto (se equivocó de opción). */
+function sumarHistorial(previo, nuevos) {
+  const h = Array.isArray(previo) ? [...previo] : [];
+  for (const e of nuevos) {
+    const u = h[h.length - 1];
+    const dt = u ? Date.parse(e.f) - Date.parse(u.f) : Infinity;
+    const reciente = u && u.g === e.g && u.i === e.i && u.u === e.u &&
+      ((u.a === e.a && dt < 10 * 60 * 1000) || dt < 60 * 1000);
+    if (reciente) {
+      const juntado = { ...e, de: u.de };
+      if (u.cv && !juntado.cv) juntado.cv = u.cv;
+      if (juntado.de === juntado.a && juntado.a !== 'prog' && juntado.a !== 'obs') h.pop();  // volvió a como estaba
+      else h[h.length - 1] = juntado;
+    } else h.push(e);
+  }
+  return h.slice(-MAX_HISTORIAL);
+}
 
 // ---------------------------------------------------------------
 //  Carga desde Excel
@@ -299,7 +359,7 @@ async function handler(req, res) {
       const filas = await sql`
         select id, item, dni, nombre, funcion, telefono, servicio, estado_proceso,
                etapas, capacitaciones, movilizacion, observaciones,
-               actualizado_por, actualizado_en
+               actualizado_por, actualizado_en, historial
           from seguimiento_personal
          order by item nulls last, id
       `;
@@ -356,9 +416,9 @@ async function handler(req, res) {
       // de contacto; lo que no venga queda en blanco y se completa
       // después desde la ficha.
       const d = req.body || {};
-      const dni = String(d.dni ?? '').replace(/\D/g, '').slice(0, 15);
-      if (dni && !/^\d{6,12}$/.test(dni)) {
-        return res.status(400).json({ error: 'El DNI debe tener entre 6 y 12 dígitos.' });
+      const dni = String(d.dni ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15);
+      if (dni && !/^[A-Z0-9]{6,12}$/.test(dni)) {
+        return res.status(400).json({ error: 'El DNI o carnet debe tener entre 6 y 12 caracteres.' });
       }
 
       const [fila] = await sql`
@@ -394,12 +454,23 @@ async function handler(req, res) {
     if (!id) return res.status(400).json({ error: 'Falta la ficha.' });
     if (!texto(d.n)) return res.status(400).json({ error: 'El nombre no puede quedar vacío.' });
 
-    const dni = texto(d.dni, 15);
-    if (dni && !/^\d{6,12}$/.test(dni)) {
-      return res.status(400).json({ error: 'El DNI debe tener entre 6 y 12 dígitos.' });
+    const dni = texto(String(d.dni ?? '').toUpperCase(), 15);
+    if (dni && !/^[A-Z0-9]{6,12}$/.test(dni)) {
+      return res.status(400).json({ error: 'El DNI o carnet debe tener entre 6 y 12 caracteres.' });
     }
 
     try {
+      const st = celdas(d.st, N_ETAPAS), tr = celdas(d.tr, N_CAPACITACIONES);
+      const mov = d.mov && d.mov.k === 'prog'
+        ? { k: 'prog', l: texto(d.mov.l, 60) || 'Programado', d: texto(d.mov.d, 20) }
+        : null;
+      const [ant] = await sql`
+        select etapas, capacitaciones, movilizacion, historial
+          from seguimiento_personal where id = ${id}
+      `;
+      if (!ant) return res.status(404).json({ error: 'No se encontró la ficha.' });
+      const historial = sumarHistorial(ant.historial, cambios(ant, { st, tr, mov }, req.sesion.n));
+
       const [fila] = await sql`
         update seguimiento_personal set
           dni             = ${dni},
@@ -408,18 +479,17 @@ async function handler(req, res) {
           telefono        = ${String(d.t ?? d.tel ?? '').replace(/\D/g, '').slice(0, 15) || null},
           servicio        = ${texto(d.s, 120)},
           estado_proceso  = ${texto(d.e, 60) || 'EXAMEN MEDICO'},
-          etapas          = ${JSON.stringify(celdas(d.st, N_ETAPAS))}::jsonb,
-          capacitaciones  = ${JSON.stringify(celdas(d.tr, N_CAPACITACIONES))}::jsonb,
-          movilizacion    = ${d.mov && d.mov.k === 'prog'
-                               ? JSON.stringify({ k: 'prog', l: texto(d.mov.l, 60) || 'Programado', d: texto(d.mov.d, 20) })
-                               : null}::jsonb,
+          etapas          = ${JSON.stringify(st)}::jsonb,
+          capacitaciones  = ${JSON.stringify(tr)}::jsonb,
+          movilizacion    = ${mov ? JSON.stringify(mov) : null}::jsonb,
           observaciones   = ${texto(d.obs, 2000)},
+          historial       = ${JSON.stringify(historial)}::jsonb,
           actualizado_por = ${req.sesion.n},
           actualizado_en  = now()
         where id = ${id}
         returning id, item, dni, nombre, funcion, telefono, servicio, estado_proceso,
                   etapas, capacitaciones, movilizacion, observaciones,
-                  actualizado_por, actualizado_en
+                  actualizado_por, actualizado_en, historial
       `;
       if (!fila) return res.status(404).json({ error: 'No se encontró la ficha.' });
       return res.status(200).json(aPagina(fila));
