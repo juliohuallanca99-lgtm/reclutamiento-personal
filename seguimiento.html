@@ -22,8 +22,8 @@ header .in{max-width:1240px;margin:0 auto;display:flex;gap:16px;align-items:cent
 h1{font:700 30px/1.05 'Barlow Condensed',sans-serif;margin:0;letter-spacing:.3px}header p{margin:4px 0 0;opacity:.8;font-size:14px}
 .tb{background:transparent;border:1px solid currentColor;border-radius:6px;padding:6px 12px;opacity:.9}
 nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--ln)}
-/* Filtro de servicio: un solo selector con el número de personas de cada
-   servicio. Crece en la lista, no en la pantalla, por más servicios que se agreguen. */
+/* Filtro de servicio: un solo selector. Crece en la lista, no en la
+   pantalla, por más servicios que se agreguen. */
 .svsel{position:relative;display:flex;align-items:center;gap:10px;margin:4px 0 6px auto}
 .svsel>span{font:600 11.5px/1 Barlow,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--mu)}
 .svsel select{appearance:none;-webkit-appearance:none;width:auto;min-width:230px;max-width:360px;margin:0;
@@ -82,6 +82,16 @@ dialog::backdrop{background:rgba(10,16,22,.6)}
 .dh{padding:18px;border-bottom:1px solid var(--ln);display:flex;gap:12px;align-items:center}
 .db{padding:18px;max-height:62vh;overflow:auto}.df{padding:12px 18px;border-top:1px solid var(--ln);display:flex;gap:8px;flex-wrap:wrap}
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:8px;margin:8px 0 18px}
+/* Historial del proceso: línea de tiempo, lo más reciente arriba */
+.hist{list-style:none;margin:8px 0 6px;padding:0 0 0 4px;max-height:320px;overflow:auto}
+.hist li{position:relative;padding:0 0 12px 22px;border-left:2px solid var(--ln);margin-left:5px}
+.hist li:last-child{border-left-color:transparent;padding-bottom:2px}
+.hist li::before{content:'';position:absolute;left:-7px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--pe);border:2px solid var(--sf)}
+.hist li.h-ok::before{background:var(--ok)}.hist li.h-obs::before{background:var(--ob)}.hist li.h-prog::before{background:var(--ac)}
+.hist li.h-lev::before{background:var(--ok);box-shadow:0 0 0 2px var(--ob)}
+.hist b{font-weight:600}.hist .mu{font-size:12.5px}
+.hist .cm{display:block;font-size:13px;color:var(--mu);margin-top:2px;font-style:italic}
+.hist-vacio{font-size:13.5px;color:var(--mu);margin:6px 0 4px}
 .stp{border:1px solid var(--ln);border-left-width:4px;border-radius:5px;padding:7px 9px;font-size:13px}
 .stp input[type=date]{min-width:0;font-size:12.5px;padding:4px 3px;cursor:pointer;color-scheme:light dark}
 .stp.ok{border-left-color:var(--ok)}.stp.obs{border-left-color:var(--ob)}.stp.prog{border-left-color:var(--ac)}.stp.pend,.stp.na{border-left-color:var(--pe)}
@@ -330,9 +340,12 @@ const hm=w=>w.mov&&w.mov.k==='prog';
 const mvc=w=>`<div class="stp ${hm(w)?'prog':'na'}" style="grid-column:span 2"><b>🚚 Movilización · fecha probable</b>${ed?`<div class="row"><input type="date" data-mv value="${hm(w)?(w.mov.d||''):''}" aria-label="Fecha probable de movilización"><button class="btn" data-mvx type="button" style="padding:3px 8px">Quitar</button></div>`:(hm(w)?w.mov.l:'Sin fecha')}</div>`;
 const bd=c=>`<span class="bd ${c.k}">${c.l}</span>`;
 const ini=n=>n.split(/[\s,]+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('');
-const vis=()=>V().filter(w=>(flt==='all'||w.g===flt)&&(w.n+w.f+w.dni).toLowerCase().includes(q.toLowerCase()));
+/* ¿Tuvo alguna observación? (aunque ya la haya levantado) */
+const fueObs=w=>(w.h||[]).some(e=>e.a==='obs')||w.st.some(x=>x.k==='obs')||w.tr.some(x=>x.k==='obs');
+const obsHoy=w=>w.st.some(x=>x.k==='obs')||w.tr.some(x=>x.k==='obs');
+const vis=()=>V().filter(w=>(flt==='all'||w.g===flt||(flt==='O'&&fueObs(w)))&&(w.n+w.f+w.dni).toLowerCase().includes(q.toLowerCase()));
 function nav(){const sv0=[...new Set(W.map(w=>w.s))].filter(Boolean);if(sv!=='all'&&!sv0.includes(sv))sv='all';
-$('#nav').innerHTML=[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')+(sv0.length>1?`<span class="sp"></span><label class="svsel${sv!=='all'?' act':''}"><span>Servicio</span><select id="svSel" aria-label="Filtrar por servicio">${[['all','Todos los servicios',W.length],...sv0.sort((a,b)=>sl(a).localeCompare(sl(b),'es')).map(s=>[s,sl(s),W.filter(w=>w.s===s).length])].map(([k,l,n])=>`<option value="${esc(k)}"${sv===k?' selected':''}>${esc(l)}</option>`).join('')}</select></label>`:'')}
+$('#nav').innerHTML=[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')+(sv0.length>1?`<span class="sp"></span><label class="svsel${sv!=='all'?' act':''}"><span>Servicio</span><select id="svSel" aria-label="Filtrar por servicio">${[['all','Todos los servicios'],...sv0.sort((a,b)=>sl(a).localeCompare(sl(b),'es')).map(s=>[s,sl(s)])].map(([k,l])=>`<option value="${esc(k)}"${sv===k?' selected':''}>${esc(l)}</option>`).join('')}</select></label>`:'')}
 /* ===== base común de las plantillas de estadísticas ===================== */
 const SNC=['EMO','Val. JJC','Val. UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'];
 const TNC=['Ind. Anexo 4','Lesiones manos','IPERC','Ác. sulfúrico','Sust. químicas','Riesgos eléc.','Izaje','Herramientas','Altura','Caliente','Bloqueo'];
@@ -442,7 +455,7 @@ let h=`<div class="tools">${fl.map(([k,l])=>`<button class="f" aria-pressed="${f
 ${ed?'<button class="btn p" data-add type="button">+ Agregar trabajador</button>':''}<button class="f" aria-pressed="${vw==='tab'}" data-v="tab" type="button">Tabla</button><button class="f" aria-pressed="${vw==='fic'}" data-v="fic" type="button">Fichas</button></div>`;
 if(!v.length)return h+'<div class="card">Ningún trabajador coincide. Quita un filtro o cambia la búsqueda.</div>';
 if(vw==='fic')return h+`<div class="grid">${v.map(ficha).join('')}</div>`;
-return h+`<div class="tw"><table><thead><tr><th>#</th><th>Nombres y apellidos</th><th>Función</th><th>Estado del proceso</th><th>Etapas</th><th>Capacitaciones</th><th>Movilización</th><th></th></tr></thead><tbody>${v.map(w=>`<tr class="r"><td>${w.i}</td><td><b>${cap(w.n)}</b><div class="mu">DNI ${w.dni}</div></td><td>${cap(w.f)}<div class="mu">${sl(w.s)}</div></td><td>${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}</td><td><div class="bar"><i style="width:${w.ps/7*100}%"></i></div><span class="mu">${w.ps}/7</span></td><td><div class="bar"><i style="width:${w.pt/11*100}%"></i></div><span class="mu">${w.pt}/11</span></td><td>${hm(w)?w.mov.l:'<span class="mu">—</span>'}</td><td><button class="btn" data-f="${W.indexOf(w)}" type="button">Ficha</button></td></tr>`).join('')}</tbody></table></div>`}
+return h+`<div class="tw"><table><thead><tr><th>#</th><th>Nombres y apellidos</th><th>Función</th><th>Estado del proceso</th><th>Etapas</th><th>Capacitaciones</th><th>Movilización</th><th></th></tr></thead><tbody>${v.map(w=>`<tr class="r"><td>${w.i}</td><td><b>${cap(w.n)}</b><div class="mu">DNI ${w.dni}</div></td><td>${cap(w.f)}<div class="mu">${sl(w.s)}</div></td><td>${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}${flt==='O'?`<div style="margin-top:4px">${obsHoy(w)?'<span class="bd obs">Observación vigente</span>':'<span class="bd ok">Observación levantada</span>'}</div>`:''}</td><td><div class="bar"><i style="width:${w.ps/7*100}%"></i></div><span class="mu">${w.ps}/7</span></td><td><div class="bar"><i style="width:${w.pt/11*100}%"></i></div><span class="mu">${w.pt}/11</span></td><td>${hm(w)?w.mov.l:'<span class="mu">—</span>'}</td><td><button class="btn" data-f="${W.indexOf(w)}" type="button">Ficha</button></td></tr>`).join('')}</tbody></table></div>`}
 function eta(){const L=mx==='st'?SN:TN,k=mx==='st'?'st':'tr';
 const cnt=j=>V().filter(w=>w.tr[j].k==='ok').length;
 const menu=dd?`<div role="menu" style="position:absolute;top:100%;left:0;z-index:5;min-width:300px;margin-top:4px;padding:4px;background:var(--sf);border:1px solid var(--ln);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.25)">${[-1,...TN.keys()].map(j=>`<button class="btn" role="menuitem" data-ct="${j}" type="button" style="display:flex;justify-content:space-between;gap:14px;width:100%;border:0;text-align:left;${ct===j?'background:var(--bg);':''}"><span>${j<0?'Todas (matriz completa)':TN[j]}</span><span class="mu">${j<0?'':cnt(j)+'/'+V().length}</span></button>`).join('')}</div>`:'';
@@ -464,12 +477,30 @@ const OP=[['ok','Aprobado'],['pend','Pendiente'],['obs','Observado'],['prog','Pr
    (lo que se ve en tablas y Excel) y también en formato ISO. Las fechas
    antiguas escritas a mano («29/10») se entienden del año en curso. */
 const isoDe=c=>{if(c.d&&/^\d{4}-\d{2}-\d{2}$/.test(c.d))return c.d;const m=String(c.l||'').match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/);if(!m)return '';const y=m[3]||String(TODAY.getFullYear());return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')};
+/* Texto de cada anotación del historial */
+const fH=v=>new Date(v).toLocaleString('es-PE',{timeZone:'America/Lima',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const NE={ok:'Aprobado',pend:'Pendiente',obs:'Observado',prog:'Programado',na:'Sin dato'};
+function histItem(e){
+  const nom=e.g==='st'?SN[e.i]:e.g==='tr'?TN[e.i]:'Movilización';
+  let t,cls=e.a;
+  if(e.a==='obs')t=e.de==='obs'?'Observación actualizada':'Observado';
+  else if(e.de==='obs'){cls='lev';t='Levantó la observación'+(e.a==='ok'?' · Aprobado':' · '+NE[e.a])}
+  else if(e.a==='ok')t=e.g==='st'&&e.i===1?'Aprobado por JJC':e.g==='st'&&e.i===2?'Aprobado por UME':'Aprobado';
+  else if(e.a==='prog')t=(e.de==='prog'?'Reprogramado':'Programado')+(e.l&&e.l!=='Programado'?' para el '+e.l:'');
+  else t=NE[e.a]||e.a;
+  const com=e.a==='obs'&&e.c?e.c:(e.de==='obs'&&e.cv?'Observación: '+e.cv:'');
+  return `<li class="h-${cls}"><b>${esc(nom)}</b> · ${esc(t)}${com?`<span class="cm">${esc(com)}</span>`:''}<div class="mu">${fH(e.f)}${e.u?' · '+esc(e.u):''}</div></li>`;
+}
+const histHTML=w=>{const h=(w.h||[]).slice().reverse();
+  return h.length?`<ol class="hist">${h.map(histItem).join('')}</ol>`
+    :'<p class="hist-vacio">Aún no hay movimientos registrados. Desde ahora, cada cambio de etapa queda anotado aquí con fecha y quién lo hizo.</p>'};
 const it=(k,j,c)=>ed?`<div class="stp ${c.k}"><b>${(k==='st'?SN:TN)[j]}</b><select data-s="${k},${j}" aria-label="${(k==='st'?SN:TN)[j]}">${OP.map(([v,l])=>`<option value="${v}"${c.k===v?' selected':''}>${l}</option>`).join('')}</select>${c.k==='prog'?`<input type="date" data-d="${k},${j}" value="${isoDe(c)}" aria-label="Fecha programada de ${(k==='st'?SN:TN)[j]}">`:''}${c.k==='obs'?`<input type="text" data-c="${k},${j}" value="${esc(c.c)}" placeholder="Comentario de la observación" aria-label="Comentario de la observación">`:''}</div>`:`<div class="stp ${c.k}"><b>${(k==='st'?SN:TN)[j]}</b>${c.l}${c.k==='obs'&&c.c?`<div class="mu" style="margin-top:3px">${esc(c.c)}</div>`:''}</div>`;
 const head=ed?`<div class="dh"><div class="av">${ini(w.n)}</div><div style="flex:1"><input class="ei" data-x="n" value="${w.n}" aria-label="Nombre"><input class="ei" data-x="f" value="${w.f}" placeholder="Función" aria-label="Función"><input class="ei" data-x="s" list="sl" value="${esc(w.s||'')}" placeholder="Servicio" aria-label="Servicio"><datalist id="sl">${[...new Set(W.map(x=>x.s))].filter(Boolean).map(x=>`<option value="${esc(x)}">`).join('')}</datalist><div class="row"><input class="ei" data-x="dni" value="${w.dni||''}" placeholder="DNI" aria-label="DNI"><input class="ei" data-x="t" value="${w.t||''}" placeholder="Teléfono" aria-label="Teléfono"></div><input class="ei" data-x="e" list="el" value="${w.e}" aria-label="Estado del proceso"><datalist id="el">${['PENDIENTE','EXAMEN MEDICO','FIRMA DE ANEXO A','AUT-REC','FOTOCHECK','EN MOVILIZACION','LABORANDO','CON LICENCIA'].map(x=>`<option value="${x}">`).join('')}</datalist></div></div>`
 :`<div class="dh"><div class="av">${ini(w.n)}</div><div style="flex:1"><b style="font-size:19px">${cap(w.n)}</b><div class="mu">${cap(w.f)} · ${sl(w.s)} · DNI ${w.dni}${w.t?' · Tel. '+w.t:''}</div></div>${bd({k:w.g==='L'?'ok':w.g==='O'?'obs':'prog',l:cap(w.e)})}</div>`;
 $('#dlg').innerHTML=head+`<div class="db"><div class="row" style="margin-bottom:14px"><div class="bar" style="flex:1;height:12px"><i style="width:${w.pct}%"></i></div><b>${w.pct}%</b></div>
 <h2>Etapas del proceso · ${w.ps}/7</h2><div class="steps">${w.st.map((c,j)=>it('st',j,c)).join('')}${mvc(w)}</div>
 <h2>Capacitaciones · ${w.pt}/11</h2><div class="steps">${w.tr.map((c,j)=>it('tr',j,c)).join('')}</div>
+<h2>Historial del proceso</h2><div id="histFicha">${histHTML(w)}</div>
 </div>
 <div class="df"><button class="btn" data-n="-1" type="button">‹ Anterior</button><button class="btn" data-n="1" type="button">Siguiente ›</button><span class="sp"></span>
 ${ed?'<button class="btn" id="dl" type="button">Eliminar trabajador</button>':(w.t?`<a class="btn" href="tel:${w.t}" style="text-decoration:none;color:inherit">Llamar</a>`:'')}<button class="btn" id="cp" type="button">Copiar resumen</button><button class="btn p" id="cl" type="button">Cerrar</button></div>`;
@@ -641,6 +672,7 @@ async function guardarYa(){
     const d=await leerJson(r);
     if(!r.ok) throw new Error(d.error||'No se pudo guardar');
     Object.assign(w, d); calc(w);
+    const hf=$('#histFicha'); if(hf && W[cur]===w) hf.innerHTML=histHTML(w);
     dirty=false; senal('Guardado'); setTimeout(()=>senal('',false), 1500);
   }catch(e){
     console.error(e); senal('Sin guardar'); toast(e.message||'No se pudo guardar');
