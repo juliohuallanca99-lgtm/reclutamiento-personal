@@ -344,8 +344,10 @@ $('formIngreso').addEventListener('submit', async e => {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'No se pudo ingresar');
-    if (volver) { location.replace(volver); return; }
-    abrirPanel(d);
+    // Tras ingresar se va al inicio de la plataforma (Seguimiento), o a la
+    // página privada desde la que se llegó.
+    location.replace(volver || '/seguimiento.html');
+    return;
   } catch (err) {
     fallo.textContent = err.message;
     $('clave').value = ''; $('clave').focus();
