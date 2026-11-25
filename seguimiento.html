@@ -368,7 +368,9 @@ const obsHoy=w=>w.st.some(x=>x.k==='obs')||w.tr.some(x=>x.k==='obs');
 const vis=()=>V().filter(w=>(flt==='all'||w.g===flt||(flt==='O'&&fueObs(w)))&&(w.n+w.f+w.dni).toLowerCase().includes(q.toLowerCase()));
 function nav(){const sv0=[...new Set(W.map(w=>w.s))].filter(Boolean);if(sv!=='all'&&!sv0.includes(sv))sv='all';
 const regBtn=(typeof COPIA!=='undefined'&&COPIA)||(typeof CONSULTA!=='undefined'&&CONSULTA)?'':'<a class="tabreg" href="/registro.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>Registro de personal</a>';
-$('#nav').innerHTML='<div class="nav-f1"><div class="seg" role="tablist">'+[['res','Resumen'],['per','Personal'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`).join('')+'</div>'+regBtn+'</div>'+(sv0.length>1?`<div class="nav-f2"><span>Servicio:</span><label class="svsel${sv!=='all'?' act':''}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg><select id="svSel" aria-label="Filtrar por servicio">${[['all','Todos los servicios'],...sv0.sort((a,b)=>sl(a).localeCompare(sl(b),'es')).map(s=>[s,sl(s)])].map(([k,l])=>`<option value="${esc(k)}"${sv===k?' selected':''}>${esc(l)}</option>`).join('')}</select></label></div>`:'')}
+const tabs=[['res','Resumen'],['eta','Etapas del proceso']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}" type="button">${l}</button>`);
+const selH=sv0.length>1?`<div class="nav-f2"><span>Servicio:</span><label class="svsel${sv!=='all'?' act':''}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg><select id="svSel" aria-label="Filtrar por servicio">${[['all',sv==='all'?'Elegir servicio':'Todos los servicios'],...sv0.sort((a,b)=>sl(a).localeCompare(sl(b),'es')).map(s=>[s,sl(s)])].map(([k,l])=>`<option value="${esc(k)}"${sv===k?' selected':''}>${esc(l)}</option>`).join('')}</select></label></div>`:'';
+$('#nav').innerHTML='<div class="nav-f1"><div class="seg" role="tablist">'+tabs.join('')+'</div>'+regBtn+'</div>'+selH}
 /* ===== base común de las plantillas de estadísticas ===================== */
 const SNC=['EMO','Val. JJC','Val. UME','Anexo 8','Anexo A','Aut-Rec','Fotocheck'];
 const TNC=['Ind. Anexo 4','Lesiones manos','IPERC','Ác. sulfúrico','Sust. químicas','Riesgos eléc.','Izaje','Herramientas','Altura','Caliente','Bloqueo'];
@@ -940,7 +942,7 @@ if(!COPIA&&!CONSULTA){fetch('/api/sesion').then(r=>r.ok?r.json():null).then(u=>{
 document.addEventListener('click',async e=>{if(e.target.closest('#bsal')){try{await fetch('/api/sesion',{method:'DELETE'})}catch(_){}location.href='/panel.html'}});
 
 /* Cambio de servicio desde el selector */
-document.addEventListener('change',e=>{if(e.target.id==='svSel'){sv=e.target.value;ct=-1;render()}});
+document.addEventListener('change',e=>{if(e.target.id==='svSel'){sv=e.target.value;ct=-1;tab=sv==='all'?'res':'per';flt='all';render()}});
 
 /* ===================================================================
    Compartir el estado con gerencia
@@ -1015,4 +1017,16 @@ document.addEventListener('click',async e=>{
 </script>
 
 
+<script>
+/* Agregar personal, Editar datos y Enviar pasan al menú del clip; el menú se cierra solo. */
+(function(){
+  var h=document.getElementById('hb'); if(!h)return;
+  ['bm','bw','be','bn'].forEach(function(id){var b=document.getElementById(id);if(b)h.insertBefore(b,h.firstChild);});
+  document.addEventListener('click',function(e){
+    if(h.hidden||e.target.closest('#bc'))return;
+    h.hidden=true;var c=document.getElementById('bc');
+    if(c){c.setAttribute('aria-expanded','false');c.setAttribute('aria-label','Mostrar opciones');}
+  },true);
+})();
+</script>
 </body></html>
